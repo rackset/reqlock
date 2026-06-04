@@ -121,8 +121,14 @@ class ReqLock {
         return strpos((string) $loc, 'fa') === 0;
     }
 
-    /** Load bundled translations (.mo files in /languages). */
+    /**
+     * Load bundled translations from /languages. Intentionally kept despite the
+     * "discouraged since 4.6" notice: this plugin is built to work OFFLINE, where
+     * WordPress.org language packs cannot be downloaded, so the bundled .mo files
+     * (ja, es_ES, de_DE, fr_FR, fa_IR) must be loaded explicitly.
+     */
     public function load_textdomain() {
+        // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- bundled translations are required for offline use.
         load_plugin_textdomain('reqlock', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
@@ -140,7 +146,7 @@ class ReqLock {
      * ========================================================================= */
 
     private function base_host() {
-        $h = parse_url(home_url(), PHP_URL_HOST);
+        $h = wp_parse_url(home_url(), PHP_URL_HOST);
         return strtolower(preg_replace('/^www\./i', '', (string) $h));
     }
 
@@ -152,7 +158,7 @@ class ReqLock {
             $p = strtolower(trim($p));
             // accept full URLs or bare hosts
             if (strpos($p, '://') !== false) {
-                $p = parse_url($p, PHP_URL_HOST);
+                $p = wp_parse_url($p, PHP_URL_HOST);
             }
             $p = preg_replace('/^www\./i', '', (string) $p);
             if ($p !== '') {
@@ -196,7 +202,7 @@ class ReqLock {
         if (!preg_match('#^https?://#i', $url)) {
             return false; // relative path -> internal
         }
-        $host = parse_url($url, PHP_URL_HOST);
+        $host = wp_parse_url($url, PHP_URL_HOST);
         if (!$host) {
             return false;
         }
@@ -332,7 +338,7 @@ class ReqLock {
                     if (!$this->is_external_url($m[2])) {
                         return $m[0];
                     }
-                    $host = esc_html(parse_url($m[2], PHP_URL_HOST));
+                    $host = esc_html(wp_parse_url($m[2], PHP_URL_HOST));
                     return '<div class="rql-blocked-iframe" style="display:flex;align-items:center;justify-content:center;'
                         . 'min-height:120px;background:#f3f4f6;border:1px dashed #cbd5e1;color:#64748b;'
                         . 'font-family:tahoma,sans-serif;font-size:13px;text-align:center;padding:16px;border-radius:8px;">'
@@ -351,7 +357,7 @@ class ReqLock {
                     if (!$this->is_external_url($m[2])) {
                         return $m[0];
                     }
-                    $this->note_host(parse_url($m[2], PHP_URL_HOST));
+                    $this->note_host(wp_parse_url($m[2], PHP_URL_HOST));
                     return str_replace($m[2], $blank, $m[0]);
                 },
                 $html
@@ -363,7 +369,7 @@ class ReqLock {
 
     /** Replace a blocked element with a traceable comment. */
     private function note($type, $url) {
-        $host = is_string($url) ? parse_url($url, PHP_URL_HOST) : '';
+        $host = is_string($url) ? wp_parse_url($url, PHP_URL_HOST) : '';
         $host = $host ? preg_replace('/[^a-z0-9.\-]/i', '', $host) : $type;
         return '<!-- ReqLock blocked ' . $type . ': ' . $host . ' -->';
     }
@@ -407,7 +413,7 @@ class ReqLock {
             $files = glob($dir . '*.cache');
             if (is_array($files)) {
                 foreach ($files as $f) {
-                    @unlink($f);
+                    wp_delete_file($f);
                 }
             }
         }
@@ -441,30 +447,53 @@ class ReqLock {
     }
 
     /**
+     * WP_Filesystem instance, but ONLY the 'direct' method — never FTP/SSH (which need
+     * credentials and would fatally error here). Returns null on non-direct hosts so the
+     * conflict feature degrades gracefully instead of crashing.
+     */
+    private function fs() {
+        global $wp_filesystem;
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        if (get_filesystem_method(array(), ABSPATH) !== 'direct') {
+            return null;
+        }
+        if (!($wp_filesystem instanceof WP_Filesystem_Direct)) {
+            WP_Filesystem();
+        }
+        return ($wp_filesystem instanceof WP_Filesystem_Direct) ? $wp_filesystem : null;
+    }
+
+    /**
      * Scan for hardcoded external-blocking directives that compete with ReqLock's
      * switch: WP_HTTP_BLOCK_EXTERNAL in wp-config (disarmable), and pre_http_request
      * blockers / the same constant in mu-plugins or the active theme (report-only).
      */
     public function scan_conflicts() {
         $found = array();
+        $fs = $this->fs();
+        if (!$fs) {
+            return $found;
+        }
         $cfg = $this->wp_config_file();
-        if ($cfg && is_readable($cfg)) {
-            $src = (string) file_get_contents($cfg);
+        if ($cfg && $fs->is_readable($cfg)) {
+            $src = (string) $fs->get_contents($cfg);
             if (preg_match('/^[ \t]*define\s*\(\s*([\'"])WP_HTTP_BLOCK_EXTERNAL\1\s*,\s*true\s*\)/im', $src)) {
                 $found[] = array(
                     'type'     => 'wp_http_block_external',
                     'label'    => 'WP_HTTP_BLOCK_EXTERNAL = true',
                     'file'     => 'wp-config.php',
-                    'writable' => is_writable($cfg),
+                    'writable' => $fs->is_writable($cfg),
                 );
             }
         }
         $mu = defined('WPMU_PLUGIN_DIR') ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins';
         foreach (array_merge((array) glob($mu . '/*.php'), array(get_template_directory() . '/functions.php')) as $f) {
-            if (!$f || !is_readable($f)) {
+            if (!$f || !$fs->is_readable($f)) {
                 continue;
             }
-            if (preg_match('/WP_HTTP_BLOCK_EXTERNAL|pre_http_request/i', (string) file_get_contents($f))) {
+            if (preg_match('/WP_HTTP_BLOCK_EXTERNAL|pre_http_request/i', (string) $fs->get_contents($f))) {
                 $found[] = array(
                     'type'     => 'file_block',
                     'label'    => 'pre_http_request / WP_HTTP_BLOCK_EXTERNAL',
@@ -483,14 +512,15 @@ class ReqLock {
      * atomically (temp file + rename) so wp-config.php is never left half-written.
      */
     private function disarm_wpconfig() {
+        $fs  = $this->fs();
         $cfg = $this->wp_config_file();
         if (!$cfg) {
             return add_settings_error('reqlock', 'reqlock_disarm', __('Could not locate wp-config.php.', 'reqlock'), 'error');
         }
-        if (!is_writable($cfg)) {
+        if (!$fs || !$fs->is_writable($cfg)) {
             return add_settings_error('reqlock', 'reqlock_disarm', __('wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually.', 'reqlock'), 'error');
         }
-        $src = (string) file_get_contents($cfg);
+        $src = (string) $fs->get_contents($cfg);
         if ($src === '') {
             return add_settings_error('reqlock', 'reqlock_disarm', __('Could not read wp-config.php.', 'reqlock'), 'error');
         }
@@ -509,8 +539,8 @@ class ReqLock {
             return add_settings_error('reqlock', 'reqlock_disarm', __('Safety check failed — wp-config.php was left unchanged.', 'reqlock'), 'error');
         }
         $tmp = $cfg . '.reqlock-tmp';
-        if (file_put_contents($tmp, $new) === false || !@rename($tmp, $cfg)) {
-            @unlink($tmp);
+        if (!$fs->put_contents($tmp, $new, FS_CHMOD_FILE) || !$fs->move($tmp, $cfg, true)) {
+            $fs->delete($tmp);
             return add_settings_error('reqlock', 'reqlock_disarm', __('Failed to write wp-config.php.', 'reqlock'), 'error');
         }
         add_settings_error('reqlock', 'reqlock_disarm', __('WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block.', 'reqlock'), 'updated');
@@ -608,7 +638,7 @@ class ReqLock {
 
     private function toggle($key, $label, $desc) {
         $on = !empty($this->opts[$key]);
-        ob_start(); ?>
+        ?>
         <label class="rql-row">
             <span class="rql-switch">
                 <input type="checkbox" name="reqlock[<?php echo esc_attr($key); ?>]" value="1" <?php checked($on); ?>>
@@ -620,7 +650,6 @@ class ReqLock {
             </span>
         </label>
         <?php
-        return ob_get_clean();
     }
 
     public function render_settings() {
@@ -645,7 +674,7 @@ class ReqLock {
                 <input type="hidden" name="reqlock_save" value="1">
 
                 <div class="rql-card rql-master">
-                    <?php echo $this->toggle('master_enabled',
+                    <?php $this->toggle('master_enabled',
                         __('Master switch — Block external requests', 'reqlock'),
                         __('When ON, blocking is applied per the options below.', 'reqlock')); ?>
                 </div>
@@ -653,25 +682,25 @@ class ReqLock {
                 <div class="rql-grid">
                     <div class="rql-card">
                         <h2><?php echo esc_html(__('Server-side', 'reqlock')); ?></h2>
-                        <?php echo $this->toggle('block_http_api',
+                        <?php $this->toggle('block_http_api',
                             __('Block outbound WP HTTP API', 'reqlock'),
                             __('Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out.', 'reqlock')); ?>
                     </div>
 
                     <div class="rql-card">
                         <h2><?php echo esc_html(__('Browser-side', 'reqlock')); ?></h2>
-                        <?php echo $this->toggle('block_scripts', __('External <script src>', 'reqlock'), __('Removes external JavaScript files.', 'reqlock')); ?>
-                        <?php echo $this->toggle('block_styles', __('External stylesheets', 'reqlock'), __('Removes external stylesheets (e.g. Google Fonts).', 'reqlock')); ?>
-                        <?php echo $this->toggle('block_preconnect', __('External resource hints', 'reqlock'), __('Removes preconnect / dns-prefetch / preload / prefetch to external hosts.', 'reqlock')); ?>
-                        <?php echo $this->toggle('block_iframes', __('External iframes', 'reqlock'), __('Replaces external iframes with a local placeholder.', 'reqlock')); ?>
-                        <?php echo $this->toggle('block_inline_analytics', __('Inline analytics', 'reqlock'), __('Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets.', 'reqlock')); ?>
-                        <?php echo $this->toggle('block_images', __('External images', 'reqlock'), __('Replaces external images with a transparent placeholder. (off by default)', 'reqlock')); ?>
+                        <?php $this->toggle('block_scripts', __('External <script src>', 'reqlock'), __('Removes external JavaScript files.', 'reqlock')); ?>
+                        <?php $this->toggle('block_styles', __('External stylesheets', 'reqlock'), __('Removes external stylesheets (e.g. Google Fonts).', 'reqlock')); ?>
+                        <?php $this->toggle('block_preconnect', __('External resource hints', 'reqlock'), __('Removes preconnect / dns-prefetch / preload / prefetch to external hosts.', 'reqlock')); ?>
+                        <?php $this->toggle('block_iframes', __('External iframes', 'reqlock'), __('Replaces external iframes with a local placeholder.', 'reqlock')); ?>
+                        <?php $this->toggle('block_inline_analytics', __('Inline analytics', 'reqlock'), __('Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets.', 'reqlock')); ?>
+                        <?php $this->toggle('block_images', __('External images', 'reqlock'), __('Replaces external images with a transparent placeholder. (off by default)', 'reqlock')); ?>
                     </div>
 
                     <div class="rql-card">
                         <h2><?php echo esc_html(__('Scope & logging', 'reqlock')); ?></h2>
-                        <?php echo $this->toggle('apply_in_admin', __('Also sanitize wp-admin', 'reqlock'), __('Off by default — to avoid disrupting wp-admin.', 'reqlock')); ?>
-                        <?php echo $this->toggle('logging', __('Log detected hosts', 'reqlock'), __('Keeps a list of detected external hosts.', 'reqlock')); ?>
+                        <?php $this->toggle('apply_in_admin', __('Also sanitize wp-admin', 'reqlock'), __('Off by default — to avoid disrupting wp-admin.', 'reqlock')); ?>
+                        <?php $this->toggle('logging', __('Log detected hosts', 'reqlock'), __('Keeps a list of detected external hosts.', 'reqlock')); ?>
                     </div>
                 </div>
 
