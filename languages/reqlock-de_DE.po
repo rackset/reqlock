@@ -1,12 +1,56 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
-"Report-Msgid-Bugs-To: https://webramz.com\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Could not locate wp-config.php."
+msgstr "wp-config.php konnte nicht gefunden werden."
+
+msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
+msgstr "wp-config.php ist nicht beschreibbar — kommentiere die Zeile WP_HTTP_BLOCK_EXTERNAL manuell aus."
+
+msgid "Could not read wp-config.php."
+msgstr "wp-config.php konnte nicht gelesen werden."
+
+msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
+msgstr "Kein aktives WP_HTTP_BLOCK_EXTERNAL zum Entschärfen gefunden."
+
+msgid "Safety check failed — wp-config.php was left unchanged."
+msgstr "Sicherheitsprüfung fehlgeschlagen — wp-config.php wurde nicht geändert."
+
+msgid "Failed to write wp-config.php."
+msgstr "Schreiben von wp-config.php fehlgeschlagen."
+
+msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
+msgstr "WP_HTTP_BLOCK_EXTERNAL wurde in wp-config.php auskommentiert. ReqLock steuert jetzt die externe Blockierung — schalte den Hauptschalter ein, um zu blockieren."
+
+msgid "wp-config.php is not writable — edit it manually."
+msgstr "wp-config.php ist nicht beschreibbar — bearbeite sie manuell."
+
+msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
+msgstr "Kein von ReqLock entschärftes WP_HTTP_BLOCK_EXTERNAL zum Wiederherstellen gefunden."
+
+msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
+msgstr "WP_HTTP_BLOCK_EXTERNAL in wp-config.php wiederhergestellt — WordPress blockiert nun wieder alle externen Anfragen, unabhängig von ReqLock."
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "ReqLock active — external requests blocked"
+msgstr "ReqLock aktiv – externe Anfragen blockiert"
+
+msgid "Detected-hosts list cleared."
+msgstr "Liste der erkannten Hosts wurde geleert."
+
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr "Gespeichert – ReqLock ist EIN (externe Anfragen blockiert)."
+
+msgid "Saved — ReqLock is OFF."
+msgstr "Gespeichert – ReqLock ist AUS."
 
 msgid "ACTIVE"
 msgstr "AKTIV"
@@ -14,35 +58,8 @@ msgstr "AKTIV"
 msgid "OFF"
 msgstr "AUS"
 
-msgid "Settings"
-msgstr "Einstellungen"
-
-msgid "Allow-list"
-msgstr "Zulassungsliste"
-
-msgid "Server-side"
-msgstr "Serverseitig"
-
-msgid "Browser-side"
-msgstr "Browserseitig"
-
-msgid "Scope & logging"
-msgstr "Geltungsbereich & Protokollierung"
-
-msgid "First seen"
-msgstr "Zuerst gesehen"
-
-msgid "Save settings"
-msgstr "Einstellungen speichern"
-
-msgid "Clear list"
-msgstr "Liste leeren"
-
-msgid "Detected external hosts"
-msgstr "Erkannte externe Hosts"
-
-msgid "Website:"
-msgstr "Website:"
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr "Eine ausgehende (Egress-)Firewall. Schalte den Hauptschalter ein, um alle externen server- und browserseitigen Aufrufe zu blockieren. Drei Anwendungen in einem Schalter: Ausfallsicherheit, wenn das Internet getrennt/eingeschränkt ist, Leistung (langsame oder tote Drittanbieter-Aufrufe schlagen sofort fehl, statt den Seitenaufbau aufzuhalten) und Datenschutz (Tracker und Phone-Home-Anfragen entfernen)."
 
 msgid "Master switch — Block external requests"
 msgstr "Hauptschalter – externe Anfragen blockieren"
@@ -50,11 +67,17 @@ msgstr "Hauptschalter – externe Anfragen blockieren"
 msgid "When ON, blocking is applied per the options below."
 msgstr "Wenn eingeschaltet, wird die Blockierung gemäß den Optionen unten angewendet."
 
+msgid "Server-side"
+msgstr "Serverseitig"
+
 msgid "Block outbound WP HTTP API"
 msgstr "Ausgehende WP-HTTP-API blockieren"
 
 msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
 msgstr "Updates, wordpress.org, OpenAI/Gemini, jegliche wp_remote_*. Schlägt sofort fehl, statt auf einen Timeout zu warten."
+
+msgid "Browser-side"
+msgstr "Browserseitig"
 
 msgid "External <script src>"
 msgstr "Externe <script src>"
@@ -92,6 +115,9 @@ msgstr "Externe Bilder"
 msgid "Replaces external images with a transparent placeholder. (off by default)"
 msgstr "Ersetzt externe Bilder durch einen transparenten Platzhalter. (standardmäßig aus)"
 
+msgid "Scope & logging"
+msgstr "Geltungsbereich & Protokollierung"
+
 msgid "Also sanitize wp-admin"
 msgstr "Auch wp-admin bereinigen"
 
@@ -104,27 +130,57 @@ msgstr "Erkannte Hosts protokollieren"
 msgid "Keeps a list of detected external hosts."
 msgstr "Führt eine Liste der erkannten externen Hosts."
 
+msgid "Allow-list"
+msgstr "Zulassungsliste"
+
 msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
 msgstr "Hosts, die immer erlaubt sind (einer pro Zeile oder durch Komma getrennt). Deine eigene Domain und ihre Subdomains sind immer erlaubt."
 
-msgid "Detected-hosts list cleared."
-msgstr "Liste der erkannten Hosts wurde geleert."
+msgid "Save settings"
+msgstr "Einstellungen speichern"
 
-msgid "Saved — ReqLock is ON (external requests blocked)."
-msgstr "Gespeichert – ReqLock ist EIN (externe Anfragen blockiert)."
-
-msgid "Saved — ReqLock is OFF."
-msgstr "Gespeichert – ReqLock ist AUS."
-
-msgid "ReqLock active — external requests blocked"
-msgstr "ReqLock aktiv – externe Anfragen blockiert"
+msgid "Detected external hosts"
+msgstr "Erkannte externe Hosts"
 
 msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
 msgstr "Noch nichts protokolliert. Solange aktiv, erscheinen blockierte externe Hosts hier, wenn Besucher Seiten laden – nutze sie, um deine Zulassungsliste zu erstellen."
 
-msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
-msgstr "Eine ausgehende (Egress-)Firewall. Schalte den Hauptschalter ein, um alle externen server- und browserseitigen Aufrufe zu blockieren. Drei Anwendungen in einem Schalter: Ausfallsicherheit, wenn das Internet getrennt/eingeschränkt ist, Leistung (langsame oder tote Drittanbieter-Aufrufe schlagen sofort fehl, statt den Seitenaufbau aufzuhalten) und Datenschutz (Tracker und Phone-Home-Anfragen entfernen)."
+msgid "First seen"
+msgstr "Zuerst gesehen"
+
+msgid "Clear list"
+msgstr "Liste leeren"
+
+msgid "External HTTP block (wp-config.php)"
+msgstr "Externe HTTP-Blockierung (wp-config.php)"
+
+msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
+msgstr "ReqLock sollte der einzige Schalter für die externe Blockierung sein. Ein fest codiertes WP_HTTP_BLOCK_EXTERNAL blockiert Anfragen selbst wenn ReqLock AUS ist (und beschädigt Plugin-/Theme-Installationen, Updates und das Verzeichnis) — entschärfe es, damit ReqLock die Blockierung steuert. Du kannst es jederzeit wieder aktivieren (wiederherstellen)."
+
+msgid "Hardcoded block"
+msgstr "Fest codierte Blockierung"
+
+msgid "Location"
+msgstr "Speicherort"
+
+msgid "Action"
+msgstr "Aktion"
+
+msgid "Disarm (comment out)"
+msgstr "Entschärfen (auskommentieren)"
+
+msgid "Re-arm (restore block)"
+msgstr "Wieder aktivieren (Blockierung wiederherstellen)"
+
+msgid "review manually"
+msgstr "manuell prüfen"
+
+msgid "not writable — edit manually"
+msgstr "nicht beschreibbar — manuell bearbeiten"
 
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "Entwickelt und gepflegt vom <strong>Rackset DevOps-Team</strong>."
+
+msgid "Website:"
+msgstr "Website:"
 

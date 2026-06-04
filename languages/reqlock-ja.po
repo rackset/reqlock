@@ -1,12 +1,56 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
-"Report-Msgid-Bugs-To: https://webramz.com\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Could not locate wp-config.php."
+msgstr "wp-config.php が見つかりませんでした。"
+
+msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
+msgstr "wp-config.php に書き込めません — WP_HTTP_BLOCK_EXTERNAL の行を手動でコメントアウトしてください。"
+
+msgid "Could not read wp-config.php."
+msgstr "wp-config.php を読み取れませんでした。"
+
+msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
+msgstr "無効化できる有効な WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
+
+msgid "Safety check failed — wp-config.php was left unchanged."
+msgstr "安全性チェックに失敗しました — wp-config.php は変更されていません。"
+
+msgid "Failed to write wp-config.php."
+msgstr "wp-config.php への書き込みに失敗しました。"
+
+msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
+msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL をコメントアウトしました。これで外部ブロックは ReqLock が制御します — ブロックするにはマスタースイッチをオンにしてください。"
+
+msgid "wp-config.php is not writable — edit it manually."
+msgstr "wp-config.php に書き込めません — 手動で編集してください。"
+
+msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
+msgstr "復元できる、ReqLock により無効化された WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
+
+msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
+msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL を復元しました — WordPress は ReqLock とは独立して、再びすべての外部リクエストをブロックします。"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "ReqLock active — external requests blocked"
+msgstr "ReqLock 有効 — 外部リクエストをブロック中"
+
+msgid "Detected-hosts list cleared."
+msgstr "検出ホストのリストをクリアしました。"
+
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr "保存しました — ReqLock はオンです（外部リクエストをブロック）。"
+
+msgid "Saved — ReqLock is OFF."
+msgstr "保存しました — ReqLock はオフです。"
 
 msgid "ACTIVE"
 msgstr "有効"
@@ -14,35 +58,8 @@ msgstr "有効"
 msgid "OFF"
 msgstr "オフ"
 
-msgid "Settings"
-msgstr "設定"
-
-msgid "Allow-list"
-msgstr "許可リスト"
-
-msgid "Server-side"
-msgstr "サーバー側"
-
-msgid "Browser-side"
-msgstr "ブラウザー側"
-
-msgid "Scope & logging"
-msgstr "範囲とログ"
-
-msgid "First seen"
-msgstr "初回検出"
-
-msgid "Save settings"
-msgstr "設定を保存"
-
-msgid "Clear list"
-msgstr "リストをクリア"
-
-msgid "Detected external hosts"
-msgstr "検出された外部ホスト"
-
-msgid "Website:"
-msgstr "ウェブサイト："
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr "送信（アウトバウンド）ファイアウォール。マスタースイッチをオンにすると、サーバー側とブラウザー側のすべての外部呼び出しをブロックします。1つのスイッチで3つの用途 — インターネットが遮断・制限されたときの耐障害性、パフォーマンス（遅いまたは応答しないサードパーティ呼び出しがタイムアウトを待たず即座に失敗）、プライバシー（トラッカーとホームへの通信を除去）。"
 
 msgid "Master switch — Block external requests"
 msgstr "マスタースイッチ — 外部リクエストをブロック"
@@ -50,11 +67,17 @@ msgstr "マスタースイッチ — 外部リクエストをブロック"
 msgid "When ON, blocking is applied per the options below."
 msgstr "オンのとき、以下のオプションに従ってブロックが適用されます。"
 
+msgid "Server-side"
+msgstr "サーバー側"
+
 msgid "Block outbound WP HTTP API"
 msgstr "送信 WP HTTP API をブロック"
 
 msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
 msgstr "更新、wordpress.org、OpenAI/Gemini、あらゆる wp_remote_*。タイムアウトを待たず即座に失敗します。"
+
+msgid "Browser-side"
+msgstr "ブラウザー側"
 
 msgid "External <script src>"
 msgstr "外部 <script src>"
@@ -92,6 +115,9 @@ msgstr "外部画像"
 msgid "Replaces external images with a transparent placeholder. (off by default)"
 msgstr "外部画像を透明なプレースホルダーに置き換えます。（既定はオフ）"
 
+msgid "Scope & logging"
+msgstr "範囲とログ"
+
 msgid "Also sanitize wp-admin"
 msgstr "wp-admin もサニタイズする"
 
@@ -104,27 +130,57 @@ msgstr "検出ホストを記録"
 msgid "Keeps a list of detected external hosts."
 msgstr "検出された外部ホストのリストを保持します。"
 
+msgid "Allow-list"
+msgstr "許可リスト"
+
 msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
 msgstr "常に許可するホスト（1行に1つ、またはカンマ区切り）。自分のドメインとそのサブドメインは常に許可されます。"
 
-msgid "Detected-hosts list cleared."
-msgstr "検出ホストのリストをクリアしました。"
+msgid "Save settings"
+msgstr "設定を保存"
 
-msgid "Saved — ReqLock is ON (external requests blocked)."
-msgstr "保存しました — ReqLock はオンです（外部リクエストをブロック）。"
-
-msgid "Saved — ReqLock is OFF."
-msgstr "保存しました — ReqLock はオフです。"
-
-msgid "ReqLock active — external requests blocked"
-msgstr "ReqLock 有効 — 外部リクエストをブロック中"
+msgid "Detected external hosts"
+msgstr "検出された外部ホスト"
 
 msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
 msgstr "まだ記録はありません。有効な間、ブロックされた外部ホストは訪問者がページを読み込むとここに表示されます — 許可リストの作成に利用してください。"
 
-msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
-msgstr "送信（アウトバウンド）ファイアウォール。マスタースイッチをオンにすると、サーバー側とブラウザー側のすべての外部呼び出しをブロックします。1つのスイッチで3つの用途 — インターネットが遮断・制限されたときの耐障害性、パフォーマンス（遅いまたは応答しないサードパーティ呼び出しがタイムアウトを待たず即座に失敗）、プライバシー（トラッカーとホームへの通信を除去）。"
+msgid "First seen"
+msgstr "初回検出"
+
+msgid "Clear list"
+msgstr "リストをクリア"
+
+msgid "External HTTP block (wp-config.php)"
+msgstr "外部 HTTP ブロック（wp-config.php）"
+
+msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
+msgstr "外部ブロックの唯一のスイッチは ReqLock であるべきです。ハードコードされた WP_HTTP_BLOCK_EXTERNAL は ReqLock がオフのときでもリクエストをブロックし（プラグイン/テーマのインストール、更新、ディレクトリが壊れます）— 無効化すれば ReqLock がブロックを制御します。いつでも再度有効化（復元）できます。"
+
+msgid "Hardcoded block"
+msgstr "ハードコードされたブロック"
+
+msgid "Location"
+msgstr "場所"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Disarm (comment out)"
+msgstr "無効化（コメントアウト）"
+
+msgid "Re-arm (restore block)"
+msgstr "再有効化（ブロックを復元）"
+
+msgid "review manually"
+msgstr "手動で確認"
+
+msgid "not writable — edit manually"
+msgstr "書き込み不可 — 手動で編集"
 
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "<strong>Rackset DevOps Team</strong> によって開発・保守されています。"
+
+msgid "Website:"
+msgstr "ウェブサイト："
 
