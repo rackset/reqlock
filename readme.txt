@@ -88,6 +88,7 @@ Standalone scripts that use raw `curl`/`file_get_contents` outside WordPress are
 * Browser-side sanitization: external scripts, styles, resource hints, iframes, inline analytics, and (optional) images.
 * Output filter runs as the outermost buffer, so it covers full-page-cache hits.
 * Per-category toggles, allow-list, detected-hosts log, and an admin-bar active-mode indicator.
+* Translations: English, فارسی (Persian), 日本語 (Japanese), Español, Deutsch, Français.
 
 == Upgrade Notice ==
 

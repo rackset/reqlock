@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ReqLock 1.0.0\n"
+"Report-Msgid-Bugs-To: https://webramz.com\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "ACTIVE"
+msgstr "ACTIVO"
+
+msgid "OFF"
+msgstr "APAGADO"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Allow-list"
+msgstr "Lista de permitidos"
+
+msgid "Server-side"
+msgstr "Lado del servidor"
+
+msgid "Browser-side"
+msgstr "Lado del navegador"
+
+msgid "Scope & logging"
+msgstr "Alcance y registro"
+
+msgid "First seen"
+msgstr "Primera vez visto"
+
+msgid "Save settings"
+msgstr "Guardar cambios"
+
+msgid "Clear list"
+msgstr "Vaciar lista"
+
+msgid "Detected external hosts"
+msgstr "Hosts externos detectados"
+
+msgid "Website:"
+msgstr "Sitio web:"
+
+msgid "Master switch — Block external requests"
+msgstr "Interruptor principal: bloquear solicitudes externas"
+
+msgid "When ON, blocking is applied per the options below."
+msgstr "Cuando está activado, el bloqueo se aplica según las opciones de abajo."
+
+msgid "Block outbound WP HTTP API"
+msgstr "Bloquear la API HTTP saliente de WP"
+
+msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
+msgstr "Actualizaciones, wordpress.org, OpenAI/Gemini, cualquier wp_remote_*. Falla al instante en vez de agotar el tiempo de espera."
+
+msgid "External <script src>"
+msgstr "<script src> externo"
+
+msgid "Removes external JavaScript files."
+msgstr "Elimina los archivos JavaScript externos."
+
+msgid "External stylesheets"
+msgstr "Hojas de estilo externas"
+
+msgid "Removes external stylesheets (e.g. Google Fonts)."
+msgstr "Elimina las hojas de estilo externas (p. ej. Google Fonts)."
+
+msgid "External resource hints"
+msgstr "Sugerencias de recursos externas"
+
+msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
+msgstr "Elimina preconnect / dns-prefetch / preload / prefetch a hosts externos."
+
+msgid "External iframes"
+msgstr "iframes externos"
+
+msgid "Replaces external iframes with a local placeholder."
+msgstr "Sustituye los iframes externos por un marcador local."
+
+msgid "Inline analytics"
+msgstr "Analíticas en línea"
+
+msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
+msgstr "Elimina los fragmentos en línea de GA/GTM/Clarity/Ahrefs/Pixel."
+
+msgid "External images"
+msgstr "Imágenes externas"
+
+msgid "Replaces external images with a transparent placeholder. (off by default)"
+msgstr "Sustituye las imágenes externas por un marcador transparente. (desactivado por defecto)"
+
+msgid "Also sanitize wp-admin"
+msgstr "Sanear también wp-admin"
+
+msgid "Off by default — to avoid disrupting wp-admin."
+msgstr "Desactivado por defecto, para no afectar a wp-admin."
+
+msgid "Log detected hosts"
+msgstr "Registrar hosts detectados"
+
+msgid "Keeps a list of detected external hosts."
+msgstr "Mantiene una lista de los hosts externos detectados."
+
+msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
+msgstr "Hosts que siempre se permiten (uno por línea o separados por comas). Tu propio dominio y sus subdominios siempre se permiten."
+
+msgid "Detected-hosts list cleared."
+msgstr "Se ha vaciado la lista de hosts detectados."
+
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr "Guardado: ReqLock está ACTIVADO (solicitudes externas bloqueadas)."
+
+msgid "Saved — ReqLock is OFF."
+msgstr "Guardado: ReqLock está APAGADO."
+
+msgid "ReqLock active — external requests blocked"
+msgstr "ReqLock activo: solicitudes externas bloqueadas"
+
+msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
+msgstr "Aún no hay registros. Mientras esté activo, los hosts externos bloqueados aparecerán aquí cuando los visitantes carguen páginas; úsalos para crear tu lista de permitidos."
+
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr "Un cortafuegos de salida (egress). Activa el interruptor principal para bloquear todas las llamadas externas del lado del servidor y del navegador. Tres usos en un interruptor: resiliencia cuando internet se corta o restringe, rendimiento (las llamadas de terceros lentas o caídas fallan al instante en vez de bloquear la carga de la página) y privacidad (elimina rastreadores y peticiones «phone-home»)."
+
+msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
+msgstr "Desarrollado y mantenido por el <strong>equipo de DevOps de Rackset</strong>."
+

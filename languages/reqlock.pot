@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ReqLock 1.0.0\n"
+"Report-Msgid-Bugs-To: https://webramz.com\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "ACTIVE"
+msgstr ""
+
+msgid "OFF"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Allow-list"
+msgstr ""
+
+msgid "Server-side"
+msgstr ""
+
+msgid "Browser-side"
+msgstr ""
+
+msgid "Scope & logging"
+msgstr ""
+
+msgid "First seen"
+msgstr ""
+
+msgid "Save settings"
+msgstr ""
+
+msgid "Clear list"
+msgstr ""
+
+msgid "Detected external hosts"
+msgstr ""
+
+msgid "Website:"
+msgstr ""
+
+msgid "Master switch — Block external requests"
+msgstr ""
+
+msgid "When ON, blocking is applied per the options below."
+msgstr ""
+
+msgid "Block outbound WP HTTP API"
+msgstr ""
+
+msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
+msgstr ""
+
+msgid "External <script src>"
+msgstr ""
+
+msgid "Removes external JavaScript files."
+msgstr ""
+
+msgid "External stylesheets"
+msgstr ""
+
+msgid "Removes external stylesheets (e.g. Google Fonts)."
+msgstr ""
+
+msgid "External resource hints"
+msgstr ""
+
+msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
+msgstr ""
+
+msgid "External iframes"
+msgstr ""
+
+msgid "Replaces external iframes with a local placeholder."
+msgstr ""
+
+msgid "Inline analytics"
+msgstr ""
+
+msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
+msgstr ""
+
+msgid "External images"
+msgstr ""
+
+msgid "Replaces external images with a transparent placeholder. (off by default)"
+msgstr ""
+
+msgid "Also sanitize wp-admin"
+msgstr ""
+
+msgid "Off by default — to avoid disrupting wp-admin."
+msgstr ""
+
+msgid "Log detected hosts"
+msgstr ""
+
+msgid "Keeps a list of detected external hosts."
+msgstr ""
+
+msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
+msgstr ""
+
+msgid "Detected-hosts list cleared."
+msgstr ""
+
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr ""
+
+msgid "Saved — ReqLock is OFF."
+msgstr ""
+
+msgid "ReqLock active — external requests blocked"
+msgstr ""
+
+msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
+msgstr ""
+
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr ""
+
+msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
+msgstr ""
+

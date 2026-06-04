@@ -8,6 +8,7 @@
  * Author URI:        https://webramz.com/
  * License:           GPL-2.0-or-later
  * Text Domain:       reqlock
+ * Domain Path:       /languages
  *
  * فارسی: «رک لاک (ریکوئست لاک)» — فایروالِ درخواست‌های خروجیِ وردپرس. کنترل همهٔ فراخوانی‌های خارجی
  * (سمت سرور و سمت مرورگر) برای سه هدف: تاب‌آوری در زمان قطع/محدودیت اینترنت، کارایی (حذف
@@ -49,6 +50,7 @@ class ReqLock {
         add_action('admin_enqueue_scripts', array($this, 'admin_assets'));
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'action_links'));
         add_action('admin_bar_menu', array($this, 'admin_bar'), 100);
+        add_action('init', array($this, 'load_textdomain'));
 
         // ---- Active blocking only when the master switch is ON ----
         if (!$this->is_enabled()) {
@@ -113,15 +115,15 @@ class ReqLock {
         return !empty($this->opts['master_enabled']);
     }
 
-    /** Is the admin UI locale Persian? */
+    /** Is the admin UI locale Persian? (used only to pick the credit brand) */
     private function is_fa() {
         $loc = function_exists('get_user_locale') ? get_user_locale() : get_locale();
         return strpos((string) $loc, 'fa') === 0;
     }
 
-    /** Bilingual label: "Persian / English" in Persian locale, English-only otherwise. */
-    private function bi($fa, $en) {
-        return $this->is_fa() ? ($fa . ' / ' . $en) : $en;
+    /** Load bundled translations (.mo files in /languages). */
+    public function load_textdomain() {
+        load_plugin_textdomain('reqlock', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
     private function should_filter_output() {
@@ -445,7 +447,7 @@ class ReqLock {
         }
         $bar->add_node(array(
             'id'    => 'rql-indicator',
-            'title' => '🔒 ' . $this->bi('ReqLock فعال — درخواست‌های خارجی مسدود است', 'ReqLock active — external requests blocked'),
+            'title' => '🔒 ' . __('ReqLock active — external requests blocked', 'reqlock'),
             'href'  => admin_url('options-general.php?page=reqlock'),
             'meta'  => array('title' => 'External requests are being blocked'),
         ));
@@ -462,7 +464,7 @@ class ReqLock {
 
         if (!empty($_POST['reqlock_clear_log'])) {
             delete_option(self::SEEN);
-            add_settings_error('reqlock', 'reqlock_log', $this->bi('لیست میزبان‌های شناسایی‌شده پاک شد.', 'Detected-hosts list cleared.'), 'updated');
+            add_settings_error('reqlock', 'reqlock_log', __('Detected-hosts list cleared.', 'reqlock'), 'updated');
             return;
         }
 
@@ -487,8 +489,8 @@ class ReqLock {
         $this->flush_page_caches();
 
         $msg = '✅ ' . ($new['master_enabled']
-            ? $this->bi('تنظیمات ذخیره شد — ReqLock فعال است (درخواست‌های خارجی مسدود).', 'Saved — ReqLock is ON (external requests blocked).')
-            : $this->bi('تنظیمات ذخیره شد — ReqLock غیرفعال است.', 'Saved — ReqLock is OFF.'));
+            ? __('Saved — ReqLock is ON (external requests blocked).', 'reqlock')
+            : __('Saved — ReqLock is OFF.', 'reqlock'));
         add_settings_error('reqlock', 'reqlock_saved', $msg, 'updated');
     }
 
@@ -535,11 +537,8 @@ class ReqLock {
         $fa = $this->is_fa();
         ?>
         <div class="wrap rql-wrap">
-            <h1>🔒 ReqLock <span class="rql-badge <?php echo $on ? 'on' : 'off'; ?>"><?php echo esc_html($on ? $this->bi('فعال', 'ACTIVE') : $this->bi('غیرفعال', 'OFF')); ?></span></h1>
-            <p class="rql-intro">
-                <?php if ($fa) : ?>فایروالِ درخواست‌های خروجی: با روشن‌کردن کلید اصلی، همهٔ فراخوانی‌های خارجی (سمت سرور و سمت مرورگر — تحلیل‌گرها، فونت‌ها، اسکریپت‌ها، APIها و به‌روزرسانی‌ها) مسدود می‌شوند. سه کاربرد در یک کلید: «تاب‌آوری» هنگام قطع/محدودیت اینترنت، «کارایی» با حذف درخواست‌های کند یا بی‌پاسخ، و «حریم خصوصی» با حذف ردیاب‌ها.<br><?php endif; ?>
-                <span dir="ltr">An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests).</span>
-            </p>
+            <h1>🔒 ReqLock <span class="rql-badge <?php echo $on ? 'on' : 'off'; ?>"><?php echo esc_html($on ? __('ACTIVE', 'reqlock') : __('OFF', 'reqlock')); ?></span></h1>
+            <p class="rql-intro"><?php echo esc_html__('An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests).', 'reqlock'); ?></p>
 
             <form method="post" action="">
                 <?php wp_nonce_field('reqlock_save_settings'); ?>
@@ -547,57 +546,53 @@ class ReqLock {
 
                 <div class="rql-card rql-master">
                     <?php echo $this->toggle('master_enabled',
-                        $this->bi('کلید اصلی — مسدودسازی درخواست‌های خارجی', 'Master switch — Block external requests'),
-                        $this->bi('وقتی روشن باشد، مسدودسازی طبق گزینه‌های زیر اعمال می‌شود.', 'When ON, blocking is applied per the options below.')); ?>
+                        __('Master switch — Block external requests', 'reqlock'),
+                        __('When ON, blocking is applied per the options below.', 'reqlock')); ?>
                 </div>
 
                 <div class="rql-grid">
                     <div class="rql-card">
-                        <h2><?php echo esc_html($this->bi('سمت سرور', 'Server-side')); ?></h2>
+                        <h2><?php echo esc_html(__('Server-side', 'reqlock')); ?></h2>
                         <?php echo $this->toggle('block_http_api',
-                            $this->bi('مسدودسازی درخواست‌های خروجی WP', 'Block outbound WP HTTP API'),
-                            $this->bi('به‌روزرسانی‌ها، wordpress.org، OpenAI/Gemini و هر wp_remote_*.', 'Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out.')); ?>
+                            __('Block outbound WP HTTP API', 'reqlock'),
+                            __('Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out.', 'reqlock')); ?>
                     </div>
 
                     <div class="rql-card">
-                        <h2><?php echo esc_html($this->bi('سمت مرورگر', 'Browser-side')); ?></h2>
-                        <?php echo $this->toggle('block_scripts', $this->bi('اسکریپت‌های خارجی', 'External <script src>'), $this->bi('حذف اسکریپت‌های بارگذاری‌شده از دامنه‌های دیگر.', 'Removes external JavaScript files.')); ?>
-                        <?php echo $this->toggle('block_styles', $this->bi('استایل‌های خارجی', 'External stylesheets'), $this->bi('حذف استایل‌های خارجی (مثل Google Fonts).', 'Removes external stylesheets (e.g. Google Fonts).')); ?>
-                        <?php echo $this->toggle('block_preconnect', $this->bi('Resource hints خارجی', 'External resource hints'), $this->bi('حذف preconnect / dns-prefetch / preload / prefetch به دامنه‌های خارجی.', 'Removes preconnect / dns-prefetch / preload / prefetch to external hosts.')); ?>
-                        <?php echo $this->toggle('block_iframes', $this->bi('iframeهای خارجی', 'External iframes'), $this->bi('جایگزینی iframe خارجی با یک جای‌نگه‌دار محلی.', 'Replaces external iframes with a local placeholder.')); ?>
-                        <?php echo $this->toggle('block_inline_analytics', $this->bi('اسنیپت‌های تحلیلی درون‌خطی', 'Inline analytics'), $this->bi('حذف اسنیپت‌های GA/GTM/Clarity/Ahrefs/Pixel که مستقیم در صفحه نوشته شده‌اند.', 'Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets.')); ?>
-                        <?php echo $this->toggle('block_images', $this->bi('تصاویر خارجی', 'External images'), $this->bi('جایگزینی تصاویر خارجی با تصویر شفاف. (پیش‌فرض خاموش)', 'Replaces external images with a transparent placeholder. (off by default)')); ?>
+                        <h2><?php echo esc_html(__('Browser-side', 'reqlock')); ?></h2>
+                        <?php echo $this->toggle('block_scripts', __('External <script src>', 'reqlock'), __('Removes external JavaScript files.', 'reqlock')); ?>
+                        <?php echo $this->toggle('block_styles', __('External stylesheets', 'reqlock'), __('Removes external stylesheets (e.g. Google Fonts).', 'reqlock')); ?>
+                        <?php echo $this->toggle('block_preconnect', __('External resource hints', 'reqlock'), __('Removes preconnect / dns-prefetch / preload / prefetch to external hosts.', 'reqlock')); ?>
+                        <?php echo $this->toggle('block_iframes', __('External iframes', 'reqlock'), __('Replaces external iframes with a local placeholder.', 'reqlock')); ?>
+                        <?php echo $this->toggle('block_inline_analytics', __('Inline analytics', 'reqlock'), __('Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets.', 'reqlock')); ?>
+                        <?php echo $this->toggle('block_images', __('External images', 'reqlock'), __('Replaces external images with a transparent placeholder. (off by default)', 'reqlock')); ?>
                     </div>
 
                     <div class="rql-card">
-                        <h2><?php echo esc_html($this->bi('دامنه', 'Scope & logging')); ?></h2>
-                        <?php echo $this->toggle('apply_in_admin', $this->bi('اعمال در پیشخوان', 'Also sanitize wp-admin'), $this->bi('پیش‌فرض خاموش — برای جلوگیری از به‌هم‌ریختن پیشخوان.', 'Off by default — to avoid disrupting wp-admin.')); ?>
-                        <?php echo $this->toggle('logging', $this->bi('ثبت میزبان‌های شناسایی‌شده', 'Log detected hosts'), $this->bi('فهرست دامنه‌های خارجی شناسایی‌شده را نگه می‌دارد.', 'Keeps a list of detected external hosts.')); ?>
+                        <h2><?php echo esc_html(__('Scope & logging', 'reqlock')); ?></h2>
+                        <?php echo $this->toggle('apply_in_admin', __('Also sanitize wp-admin', 'reqlock'), __('Off by default — to avoid disrupting wp-admin.', 'reqlock')); ?>
+                        <?php echo $this->toggle('logging', __('Log detected hosts', 'reqlock'), __('Keeps a list of detected external hosts.', 'reqlock')); ?>
                     </div>
                 </div>
 
                 <div class="rql-card">
-                    <h2><?php echo esc_html($this->bi('فهرست مجاز', 'Allow-list')); ?></h2>
-                    <p class="rql-help">
-                    <?php if ($fa) : ?>دامنه‌هایی که باید مجاز بمانند (یکی در هر خط یا با کاما). دامنهٔ خود سایت و زیردامنه‌هایش همیشه مجاز است.<br><?php endif; ?>
-                    <span dir="ltr">Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed.</span></p>
+                    <h2><?php echo esc_html(__('Allow-list', 'reqlock')); ?></h2>
+                    <p class="rql-help"><?php echo esc_html__('Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed.', 'reqlock'); ?></p>
                     <textarea name="reqlock[allowlist]" rows="4" class="large-text code" dir="ltr" placeholder="example.com&#10;cdn.partner.ir"><?php echo esc_textarea($this->opt('allowlist')); ?></textarea>
                 </div>
 
                 <p class="rql-actions">
-                    <button type="submit" class="button button-primary button-hero">💾 <?php echo esc_html($this->bi('ذخیره تنظیمات', 'Save settings')); ?></button>
+                    <button type="submit" class="button button-primary button-hero">💾 <?php echo esc_html(__('Save settings', 'reqlock')); ?></button>
                 </p>
             </form>
 
             <div class="rql-card">
-                <h2><?php echo esc_html($this->bi('میزبان‌های خارجی شناسایی‌شده', 'Detected external hosts')); ?> <span class="rql-count"><?php echo count($seen); ?></span></h2>
+                <h2><?php echo esc_html(__('Detected external hosts', 'reqlock')); ?> <span class="rql-count"><?php echo count($seen); ?></span></h2>
                 <?php if (empty($seen)) : ?>
-                    <p class="rql-help">
-                    <?php if ($fa) : ?>هنوز موردی ثبت نشده. وقتی حالت فعال باشد و کسی از سایت بازدید کند، دامنه‌های خارجیِ مسدودشده اینجا فهرست می‌شوند.<br><?php endif; ?>
-                    <span dir="ltr">Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list.</span></p>
+                    <p class="rql-help"><?php echo esc_html__('Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list.', 'reqlock'); ?></p>
                 <?php else : ?>
                     <table class="widefat striped rql-hosts">
-                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html($this->bi('اولین شناسایی', 'First seen')); ?></th></tr></thead>
+                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html(__('First seen', 'reqlock')); ?></th></tr></thead>
                         <tbody>
                         <?php foreach ($seen as $host => $ts) : ?>
                             <tr><td dir="ltr"><code><?php echo esc_html($host); ?></code></td>
@@ -609,19 +604,19 @@ class ReqLock {
                         <?php wp_nonce_field('reqlock_save_settings'); ?>
                         <input type="hidden" name="reqlock_save" value="1">
                         <input type="hidden" name="reqlock_clear_log" value="1">
-                        <button type="submit" class="button">🗑️ <?php echo esc_html($this->bi('پاک کردن فهرست', 'Clear list')); ?></button>
+                        <button type="submit" class="button">🗑️ <?php echo esc_html(__('Clear list', 'reqlock')); ?></button>
                     </form>
                 <?php endif; ?>
             </div>
 
             <p class="rql-credit">
-                <?php if ($fa) : ?>
+                <?php if ($fa) : // Persian audience -> WebRamz brand ?>
                 Developed and maintained by the <strong>WebRamz DevOps Team</strong>.<br>
                 توسعه و نگهداری‌شده توسط <strong>تیم دواپس وب‌رمز</strong>.<br>
                 Website: <a href="https://webramz.com" target="_blank" rel="noopener">https://webramz.com</a>
-                <?php else : ?>
-                Developed and maintained by the <strong>Rackset DevOps Team</strong>.<br>
-                Website: <a href="https://rackset.com" target="_blank" rel="noopener">https://rackset.com</a>
+                <?php else : // everyone else -> Rackset brand (translatable) ?>
+                <?php echo wp_kses_post(__('Developed and maintained by the <strong>Rackset DevOps Team</strong>.', 'reqlock')); ?><br>
+                <?php echo esc_html__('Website:', 'reqlock'); ?> <a href="https://rackset.com" target="_blank" rel="noopener">https://rackset.com</a>
                 <?php endif; ?>
             </p>
         </div>
