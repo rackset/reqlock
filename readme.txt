@@ -1,5 +1,5 @@
 === ReqLock ===
-Contributors: webramz
+Contributors: rackset
 Tags: firewall, external-requests, privacy, performance, offline
 Requires at least: 5.0
 Tested up to: 6.8
@@ -97,6 +97,5 @@ First public release of ReqLock.
 
 == Credits ==
 
-Developed and maintained by the WebRamz DevOps Team.
-توسعه و نگهداری‌شده توسط تیم دواپس وب‌رمز.
-Website: https://webramz.com
+Developed and maintained by the Rackset DevOps Team — https://rackset.com
+توسعه و نگهداری‌شده توسط تیم دواپس وب‌رمز — https://webramz.com

@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       ReqLock
- * Plugin URI:        https://webramz.com/
+ * Plugin URI:        https://rackset.com/reqlock
  * Description:        An outbound (egress) firewall for WordPress: control every external call the site makes — server-side (WP HTTP API: analytics, wordpress.org, OpenAI/Gemini, etc.) and browser-side (external scripts, styles, fonts, iframes, analytics). Three uses in one switch — resilience (keep the site up when the internet is cut or restricted), performance (slow/dead third-party calls fail instantly instead of stalling front-end and admin page loads), and privacy (strip trackers and phone-home requests).
  * Version:           1.0.0
- * Author:            WEBRAMZ
- * Author URI:        https://webramz.com/
+ * Author:            Rackset
+ * Author URI:        https://rackset.com/
  * License:           GPL-2.0-or-later
  * Text Domain:       reqlock
  * Domain Path:       /languages
