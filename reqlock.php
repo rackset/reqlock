@@ -486,6 +486,13 @@ class ReqLock {
                     'file'     => 'wp-config.php',
                     'writable' => $fs->is_writable($cfg),
                 );
+            } elseif (preg_match('/^[ \t]*\/\/ ReqLock-disarmed: define\s*\(\s*([\'"])WP_HTTP_BLOCK_EXTERNAL\1/im', $src)) {
+                $found[] = array(
+                    'type'     => 'wp_http_block_disarmed',
+                    'label'    => 'WP_HTTP_BLOCK_EXTERNAL (disarmed by ReqLock)',
+                    'file'     => 'wp-config.php',
+                    'writable' => $fs->is_writable($cfg),
+                );
             }
         }
         $mu = defined('WPMU_PLUGIN_DIR') ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins';
@@ -546,6 +553,46 @@ class ReqLock {
         add_settings_error('reqlock', 'reqlock_disarm', __('WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block.', 'reqlock'), 'updated');
     }
 
+    /**
+     * Re-arm (reverse of disarm): remove the "// ReqLock-disarmed: " prefix from the
+     * WP_HTTP_BLOCK_EXTERNAL line, restoring WordPress's native always-on block. Same
+     * safety as disarm (exact-change integrity guard + atomic write).
+     */
+    private function rearm_wpconfig() {
+        $fs  = $this->fs();
+        $cfg = $this->wp_config_file();
+        if (!$cfg) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Could not locate wp-config.php.', 'reqlock'), 'error');
+        }
+        if (!$fs || !$fs->is_writable($cfg)) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('wp-config.php is not writable — edit it manually.', 'reqlock'), 'error');
+        }
+        $src = (string) $fs->get_contents($cfg);
+        if ($src === '') {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Could not read wp-config.php.', 'reqlock'), 'error');
+        }
+        $prefix = '// ReqLock-disarmed: ';
+        $count  = 0;
+        $new = preg_replace(
+            '/^([ \t]*)' . preg_quote($prefix, '/') . '(?=define\s*\(\s*[\'"]WP_HTTP_BLOCK_EXTERNAL)/im',
+            '$1',
+            $src, -1, $count
+        );
+        if (!$count || !is_string($new) || $new === $src) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore.', 'reqlock'), 'updated');
+        }
+        // Integrity guard: the ONLY change allowed is removing the prefix(es).
+        if (strlen($new) !== strlen($src) - (strlen($prefix) * $count) || stripos($new, 'wp-settings.php') === false) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Safety check failed — wp-config.php was left unchanged.', 'reqlock'), 'error');
+        }
+        $tmp = $cfg . '.reqlock-tmp';
+        if (!$fs->put_contents($tmp, $new, FS_CHMOD_FILE) || !$fs->move($tmp, $cfg, true)) {
+            $fs->delete($tmp);
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Failed to write wp-config.php.', 'reqlock'), 'error');
+        }
+        add_settings_error('reqlock', 'reqlock_disarm', __('WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock.', 'reqlock'), 'updated');
+    }
+
     /* =========================================================================
      *  Admin: menu, save, settings page, assets, admin bar
      * ========================================================================= */
@@ -595,6 +642,11 @@ class ReqLock {
 
         if (!empty($_POST['reqlock_disarm'])) {
             $this->disarm_wpconfig();
+            return;
+        }
+
+        if (!empty($_POST['reqlock_rearm'])) {
+            $this->rearm_wpconfig();
             return;
         }
 
@@ -741,8 +793,8 @@ class ReqLock {
             <?php $conflicts = $this->scan_conflicts(); ?>
             <?php if (!empty($conflicts)) : ?>
             <div class="rql-card rql-conflicts">
-                <h2>⚠️ <?php echo esc_html__('External-block conflicts', 'reqlock'); ?></h2>
-                <p class="rql-help"><?php echo esc_html__('These hardcoded blocks run independently of ReqLock and can block external requests even when ReqLock is OFF — which breaks plugin/theme installs, updates, and the plugin directory. Let ReqLock be the single switch.', 'reqlock'); ?></p>
+                <h2>🔌 <?php echo esc_html__('External HTTP block (wp-config.php)', 'reqlock'); ?></h2>
+                <p class="rql-help"><?php echo esc_html__('ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time.', 'reqlock'); ?></p>
                 <form method="post" action="">
                     <?php wp_nonce_field('reqlock_save_settings'); ?>
                     <input type="hidden" name="reqlock_save" value="1">
@@ -756,10 +808,12 @@ class ReqLock {
                                 <td>
                                     <?php if ($c['type'] === 'wp_http_block_external' && $c['writable']) : ?>
                                         <button type="submit" name="reqlock_disarm" value="1" class="button button-secondary"><?php echo esc_html__('Disarm (comment out)', 'reqlock'); ?></button>
-                                    <?php elseif ($c['type'] === 'wp_http_block_external') : ?>
-                                        <em><?php echo esc_html__('not writable — edit manually', 'reqlock'); ?></em>
-                                    <?php else : ?>
+                                    <?php elseif ($c['type'] === 'wp_http_block_disarmed' && $c['writable']) : ?>
+                                        <button type="submit" name="reqlock_rearm" value="1" class="button button-secondary"><?php echo esc_html__('Re-arm (restore block)', 'reqlock'); ?></button>
+                                    <?php elseif ($c['type'] === 'file_block') : ?>
                                         <em><?php echo esc_html__('review manually', 'reqlock'); ?></em>
+                                    <?php else : ?>
+                                        <em><?php echo esc_html__('not writable — edit manually', 'reqlock'); ?></em>
                                     <?php endif; ?>
                                 </td>
                             </tr>
