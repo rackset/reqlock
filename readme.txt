@@ -1,4 +1,4 @@
-=== ReqLock (RequestLock / Request Lock) ===
+=== ReqLock ===
 Contributors: webramz
 Tags: firewall, external-requests, privacy, performance, offline
 Requires at least: 5.0

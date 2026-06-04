@@ -1,6 +1,6 @@
 # Roadmap
 
-**ReqLock (RequestLock / Request Lock)** is, under the hood, an **outbound (egress) controller** for WordPress —
+**ReqLock** is, under the hood, an **outbound (egress) controller** for WordPress —
 it governs every call the site makes *out* to the internet, server-side and browser-side. That
 single capability serves three distinct use cases.
 

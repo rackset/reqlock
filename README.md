@@ -1,4 +1,4 @@
-# ReqLock (RequestLock / Request Lock)
+# ReqLock
 
 *Also written **RequestLock** or **Request Lock**. Persian / فارسی: **رک لاک (ریکوئست لاک)**.*
 
