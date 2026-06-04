@@ -289,7 +289,7 @@ class ReqLock {
 
         if ($this->opt('block_inline_analytics')) {
             // inline <script> (no src) carrying known analytics/pixel signatures
-            $sig = '#googletagmanager|google-analytics|gtag\s*\(|dataLayer|clarity\s*\(|\(c,l,a,r,i,t,y\)|ahrefs|fbq\s*\(|_paq|hotjar|yandex\.metrika|ym\s*\(#i';
+            $sig = '#googletagmanager|google-analytics|gtag\s*\(|dataLayer|clarity\.ms|clarity\s*\(|\(\s*c\s*,\s*l\s*,\s*a\s*,\s*r\s*,\s*i\s*,\s*t\s*,\s*y\s*\)|ahrefs|doubleclick\.net|fbq\s*\(|connect\.facebook\.net|_paq|hotjar|yandex\.(metrika|ru)|mc\.yandex|ym\s*\(#i';
             $html = preg_replace_callback(
                 '#<script\b(?![^>]*\bsrc\s*=)[^>]*>(.*?)</script>#is',
                 function ($m) use ($sig) {
