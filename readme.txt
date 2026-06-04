@@ -1,6 +1,6 @@
-=== ReqLock ===
+=== ReqLock (RequestLock / Request Lock) ===
 Contributors: webramz
-Tags: offline, firewall, privacy, external-requests, resilience
+Tags: firewall, external-requests, privacy, performance, offline
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.2
@@ -12,8 +12,13 @@ requests — from WordPress core, theme, and plugins. Resilience when the net is
 
 == Description ==
 
-Turn the master switch ON when external internet is unavailable. The plugin then
-blocks both layers of external dependency:
+ReqLock — also written RequestLock or Request Lock (Persian: رک لاک / ریکوئست لاک) — is an
+outbound (egress) firewall for WordPress. One master switch with three uses: resilience (keep
+the site up when the internet is cut or restricted), performance (slow or dead third-party calls
+fail instantly instead of stalling front-end and admin page loads), and privacy (strip trackers
+and phone-home requests).
+
+The plugin blocks both layers of external dependency:
 
 * Server-side — outbound WP HTTP API requests (wp_remote_*) to external hosts:
   WordPress.org update/version checks, analytics, OpenAI / Gemini APIs,
@@ -37,7 +42,7 @@ Block sluggish or unreliable third-party calls that drag down WordPress front-en
 and admin (back-end) performance, even when the internet is up — blocked calls fail
 instantly instead of stalling page loads while waiting on timeouts.
 
-فارسی: «ریکوئست‌لاک» — هنگام قطع اینترنت بین‌الملل، کلید اصلی را روشن کنید
+فارسی: «رک لاک (ریکوئست لاک)» — هنگام قطع اینترنت بین‌الملل، کلید اصلی را روشن کنید
 تا همهٔ فراخوانی‌های خارجی (سمت سرور و سمت مرورگر) غیرفعال شوند و سایت فقط با منابع
 محلی سرویس دهد. دامنهٔ خود سایت و زیردامنه‌ها همیشه مجاز هستند.
 

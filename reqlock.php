@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       ReqLock
+ * Plugin Name:       ReqLock (RequestLock / Request Lock)
  * Plugin URI:        https://webramz.com/
  * Description:        An outbound (egress) firewall for WordPress: control every external call the site makes — server-side (WP HTTP API: analytics, wordpress.org, OpenAI/Gemini, etc.) and browser-side (external scripts, styles, fonts, iframes, analytics). Three uses in one switch — resilience (keep the site up when the internet is cut or restricted), performance (slow/dead third-party calls fail instantly instead of stalling front-end and admin page loads), and privacy (strip trackers and phone-home requests).
  * Version:           1.0.0
@@ -9,7 +9,7 @@
  * License:           GPL-2.0-or-later
  * Text Domain:       reqlock
  *
- * فارسی: «ریکوئست‌لاک» — فایروالِ درخواست‌های خروجیِ وردپرس. کنترل همهٔ فراخوانی‌های خارجی
+ * فارسی: «رک لاک (ریکوئست لاک)» — فایروالِ درخواست‌های خروجیِ وردپرس. کنترل همهٔ فراخوانی‌های خارجی
  * (سمت سرور و سمت مرورگر) برای سه هدف: تاب‌آوری در زمان قطع/محدودیت اینترنت، کارایی (حذف
  * درخواست‌های کند یا بی‌پاسخ)، و حریم خصوصی (حذف ردیاب‌ها و فراخوانی‌های phone-home).
  */
@@ -414,7 +414,7 @@ class ReqLock {
 
     public function admin_menu() {
         add_options_page(
-            'ReqLock',
+            'ReqLock (RequestLock / Request Lock)',
             'ReqLock',
             'manage_options',
             'reqlock',
@@ -523,7 +523,7 @@ class ReqLock {
         $on = $this->is_enabled();
         ?>
         <div class="wrap rql-wrap">
-            <h1>🔒 ReqLock <span class="rql-badge <?php echo $on ? 'on' : 'off'; ?>"><?php echo $on ? 'ACTIVE / فعال' : 'OFF / غیرفعال'; ?></span></h1>
+            <h1>🔒 ReqLock (RequestLock / Request Lock) <span class="rql-badge <?php echo $on ? 'on' : 'off'; ?>"><?php echo $on ? 'ACTIVE / فعال' : 'OFF / غیرفعال'; ?></span></h1>
             <p class="rql-intro">
                 فایروالِ درخواست‌های خروجی: با روشن‌کردن کلید اصلی، همهٔ فراخوانی‌های خارجی (سمت سرور و سمت مرورگر — تحلیل‌گرها، فونت‌ها، اسکریپت‌ها، APIها و به‌روزرسانی‌ها) مسدود می‌شوند. سه کاربرد در یک کلید: «تاب‌آوری» هنگام قطع/محدودیت اینترنت، «کارایی» با حذف درخواست‌های کند یا بی‌پاسخ، و «حریم خصوصی» با حذف ردیاب‌ها.<br>
                 <span dir="ltr">An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests).</span>
