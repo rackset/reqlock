@@ -423,6 +423,100 @@ class ReqLock {
     }
 
     /* =========================================================================
+     *  Conflict control — make ReqLock the single authority over external blocking
+     *  by detecting (and disarming) hardcoded blocks that bypass the master switch.
+     * ========================================================================= */
+
+    /** Locate the active wp-config.php (ABSPATH, or one level up, as WordPress does). */
+    private function wp_config_file() {
+        $a = ABSPATH . 'wp-config.php';
+        if (file_exists($a)) {
+            return $a;
+        }
+        $up = dirname(ABSPATH) . '/wp-config.php';
+        if (file_exists($up) && !file_exists(dirname(ABSPATH) . '/wp-settings.php')) {
+            return $up;
+        }
+        return '';
+    }
+
+    /**
+     * Scan for hardcoded external-blocking directives that compete with ReqLock's
+     * switch: WP_HTTP_BLOCK_EXTERNAL in wp-config (disarmable), and pre_http_request
+     * blockers / the same constant in mu-plugins or the active theme (report-only).
+     */
+    public function scan_conflicts() {
+        $found = array();
+        $cfg = $this->wp_config_file();
+        if ($cfg && is_readable($cfg)) {
+            $src = (string) file_get_contents($cfg);
+            if (preg_match('/^[ \t]*define\s*\(\s*([\'"])WP_HTTP_BLOCK_EXTERNAL\1\s*,\s*true\s*\)/im', $src)) {
+                $found[] = array(
+                    'type'     => 'wp_http_block_external',
+                    'label'    => 'WP_HTTP_BLOCK_EXTERNAL = true',
+                    'file'     => 'wp-config.php',
+                    'writable' => is_writable($cfg),
+                );
+            }
+        }
+        $mu = defined('WPMU_PLUGIN_DIR') ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins';
+        foreach (array_merge((array) glob($mu . '/*.php'), array(get_template_directory() . '/functions.php')) as $f) {
+            if (!$f || !is_readable($f)) {
+                continue;
+            }
+            if (preg_match('/WP_HTTP_BLOCK_EXTERNAL|pre_http_request/i', (string) file_get_contents($f))) {
+                $found[] = array(
+                    'type'     => 'file_block',
+                    'label'    => 'pre_http_request / WP_HTTP_BLOCK_EXTERNAL',
+                    'file'     => ltrim(str_replace(ABSPATH, '', $f), '/'),
+                    'writable' => false, // report only — too risky to auto-edit arbitrary code
+                );
+            }
+        }
+        return $found;
+    }
+
+    /**
+     * Disarm the hardcoded WP_HTTP_BLOCK_EXTERNAL in wp-config.php by COMMENTING it
+     * out (reversible) so ReqLock's master switch becomes the sole control. Safe:
+     * only inserts a comment prefix, verifies the change is exactly that, and writes
+     * atomically (temp file + rename) so wp-config.php is never left half-written.
+     */
+    private function disarm_wpconfig() {
+        $cfg = $this->wp_config_file();
+        if (!$cfg) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Could not locate wp-config.php.', 'reqlock'), 'error');
+        }
+        if (!is_writable($cfg)) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually.', 'reqlock'), 'error');
+        }
+        $src = (string) file_get_contents($cfg);
+        if ($src === '') {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Could not read wp-config.php.', 'reqlock'), 'error');
+        }
+        $prefix = '// ReqLock-disarmed: ';
+        $count  = 0;
+        $new = preg_replace(
+            '/^([ \t]*)(define\s*\(\s*([\'"])WP_HTTP_BLOCK_EXTERNAL\3\s*,\s*true\s*\)\s*;?)/im',
+            '$1' . $prefix . '$2',
+            $src, -1, $count
+        );
+        if (!$count || !is_string($new) || $new === $src) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('No active WP_HTTP_BLOCK_EXTERNAL found to disarm.', 'reqlock'), 'updated');
+        }
+        // Integrity guard: the ONLY change allowed is the inserted comment prefix(es).
+        if (strlen($new) !== strlen($src) + (strlen($prefix) * $count) || stripos($new, 'wp-settings.php') === false) {
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Safety check failed — wp-config.php was left unchanged.', 'reqlock'), 'error');
+        }
+        $tmp = $cfg . '.reqlock-tmp';
+        if (file_put_contents($tmp, $new) === false || !@rename($tmp, $cfg)) {
+            @unlink($tmp);
+            return add_settings_error('reqlock', 'reqlock_disarm', __('Failed to write wp-config.php.', 'reqlock'), 'error');
+        }
+        add_settings_error('reqlock', 'reqlock_disarm', __('WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block.', 'reqlock'), 'updated');
+    }
+
+    /* =========================================================================
      *  Admin: menu, save, settings page, assets, admin bar
      * ========================================================================= */
 
@@ -466,6 +560,11 @@ class ReqLock {
         if (!empty($_POST['reqlock_clear_log'])) {
             delete_option(self::SEEN);
             add_settings_error('reqlock', 'reqlock_log', __('Detected-hosts list cleared.', 'reqlock'), 'updated');
+            return;
+        }
+
+        if (!empty($_POST['reqlock_disarm'])) {
+            $this->disarm_wpconfig();
             return;
         }
 
@@ -609,6 +708,38 @@ class ReqLock {
                     </form>
                 <?php endif; ?>
             </div>
+
+            <?php $conflicts = $this->scan_conflicts(); ?>
+            <?php if (!empty($conflicts)) : ?>
+            <div class="rql-card rql-conflicts">
+                <h2>⚠️ <?php echo esc_html__('External-block conflicts', 'reqlock'); ?></h2>
+                <p class="rql-help"><?php echo esc_html__('These hardcoded blocks run independently of ReqLock and can block external requests even when ReqLock is OFF — which breaks plugin/theme installs, updates, and the plugin directory. Let ReqLock be the single switch.', 'reqlock'); ?></p>
+                <form method="post" action="">
+                    <?php wp_nonce_field('reqlock_save_settings'); ?>
+                    <input type="hidden" name="reqlock_save" value="1">
+                    <table class="widefat striped rql-hosts">
+                        <thead><tr><th><?php echo esc_html__('Hardcoded block', 'reqlock'); ?></th><th dir="ltr"><?php echo esc_html__('Location', 'reqlock'); ?></th><th><?php echo esc_html__('Action', 'reqlock'); ?></th></tr></thead>
+                        <tbody>
+                        <?php foreach ($conflicts as $c) : ?>
+                            <tr>
+                                <td><code dir="ltr"><?php echo esc_html($c['label']); ?></code></td>
+                                <td dir="ltr"><code><?php echo esc_html($c['file']); ?></code></td>
+                                <td>
+                                    <?php if ($c['type'] === 'wp_http_block_external' && $c['writable']) : ?>
+                                        <button type="submit" name="reqlock_disarm" value="1" class="button button-secondary"><?php echo esc_html__('Disarm (comment out)', 'reqlock'); ?></button>
+                                    <?php elseif ($c['type'] === 'wp_http_block_external') : ?>
+                                        <em><?php echo esc_html__('not writable — edit manually', 'reqlock'); ?></em>
+                                    <?php else : ?>
+                                        <em><?php echo esc_html__('review manually', 'reqlock'); ?></em>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <?php endif; ?>
 
             <p class="rql-credit">
                 <?php if ($fa) : // Persian audience -> WebRamz brand ?>
