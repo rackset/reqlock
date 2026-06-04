@@ -289,7 +289,8 @@ class ReqLock {
 
         if ($this->opt('block_inline_analytics')) {
             // inline <script> (no src) carrying known analytics/pixel signatures
-            $sig = '#googletagmanager|google-analytics|gtag\s*\(|dataLayer|clarity\.ms|clarity\s*\(|\(\s*c\s*,\s*l\s*,\s*a\s*,\s*r\s*,\s*i\s*,\s*t\s*,\s*y\s*\)|ahrefs|doubleclick\.net|fbq\s*\(|connect\.facebook\.net|_paq|hotjar|yandex\.(metrika|ru)|mc\.yandex|ym\s*\(#i';
+            // Known analytics/ad-tracker signatures (function calls + their CDN domains) for inline snippets.
+            $sig = '#googletagmanager|google-analytics|gtag\s*\(|dataLayer|clarity\.ms|clarity\s*\(|\(\s*c\s*,\s*l\s*,\s*a\s*,\s*r\s*,\s*i\s*,\s*t\s*,\s*y\s*\)|ahrefs|doubleclick\.net|fbq\s*\(|connect\.facebook\.net|_paq|hotjar|yandex\.(metrika|ru)|mc\.yandex|ym\s*\(|twq\s*\(|static\.ads-twitter\.com|TiktokAnalyticsObject|analytics\.tiktok\.com|pintrk|s\.pinimg\.com|_linkedin_partner_id|snap\.licdn\.com|lintrk|snaptr|sc-static\.net|plausible\.io|cdn\.segment\.com#i';
             $html = preg_replace_callback(
                 '#<script\b(?![^>]*\bsrc\s*=)[^>]*>(.*?)</script>#is',
                 function ($m) use ($sig) {
