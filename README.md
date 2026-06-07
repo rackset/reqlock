@@ -1,5 +1,7 @@
 # ReqLock
 
+**English** · [日本語](README.ja.md) · [简体中文](README.zh_CN.md) · [Español](README.es_ES.md) · [Deutsch](README.de_DE.md) · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
+
 *Also written **RequestLock** or **Request Lock**. Persian / فارسی: **رک لاک (ریکوئست لاک)**.*
 
 > A master kill-switch WordPress plugin that **disarms external (internet) calls** from WordPress core, your theme, and plugins — so your site keeps working when external internet is cut or restricted.
@@ -7,18 +9,6 @@
 Built for resilience during connectivity restrictions: flip one switch and the site stops reaching out to the internet, serving only from local assets. As a bonus, **wp-admin stops hanging** on dead external requests because blocked calls fail instantly instead of waiting for timeouts.
 
 > **Not just for outages** — it also works as a general fix for **slow network requests**: block sluggish or unreliable third-party calls that drag down WordPress **front-end and admin (back-end)** performance, even when the internet is up. Blocked calls fail instantly, so they can't stall page loads waiting on timeouts.
-
-<div dir="rtl">
-
-### رک لاک (ریکوئست لاک)
-
-> یک افزونهٔ وردپرس با «کلید اصلی» که همهٔ فراخوانی‌های خارجی (اینترنت) را از هستهٔ وردپرس، قالب و افزونه‌های شما **غیرفعال می‌کند** — تا هنگام قطع یا محدودشدن اینترنت بین‌الملل، سایت شما همچنان کار کند.
-
-ساخته‌شده برای تاب‌آوری در زمان محدودیت‌های اتصال: با یک کلید، سایت دیگر به اینترنت دست‌درازی نمی‌کند و فقط از منابع محلی سرویس می‌دهد. به‌عنوان مزیت، **پیشخوان وردپرس دیگر معطل نمی‌ماند**؛ چون فراخوانی‌های مسدودشده به‌جای انتظار برای تایم‌اوت، بی‌درنگ ناموفق می‌شوند.
-
-> **فقط برای قطعی نیست** — این افزونه به‌عنوان راهکاری برای **درخواست‌های شبکه‌ای کُند** هم کاربرد دارد: مسدودکردن فراخوانی‌های خارجیِ کند یا غیرقابل‌اعتمادی که سرعت **بخش کاربری (front) و پیشخوان (back)** وردپرس را پایین می‌آورند — حتی وقتی اینترنت وصل است. فراخوانی‌های مسدودشده بی‌درنگ ناموفق می‌شوند و دیگر بارگذاری صفحه را منتظر تایم‌اوت نگه نمی‌دارند.
-
-</div>
 
 ## What it blocks
 
@@ -85,16 +75,8 @@ It deliberately leaves external `rel="canonical"` / `alternate` / icon `<link>`s
 
 GPL-2.0-or-later. See [LICENSE](LICENSE).
 
----
-
-فارسی: «رک لاک (ریکوئست لاک)» — افزونه‌ای برای مسدودسازی همهٔ فراخوانی‌های خارجی (اینترنت) از وردپرس، قالب و افزونه‌ها؛ هم سمت سرور و هم سمت مرورگر. هنگام قطع اینترنت بین‌الملل، کلید اصلی را روشن کنید تا سایت فقط با منابع محلی سرویس دهد. دامنهٔ خود سایت و زیردامنه‌ها همیشه مجاز هستند.
-
----
-
 ## Credits
 
-Developed and maintained by the **WebRamz DevOps Team**.
+Developed and maintained by the **Rackset DevOps Team**.
 
-توسعه و نگهداری‌شده توسط **تیم دواپس وب‌رمز**.
-
-Website: **[https://webramz.com](https://webramz.com)**
+Website: **[https://rackset.com](https://rackset.com)**
