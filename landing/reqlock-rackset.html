@@ -1,0 +1,118 @@
+<!--
+  ReqLock landing page for rackset.com  (slug: /reqlock)
+  How to use: create a Page titled "ReqLock" with permalink "reqlock", add a single
+  "Custom HTML" block, and paste everything below. Styles are scoped to .rql-lp so
+  they won't touch the rest of the theme. Replace the two image URLs (banner + shot)
+  after you upload wporg-assets/banner-1544x500.png and wporg-assets/screenshot-1.png
+  to the Media Library — search-and-replace REPLACE_BANNER_URL / REPLACE_SHOT_URL.
+  Once the plugin is approved, the WordPress.org button URL already points to the right place.
+-->
+<div class="rql-lp">
+  <style>
+    .rql-lp{--p:#5e16eb;--b:#3858e9;--ink:#16181d;--muted:#5b6470;font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);max-width:1080px;margin:0 auto;padding:0 18px}
+    .rql-lp *{box-sizing:border-box}
+    .rql-hero{background:linear-gradient(135deg,var(--p),var(--b));color:#fff;border-radius:18px;padding:54px 40px;text-align:center;margin:18px 0 36px}
+    .rql-hero h1{font-size:44px;line-height:1.1;margin:0 0 8px;font-weight:800;letter-spacing:-.02em}
+    .rql-hero .sub{font-size:19px;opacity:.95;max-width:680px;margin:0 auto 26px}
+    .rql-hero .alt{font-size:13.5px;opacity:.8;margin:0 0 24px;letter-spacing:.02em}
+    .rql-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .rql-btn{display:inline-block;padding:13px 24px;border-radius:9px;font-weight:700;text-decoration:none;font-size:15px}
+    .rql-btn.primary{background:#fff;color:var(--p)}
+    .rql-btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.5)}
+    .rql-btn:hover{transform:translateY(-1px);opacity:.95}
+    .rql-lead{font-size:18px;color:var(--muted);max-width:820px;margin:0 auto 40px;text-align:center}
+    .rql-lead strong{color:var(--ink)}
+    .rql-h2{font-size:27px;font-weight:800;letter-spacing:-.01em;margin:0 0 6px;text-align:center}
+    .rql-h2sub{color:var(--muted);text-align:center;margin:0 0 26px}
+    .rql-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:0 0 46px}
+    .rql-card{border:1px solid #e6e8ec;border-radius:14px;padding:22px 22px}
+    .rql-card h3{margin:0 0 6px;font-size:18px}
+    .rql-card p{margin:0;color:var(--muted);font-size:15px}
+    .rql-card .ic{font-size:22px;margin-bottom:10px}
+    .rql-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:0 0 46px}
+    .rql-cols h3{font-size:16px;margin:0 0 10px}
+    .rql-cols ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px}
+    .rql-cols li{margin:5px 0}
+    .rql-cols code{background:#f1f1f4;border-radius:4px;padding:1px 5px;font-size:13px;color:#33373d}
+    .rql-shot{display:block;max-width:420px;width:100%;margin:0 auto 46px;border:1px solid #e6e8ec;border-radius:12px;box-shadow:0 6px 24px rgba(20,24,40,.10)}
+    .rql-feat{list-style:none;margin:0 0 46px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}
+    .rql-feat li{position:relative;padding-left:26px;color:var(--ink);font-size:15px}
+    .rql-feat li:before{content:"✓";position:absolute;left:0;top:0;color:var(--b);font-weight:800}
+    .rql-cta{background:#f7f7fb;border:1px solid #e6e8ec;border-radius:16px;padding:32px;text-align:center;margin:0 0 30px}
+    .rql-cta h2{margin:0 0 8px;font-size:24px}
+    .rql-cta p{margin:0 0 20px;color:var(--muted)}
+    .rql-foot{text-align:center;color:var(--muted);font-size:14px;padding:10px 0 40px}
+    .rql-foot a{color:var(--b);text-decoration:none}
+    @media(max-width:720px){.rql-grid,.rql-cols,.rql-feat{grid-template-columns:1fr}.rql-hero{padding:40px 22px}.rql-hero h1{font-size:34px}}
+  </style>
+
+  <div class="rql-hero">
+    <h1>ReqLock</h1>
+    <p class="sub">An outbound firewall for WordPress. Block external &amp; slow third-party requests — for resilience, performance, privacy, and offline development — with one switch.</p>
+    <p class="alt">RequestLock · Request Lock · رک لاک (ریکوئست لاک)</p>
+    <div class="rql-btns">
+      <a class="rql-btn primary" href="https://wordpress.org/plugins/reqlock/">Get it on WordPress.org</a>
+      <a class="rql-btn ghost" href="https://github.com/rackset/reqlock">View on GitHub</a>
+    </div>
+  </div>
+
+  <p class="rql-lead">Modern WordPress sites are noisy — update checks, license pings, analytics, external fonts, AI APIs and other <em>phone-home</em> calls all reach servers you don't control. When those are slow or blocked, your pages and dashboard pay for it. <strong>ReqLock puts your site in full control of its own outbound traffic</strong>, on both the server (PHP / WP HTTP API) and the browser (rendered HTML) — instantly and reversibly, no theme edits.</p>
+
+  <h2 class="rql-h2">One switch, four jobs</h2>
+  <p class="rql-h2sub">Outage resilience · performance · privacy · development</p>
+  <div class="rql-grid">
+    <div class="rql-card"><div class="ic">🛡️</div><h3>Resilience</h3><p>Keep the site working when the internet is cut or restricted. Pages serve from local assets and wp-admin stops hanging on dead requests.</p></div>
+    <div class="rql-card"><div class="ic">⚡</div><h3>Performance</h3><p>Slow or dead third-party calls fail instantly instead of stalling front-end and back-end page loads on long timeouts.</p></div>
+    <div class="rql-card"><div class="ic">🔒</div><h3>Privacy</h3><p>Strip analytics, trackers, external fonts and phone-home requests so nothing about your visitors leaves the server.</p></div>
+    <div class="rql-card"><div class="ic">💻</div><h3>Development</h3><p>Turn any install into a self-contained, offline-capable environment — no external calls or tracking from a staging copy.</p></div>
+  </div>
+
+  <h2 class="rql-h2">What it blocks</h2>
+  <p class="rql-h2sub">Both sides of every request</p>
+  <div class="rql-cols">
+    <div>
+      <h3>Server-side (PHP / WP HTTP API)</h3>
+      <ul>
+        <li>Outbound <code>wp_remote_*</code> calls to external hosts</li>
+        <li>WordPress.org update / version checks</li>
+        <li>Analytics, AI APIs (OpenAI, Gemini), remote fonts</li>
+        <li>License / phone-home pings — fail fast, no timeouts</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Browser-side (rendered HTML)</h3>
+      <ul>
+        <li>External <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> stylesheets (e.g. Google Fonts)</li>
+        <li>Resource hints: preconnect / dns-prefetch / preload / prefetch</li>
+        <li>External iframes (local placeholder)</li>
+        <li>Inline analytics: GA/GTM, Clarity, Meta Pixel, Hotjar, and more</li>
+      </ul>
+    </div>
+  </div>
+
+  <img class="rql-shot" src="REPLACE_SHOT_URL" alt="ReqLock settings screen">
+
+  <h2 class="rql-h2">Key features</h2>
+  <p class="rql-h2sub">&nbsp;</p>
+  <ul class="rql-feat">
+    <li>Your own domain &amp; subdomains are always allowed</li>
+    <li>Allow-list for any host that must stay reachable</li>
+    <li>Detected-hosts panel to audit what your site contacts</li>
+    <li>Per-category toggles — each layer independent</li>
+    <li>wp-config conflict control: disarm / re-arm <code>WP_HTTP_BLOCK_EXTERNAL</code></li>
+    <li>Inert when OFF — safe to keep installed, flip on when needed</li>
+    <li>Works over full-page caches (outermost output buffer)</li>
+    <li>7 languages bundled (en, ja, zh_CN, es, de, fr, fa)</li>
+  </ul>
+
+  <div class="rql-cta">
+    <h2>Free &amp; open source</h2>
+    <p>GPL-2.0. Install from the WordPress plugin directory or grab the source on GitHub.</p>
+    <div class="rql-btns">
+      <a class="rql-btn primary" style="background:linear-gradient(135deg,var(--p),var(--b));color:#fff" href="https://wordpress.org/plugins/reqlock/">Get it on WordPress.org</a>
+      <a class="rql-btn ghost" style="border-color:#cdd2da;color:var(--p)" href="https://github.com/rackset/reqlock">View on GitHub</a>
+    </div>
+  </div>
+
+  <p class="rql-foot">Developed and maintained by the <strong>Rackset DevOps Team</strong> — <a href="https://rackset.com/">rackset.com</a></p>
+</div>

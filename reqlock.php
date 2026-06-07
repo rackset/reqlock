@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       ReqLock
- * Plugin URI:        https://rackset.com/reqlock
+ * Plugin URI:        https://rackset.com/
  * Description:        An outbound (egress) firewall for WordPress: control every external call the site makes — server-side (WP HTTP API: analytics, wordpress.org, OpenAI/Gemini, etc.) and browser-side (external scripts, styles, fonts, iframes, analytics). Three uses in one switch — resilience (keep the site up when the internet is cut or restricted), performance (slow/dead third-party calls fail instantly instead of stalling front-end and admin page loads), and privacy (strip trackers and phone-home requests).
  * Version:           1.0.0
  * Author:            Rackset
@@ -122,10 +122,13 @@ class ReqLock {
     }
 
     /**
-     * Load bundled translations from /languages. Intentionally kept despite the
-     * "discouraged since 4.6" notice: this plugin is built to work OFFLINE, where
-     * WordPress.org language packs cannot be downloaded, so the bundled .mo files
-     * (ja, es_ES, de_DE, fr_FR, fa_IR) must be loaded explicitly.
+     * Load bundled translations from /languages. Called on the `init` hook (see
+     * constructor) so it never runs too early. Intentionally kept despite the
+     * "not needed since 4.6 on .org" notice: this plugin is built to work OFFLINE,
+     * and we support WordPress 5.0+. Before 6.7, just-in-time loading reads only the
+     * language-pack directory, not a plugin's bundled /languages — and on an offline
+     * site those packs can never be downloaded. So the bundled .mo files
+     * (ja, zh_CN, es_ES, de_DE, fr_FR, fa_IR) must be registered explicitly.
      */
     public function load_textdomain() {
         // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- bundled translations are required for offline use.

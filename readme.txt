@@ -8,30 +8,67 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Outbound firewall for WordPress: block external & slow third-party requests for resilience, performance, and privacy — in one switch.
+Block external & slow third-party requests in WordPress — for resilience, performance, privacy, and offline development. One master switch.
 
 == Description ==
 
-**ReqLock** — also written **RequestLock** or **Request Lock** (Persian: رک لاک / ریکوئست لاک) —
-is an outbound (egress) firewall for WordPress. It controls every call your site makes *out* to
-the internet, both server-side and browser-side. One master switch, three uses:
+**ReqLock** — also written **RequestLock** or **Request Lock** — is an outbound (egress)
+firewall for WordPress. It controls every call your site makes *out* to the internet, on
+both sides of the request: the **server** (PHP / WP HTTP API) and the **browser** (the HTML
+your pages render). One master switch puts your site fully in control of its own outbound
+traffic.
 
-* **Resilience** — keep the site working when external internet is **cut or restricted** (outages, shutdowns). Pages serve from local assets and wp-admin stops hanging on dead requests.
-* **Performance** — slow or dead third-party calls **fail instantly** instead of stalling front-end and admin (back-end) page loads on timeouts.
-* **Privacy** — strip analytics, trackers, external fonts, and phone-home requests.
+Modern WordPress sites are noisy: update checks, license pings, analytics, tag managers,
+external fonts, embedded widgets, AI APIs, and assorted "phone-home" calls all reach out to
+servers you don't control. When those servers are slow, blocked, or down, your pages and your
+dashboard pay the price — and every one of them is a place your visitors' data leaks out.
+ReqLock lets you shut that traffic off at will, instantly and reversibly, without editing
+theme files or hunting down plugins.
+
+**One switch, four jobs:**
+
+* **Resilience** — keep the site working when the external internet is **cut or restricted**
+  (outages, regional shutdowns, upstream failures). Pages serve from local assets and
+  wp-admin stops hanging on dead requests.
+* **Performance** — slow or unreachable third-party calls **fail instantly** instead of
+  stalling front-end and back-end page loads on long timeouts.
+* **Privacy** — strip analytics, trackers, external fonts, and phone-home requests so nothing
+  about your visitors leaves the server.
+* **Development** — turn any install into a self-contained, **offline-capable** environment:
+  no external calls, no tracking from a staging copy, no waiting on remote APIs while you work.
+
+= Use cases =
+
+* **Outage / shutdown resilience.** When upstream connectivity is throttled or blocked, a
+  normal WordPress site stalls on every external call. Flip ReqLock on and the site keeps
+  serving from local resources — admin included.
+* **Speeding up a sluggish site.** A single slow analytics or font host can add seconds to
+  every page load. ReqLock makes those calls fail fast instead of blocking the render.
+* **Privacy / no-tracking deployments.** Run a site that provably makes no third-party
+  requests — useful for privacy-first projects, internal tools, and compliance-sensitive setups.
+* **Local & staging development.** Clone production to a laptop or staging box and ReqLock
+  keeps it from phoning home: no analytics fired from a test copy, no license pings, no
+  WordPress.org update checks slowing down `wp-admin` while you build. The site behaves the
+  same with the network unplugged — ideal for offline coding, demos, and air-gapped boxes.
+* **Auditing what a site talks to.** The Detected-hosts panel logs every external host the
+  site reaches, so you can see exactly who your themes and plugins contact — then decide what
+  to allow and what to cut.
 
 = What it blocks =
 
 **Server-side (PHP / WP HTTP API)**
 
-* Outbound `wp_remote_*` requests to external hosts: WordPress.org update/version checks, analytics, AI APIs (OpenAI, Gemini), remote fonts, etc. They fail instantly instead of timing out.
+* Outbound `wp_remote_*` requests to external hosts: WordPress.org update/version checks,
+  analytics, AI APIs (OpenAI, Gemini), remote fonts, license/phone-home pings, etc. They fail
+  instantly instead of timing out.
 
 **Browser-side (rendered HTML)**
 
 * External `<script src>` and external `<link rel="stylesheet">` (e.g. Google Fonts)
 * Resource hints: `preconnect` / `dns-prefetch` / `preload` / `prefetch`
 * External `<iframe>` (replaced with a clean local placeholder)
-* Inline analytics snippets: Google Analytics / Tag Manager, Microsoft Clarity, Ahrefs, Meta Pixel, Hotjar, Yandex
+* Inline analytics snippets: Google Analytics / Tag Manager, Microsoft Clarity, Ahrefs,
+  Meta Pixel, Hotjar, Yandex, TikTok, Pinterest, LinkedIn, Twitter/X, Snap, Segment, Plausible
 * Optional: external `<img>` (transparent placeholder)
 
 = Key behavior =
@@ -40,21 +77,20 @@ the internet, both server-side and browser-side. One master switch, three uses:
 * **Allow-list** for any other hosts that must stay reachable.
 * **Detected-hosts panel** logs every external host seen, so you can build the allow-list fast.
 * **Per-category toggles** — turn each blocking layer on/off independently.
-* **Inert when OFF** — with the master switch off, the plugin does nothing, so it is safe to keep installed and flip on only when needed.
-* **Works over full-page caches** — the output filter runs as the outermost buffer, so it covers cached page views too.
-
-= Persian / فارسی =
-
-«رک لاک (ریکوئست لاک)» یک فایروالِ درخواست‌های خروجی برای وردپرس است: کنترل همهٔ فراخوانی‌های
-خارجی (سمت سرور و سمت مرورگر) با یک کلید، برای سه هدف — تاب‌آوری هنگام قطع/محدودیت اینترنت،
-کارایی (حذف درخواست‌های کند یا بی‌پاسخ)، و حریم خصوصی (حذف ردیاب‌ها).
+* **wp-config conflict control** — detects a hard-coded `WP_HTTP_BLOCK_EXTERNAL` constant and
+  lets you disarm it (comment it out) or re-arm it (restore it) in one click, so ReqLock is the
+  single switch for external blocking. Edits are reversible, integrity-checked, and atomic.
+* **Inert when OFF** — with the master switch off, the plugin does nothing, so it is safe to
+  keep installed and flip on only when needed.
+* **Works over full-page caches** — the output filter runs as the outermost buffer, so it
+  covers cached page views too.
 
 == Installation ==
 
 1. Upload the `reqlock` folder to `/wp-content/plugins/`, or install the ZIP from **Plugins → Add New → Upload Plugin**.
 2. Activate **ReqLock** from the **Plugins** screen.
 3. Go to **Settings → ReqLock**.
-4. Turn the **master switch ON** when you want to block external requests (during an outage, or to cut slow/tracking calls). It is **OFF** by default, so activation alone changes nothing.
+4. Turn the **master switch ON** when you want to block external requests (during an outage, to cut slow/tracking calls, or to take a dev/staging copy offline). It is **OFF** by default, so activation alone changes nothing.
 
 == Frequently Asked Questions ==
 
@@ -62,7 +98,10 @@ the internet, both server-side and browser-side. One master switch, three uses:
 No. With the master switch OFF the plugin is completely inert. Even when ON, your own domain and its subdomains are always allowed.
 
 = When should I turn the master switch ON? =
-Any time you want to cut the site off from external services: during an internet outage/restriction, to stop slow third-party calls from dragging down load times, or to strip trackers for privacy.
+Any time you want to cut the site off from external services: during an internet outage/restriction, to stop slow third-party calls from dragging down load times, to strip trackers for privacy, or to take a staging/local copy fully offline while you develop.
+
+= Can I use it to develop offline? =
+Yes — that's a core use case. Turn the master switch ON and the install stops reaching out to WordPress.org, analytics, license servers, fonts, and other remote hosts. Your local or staging site then loads and behaves the same with the network unplugged, and never fires tracking or phone-home calls from a non-production copy.
 
 = Does it work with caching plugins? =
 Yes. The output filter runs as the outermost output buffer, so it also filters cached page views (tested with full-page cache plugins).
@@ -86,9 +125,10 @@ Standalone scripts that use raw `curl`/`file_get_contents` outside WordPress are
 * Initial public release.
 * Server-side blocking of outbound WP HTTP API requests to external hosts (with allow-list).
 * Browser-side sanitization: external scripts, styles, resource hints, iframes, inline analytics, and (optional) images.
+* wp-config conflict control: detect, disarm, and re-arm a hard-coded `WP_HTTP_BLOCK_EXTERNAL` constant.
 * Output filter runs as the outermost buffer, so it covers full-page-cache hits.
 * Per-category toggles, allow-list, detected-hosts log, and an admin-bar active-mode indicator.
-* Translations: English, فارسی (Persian), 日本語 (Japanese), Español, Deutsch, Français.
+* Translations: English, 日本語 (Japanese), 简体中文 (Simplified Chinese), Español, Deutsch, Français, فارسی (Persian).
 
 == Upgrade Notice ==
 
@@ -98,4 +138,3 @@ First public release of ReqLock.
 == Credits ==
 
 Developed and maintained by the Rackset DevOps Team — https://rackset.com
-توسعه و نگهداری‌شده توسط تیم دواپس وب‌رمز — https://webramz.com
