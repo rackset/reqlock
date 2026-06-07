@@ -11,3 +11,7 @@ vendor/
 *.zip
 *.log
 wporg-svn/
+
+# Claude Code private/local memory (not shared)
+CLAUDE.local.md
+.claude/
