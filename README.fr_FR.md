@@ -4,6 +4,8 @@
 
 *Aussi écrit **RequestLock** ou **Request Lock**.*
 
+**Site du projet :** [https://apps.rackset.com/reqlock/fr/](https://apps.rackset.com/reqlock/fr/)
+
 > Une extension WordPress « interrupteur d’arrêt principal » qui **désarme les appels externes (Internet)** émis par le cœur de WordPress, votre thème et vos extensions — pour que votre site continue de fonctionner quand l’Internet externe est coupé ou restreint.
 
 Conçu pour la résilience pendant les restrictions de connectivité : actionnez un seul interrupteur et le site cesse de contacter Internet, ne servant plus que des ressources locales. En prime, **wp-admin ne se fige plus** sur des requêtes externes mortes, car les appels bloqués échouent instantanément au lieu d’attendre l’expiration des délais.

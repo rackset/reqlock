@@ -4,6 +4,8 @@
 
 *也写作 **RequestLock** 或 **Request Lock**。*
 
+**项目主页：** [https://apps.rackset.com/reqlock/zh/](https://apps.rackset.com/reqlock/zh/)
+
 > 一款充当总开关的 WordPress 插件，可**禁用来自 WordPress 核心、你的主题和插件的外部（互联网）调用** —— 让你的站点在外部互联网被切断或受限时依然正常运行。
 
 专为连接受限时的韧性而打造：拨动一个开关，站点便停止向互联网发起请求，仅从本地资源提供服务。作为附带好处，由于被拦截的调用会立即失败，而不是等待超时，**wp-admin 不再卡在无响应的外部请求上**。

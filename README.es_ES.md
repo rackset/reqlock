@@ -4,6 +4,8 @@
 
 *También escrito **RequestLock** o **Request Lock**.*
 
+**Página del proyecto:** [https://apps.rackset.com/reqlock/es/](https://apps.rackset.com/reqlock/es/)
+
 > Un plugin de WordPress que actúa como interruptor de corte maestro y **desarma las llamadas externas (a internet)** del núcleo de WordPress, tu tema y tus plugins, para que tu sitio siga funcionando cuando internet externo se corta o se restringe.
 
 Diseñado para ofrecer resiliencia durante las restricciones de conectividad: acciona un único interruptor y el sitio deja de salir a internet, sirviéndose solo desde recursos locales. Como ventaja añadida, **wp-admin deja de bloquearse** en peticiones externas sin respuesta, porque las llamadas bloqueadas fallan al instante en lugar de esperar a que se agote el tiempo de espera.
