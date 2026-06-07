@@ -2,7 +2,7 @@
 
 [English](README.md) · [日本語](README.ja.md) · [简体中文](README.zh_CN.md) · [Español](README.es_ES.md) · [Deutsch](README.de_DE.md) · **Français** · [فارسی](README.fa_IR.md)
 
-*Aussi écrit **RequestLock** ou **Request Lock**. Persan / فارسی : **رک لاک (ریکوئست لاک)**.*
+*Aussi écrit **RequestLock** ou **Request Lock**.*
 
 > Une extension WordPress « interrupteur d’arrêt principal » qui **désarme les appels externes (Internet)** émis par le cœur de WordPress, votre thème et vos extensions — pour que votre site continue de fonctionner quand l’Internet externe est coupé ou restreint.
 

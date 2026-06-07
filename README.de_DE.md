@@ -2,7 +2,7 @@
 
 [English](README.md) · [日本語](README.ja.md) · [简体中文](README.zh_CN.md) · [Español](README.es_ES.md) · **Deutsch** · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
 
-*Auch geschrieben als **RequestLock** oder **Request Lock**. Persisch / فارسی: **رک لاک (ریکوئست لاک)**.*
+*Auch geschrieben als **RequestLock** oder **Request Lock**.*
 
 > Ein WordPress-Plugin als zentraler Notausschalter, das **externe (Internet-)Aufrufe entschärft** – vom WordPress-Kern, deinem Theme und deinen Plugins –, damit deine Website weiterläuft, wenn das externe Internet gekappt oder eingeschränkt ist.
 

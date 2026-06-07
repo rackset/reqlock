@@ -2,7 +2,7 @@
 
 [English](README.md) · [日本語](README.ja.md) · **简体中文** · [Español](README.es_ES.md) · [Deutsch](README.de_DE.md) · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
 
-*也写作 **RequestLock** 或 **Request Lock**。波斯语 / فارسی：**رک لاک (ریکوئست لاک)**。*
+*也写作 **RequestLock** 或 **Request Lock**。*
 
 > 一款充当总开关的 WordPress 插件，可**禁用来自 WordPress 核心、你的主题和插件的外部（互联网）调用** —— 让你的站点在外部互联网被切断或受限时依然正常运行。
 

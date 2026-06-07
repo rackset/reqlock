@@ -2,7 +2,7 @@
 
 [English](README.md) · [日本語](README.ja.md) · [简体中文](README.zh_CN.md) · **Español** · [Deutsch](README.de_DE.md) · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
 
-*También escrito **RequestLock** o **Request Lock**. Persa / فارسی: **رک لاک (ریکوئست لاک)**.*
+*También escrito **RequestLock** o **Request Lock**.*
 
 > Un plugin de WordPress que actúa como interruptor de corte maestro y **desarma las llamadas externas (a internet)** del núcleo de WordPress, tu tema y tus plugins, para que tu sitio siga funcionando cuando internet externo se corta o se restringe.
 

@@ -2,7 +2,7 @@
 
 [English](README.md) · **日本語** · [简体中文](README.zh_CN.md) · [Español](README.es_ES.md) · [Deutsch](README.de_DE.md) · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
 
-*別表記として **RequestLock** または **Request Lock**。ペルシャ語 / فارسی: **رک لاک (ریکوئست لاک)**。*
+*別表記として **RequestLock** または **Request Lock**。*
 
 > WordPress コア、テーマ、プラグインからの**外部（インターネット）呼び出しを無効化する**マスターキルスイッチ型 WordPress プラグインです。外部インターネットが遮断・制限されてもサイトを動かし続けます。
 

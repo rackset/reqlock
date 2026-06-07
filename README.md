@@ -2,7 +2,7 @@
 
 **English** · [日本語](README.ja.md) · [简体中文](README.zh_CN.md) · [Español](README.es_ES.md) · [Deutsch](README.de_DE.md) · [Français](README.fr_FR.md) · [فارسی](README.fa_IR.md)
 
-*Also written **RequestLock** or **Request Lock**. Persian / فارسی: **رک لاک (ریکوئست لاک)**.*
+*Also written **RequestLock** or **Request Lock**.*
 
 > A master kill-switch WordPress plugin that **disarms external (internet) calls** from WordPress core, your theme, and plugins — so your site keeps working when external internet is cut or restricted.
 
