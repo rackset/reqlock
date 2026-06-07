@@ -4,13 +4,13 @@
 
 *Also written **RequestLock** or **Request Lock**.*
 
-**Project home:** [https://apps.rackset.com/reqlock/](https://apps.rackset.com/reqlock/)
-
 > A master kill-switch WordPress plugin that **disarms external (internet) calls** from WordPress core, your theme, and plugins — so your site keeps working when external internet is cut or restricted.
 
 Built for resilience during connectivity restrictions: flip one switch and the site stops reaching out to the internet, serving only from local assets. As a bonus, **wp-admin stops hanging** on dead external requests because blocked calls fail instantly instead of waiting for timeouts.
 
 > **Not just for outages** — it also works as a general fix for **slow network requests**: block sluggish or unreliable third-party calls that drag down WordPress **front-end and admin (back-end)** performance, even when the internet is up. Blocked calls fail instantly, so they can't stall page loads waiting on timeouts.
+
+**Project home:** [https://apps.rackset.com/reqlock/](https://apps.rackset.com/reqlock/)
 
 ## What it blocks
 

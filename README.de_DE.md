@@ -4,13 +4,13 @@
 
 *Auch geschrieben als **RequestLock** oder **Request Lock**.*
 
-**Projektseite:** [https://apps.rackset.com/reqlock/de/](https://apps.rackset.com/reqlock/de/)
-
 > Ein WordPress-Plugin als zentraler Notausschalter, das **externe (Internet-)Aufrufe entschärft** – vom WordPress-Kern, deinem Theme und deinen Plugins –, damit deine Website weiterläuft, wenn das externe Internet gekappt oder eingeschränkt ist.
 
 Gebaut für Ausfallsicherheit bei Konnektivitätsbeschränkungen: Lege einen Schalter um, und die Seite hört auf, ins Internet zu greifen, und liefert nur noch aus lokalen Ressourcen aus. Als Bonus **hängt wp-admin nicht mehr** an toten externen Anfragen, weil blockierte Aufrufe sofort fehlschlagen, statt auf Timeouts zu warten.
 
 > **Nicht nur für Ausfälle** – es funktioniert auch als allgemeine Lösung für **langsame Netzwerkanfragen**: Blockiere träge oder unzuverlässige Drittanbieter-Aufrufe, die die Leistung von WordPress im **Front-End und Admin (Back-End)** ausbremsen, selbst wenn das Internet verfügbar ist. Blockierte Aufrufe schlagen sofort fehl und können das Laden von Seiten nicht mehr durch Warten auf Timeouts aufhalten.
+
+**Projektseite:** [https://apps.rackset.com/reqlock/de/](https://apps.rackset.com/reqlock/de/)
 
 ## Was es blockiert
 
