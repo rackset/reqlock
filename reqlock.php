@@ -177,19 +177,57 @@ class ReqLock {
         return $this->parse_hosts($this->opt('allowlist'));
     }
 
+    /**
+     * Hosts to block in 'blocklist' mode.
+     *
+     * Free tier is intentionally limited so Pro has room: at most 2 hosts and no
+     * `*.example.com` wildcard subdomains (free entries match the exact host only).
+     * ReqLock Pro lifts both via the filters below and adds wildcard matching.
+     */
     private function blocklist() {
-        return $this->parse_hosts($this->opt('blocklist'));
+        $hosts = $this->parse_hosts($this->opt('blocklist'));
+
+        // Wildcard subdomain patterns (e.g. *.example.com) are a Pro capability.
+        if (!apply_filters('reqlock_blocklist_wildcards', false)) {
+            $hosts = array_values(array_filter($hosts, function ($h) {
+                return strpos($h, '*') === false;
+            }));
+        }
+
+        // Free cap; Pro raises the limit (0 or negative = unlimited).
+        $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+        if ($limit > 0 && count($hosts) > $limit) {
+            $hosts = array_slice($hosts, 0, $limit);
+        }
+        return $hosts;
     }
 
     private function host_matches($host, $domain) {
         return ($host === $domain) || (substr($host, -strlen('.' . $domain)) === '.' . $domain);
     }
 
-    /** True if $host equals or is a subdomain of any entry in $list. */
+    /** True if $host equals or is a subdomain of any entry in $list (used for the allow-list). */
     private function host_in($host, array $list) {
         foreach ($list as $domain) {
             if ($this->host_matches($host, $domain)) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Block-list matcher. Free entries match the EXACT host only; a `*.example.com`
+     * entry (Pro) matches the apex domain and all its subdomains.
+     */
+    private function host_in_blocklist($host, array $list) {
+        foreach ($list as $entry) {
+            if (strpos($entry, '*.') === 0) {
+                if ($this->host_matches($host, substr($entry, 2))) {
+                    return true; // wildcard: apex + subdomains (Pro)
+                }
+            } elseif ($host === $entry) {
+                return true; // exact host (free)
             }
         }
         return false;
@@ -239,7 +277,7 @@ class ReqLock {
 
         if ($this->mode() === 'blocklist') {
             // Allow everything except hosts the user explicitly listed.
-            $block = $remote && $this->host_in($host, $this->blocklist());
+            $block = $remote && $this->host_in_blocklist($host, $this->blocklist());
         } else {
             // 'all': block every external host except the allow-list.
             $block = $remote && !$this->host_in($host, $this->allowlist());
@@ -878,8 +916,9 @@ class ReqLock {
 
                 <div class="rql-card">
                     <h2><?php echo esc_html(__('Block-list', 'reqlock')); ?></h2>
-                    <p class="rql-help"><?php echo esc_html__('Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked.', 'reqlock'); ?></p>
+                    <p class="rql-help"><?php echo esc_html__('Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts.', 'reqlock'); ?></p>
                     <textarea name="reqlock[blocklist]" rows="4" class="large-text code" dir="ltr" placeholder="slow-cdn.example&#10;tracker.example.net"><?php echo esc_textarea($this->opt('blocklist')); ?></textarea>
+                    <p class="rql-help"><?php echo wp_kses_post(__('<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS.', 'reqlock')); ?> <a href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
                 </div>
 
                 <p class="rql-actions">

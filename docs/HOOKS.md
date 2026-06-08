@@ -29,6 +29,22 @@ add_filter( 'reqlock_modes', function ( $modes ) {
 } );
 ```
 
+### `reqlock_blocklist_limit`
+Maximum number of block-list hosts honored. Defaults to `2` in the free plugin;
+return `0` (or a negative number) for unlimited.
+
+```php
+add_filter( 'reqlock_blocklist_limit', function () { return 0; } ); // unlimited
+```
+
+### `reqlock_blocklist_wildcards`
+Whether `*.example.com` wildcard-subdomain entries are honored in the block-list.
+Defaults to `false` (free strips them and matches exact hosts only).
+
+```php
+add_filter( 'reqlock_blocklist_wildcards', '__return_true' );
+```
+
 ## Actions
 
 ### `reqlock_host_seen`
