@@ -256,3 +256,27 @@ msgstr ""
 #: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:834
 msgid "Website:"
 msgstr ""
+
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr ""
+
+msgid "Block all external requests (allow-list exceptions)"
+msgstr ""
+
+msgid "Block only listed hosts (block-list)"
+msgstr ""
+
+msgid "Block-list"
+msgstr ""
+
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr ""
+
+msgid "Learn more"
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr ""

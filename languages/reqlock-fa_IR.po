@@ -184,3 +184,27 @@ msgstr "توسعه و نگهداری‌شده توسط <strong>تیم دواپس
 msgid "Website:"
 msgstr "وب‌سایت:"
 
+
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>: میزبان نامحدود، زیردامنهٔ وایلدکارت <code>*.example.com</code>، مسدودسازی خودکار میزبان‌های کند، و محلی‌سازی فونت/JS/CSS خارجی."
+
+msgid "Block all external requests (allow-list exceptions)"
+msgstr "مسدودکردن همهٔ درخواست‌های خارجی (به‌جز فهرست مجاز)"
+
+msgid "Block only listed hosts (block-list)"
+msgstr "فقط مسدودکردن میزبان‌های فهرست‌شده (فهرست مسدود)"
+
+msgid "Block-list"
+msgstr "فهرست مسدود"
+
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "میزبان‌هایی که وقتی حالت روی «فهرست مسدود» است مسدود می‌شوند (هر کدام در یک خط یا جداشده با کاما). در حالت «مسدودکردن همهٔ خارجی» نادیده گرفته می‌شود. دامنهٔ خودتان و زیردامنه‌هایش هرگز مسدود نمی‌شوند. نسخهٔ رایگان تا ۲ میزبانِ دقیق را مسدود می‌کند."
+
+msgid "Learn more"
+msgstr "اطلاعات بیشتر"
+
+msgid "Mode"
+msgstr "حالت"
+
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr "«مسدودکردن همهٔ خارجی» همهٔ میزبان‌های خارجی را به‌جز فهرست مجاز شما مسدود می‌کند. «فهرست مسدود» سایت را آنلاین نگه می‌دارد و فقط میزبان‌هایی را که در پایین فهرست می‌کنید مسدود می‌کند. دامنهٔ خودتان و زیردامنه‌هایش هرگز مسدود نمی‌شوند."

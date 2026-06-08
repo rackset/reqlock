@@ -191,3 +191,27 @@ msgstr "由 <strong>Rackset DevOps 团队</strong>开发和维护。"
 
 msgid "Website:"
 msgstr "网站："
+
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>：主机数量不限、<code>*.example.com</code> 通配符子域名、自动拦截慢速主机，以及本地化外部字体/JS/CSS。"
+
+msgid "Block all external requests (allow-list exceptions)"
+msgstr "拦截所有外部请求（白名单除外）"
+
+msgid "Block only listed hosts (block-list)"
+msgstr "仅拦截列出的主机（黑名单）"
+
+msgid "Block-list"
+msgstr "黑名单"
+
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "当模式为“黑名单”时要拦截的主机（每行一个，或用逗号分隔）。在“拦截所有外部请求”模式下将被忽略。您自己的域名及其子域名永远不会被拦截。免费版最多可拦截 2 个精确匹配的主机。"
+
+msgid "Learn more"
+msgstr "了解更多"
+
+msgid "Mode"
+msgstr "模式"
+
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr "“拦截所有外部请求”会拦截白名单之外的所有外部主机。“黑名单”让网站保持在线，仅拦截您在下方列出的主机。您自己的域名及其子域名永远不会被拦截。"

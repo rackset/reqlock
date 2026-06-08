@@ -184,3 +184,27 @@ msgstr "Entwickelt und gepflegt vom <strong>Rackset DevOps-Team</strong>."
 msgid "Website:"
 msgstr "Website:"
 
+
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>: unbegrenzte Hosts, <code>*.example.com</code>-Platzhalter-Subdomains, automatisches Blockieren langsamer Hosts und Lokalisierung externer Schriften/JS/CSS."
+
+msgid "Block all external requests (allow-list exceptions)"
+msgstr "Alle externen Anfragen blockieren (Ausnahmen per Erlaubnisliste)"
+
+msgid "Block only listed hosts (block-list)"
+msgstr "Nur aufgeführte Hosts blockieren (Sperrliste)"
+
+msgid "Block-list"
+msgstr "Sperrliste"
+
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "Hosts, die im Modus „Sperrliste“ blockiert werden (einer pro Zeile oder kommagetrennt). Im Modus „Alle externen blockieren“ wird dies ignoriert. Deine eigene Domain und ihre Subdomains werden nie blockiert. Die kostenlose Version blockiert bis zu 2 exakte Hosts."
+
+msgid "Learn more"
+msgstr "Mehr erfahren"
+
+msgid "Mode"
+msgstr "Modus"
+
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr "„Alle externen blockieren“ blockiert alle externen Hosts außer denen auf deiner Erlaubnisliste. „Sperrliste“ hält die Website online und blockiert nur die unten aufgeführten Hosts. Deine eigene Domain und ihre Subdomains werden nie blockiert."

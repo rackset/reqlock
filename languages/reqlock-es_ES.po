@@ -184,3 +184,27 @@ msgstr "Desarrollado y mantenido por el <strong>equipo de DevOps de Rackset</str
 msgid "Website:"
 msgstr "Sitio web:"
 
+
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>: hosts ilimitados, subdominios comodín <code>*.example.com</code>, bloqueo automático de hosts lentos y localización de fuentes/JS/CSS externos."
+
+msgid "Block all external requests (allow-list exceptions)"
+msgstr "Bloquear todas las solicitudes externas (excepciones de la lista de permitidos)"
+
+msgid "Block only listed hosts (block-list)"
+msgstr "Bloquear solo los hosts indicados (lista de bloqueo)"
+
+msgid "Block-list"
+msgstr "Lista de bloqueo"
+
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "Hosts que se bloquearán cuando el modo sea «Lista de bloqueo» (uno por línea o separados por comas). Se ignora en el modo «Bloquear todo lo externo». Tu propio dominio y sus subdominios nunca se bloquean. La versión gratuita bloquea hasta 2 hosts exactos."
+
+msgid "Learn more"
+msgstr "Más información"
+
+msgid "Mode"
+msgstr "Modo"
+
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr "«Bloquear todo lo externo» bloquea todos los hosts externos excepto los de tu lista de permitidos. «Lista de bloqueo» mantiene el sitio en línea y bloquea solo los hosts que indiques abajo. Tu propio dominio y sus subdominios nunca se bloquean."
