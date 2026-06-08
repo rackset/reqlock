@@ -15,3 +15,6 @@ wporg-svn/
 # Claude Code private/local memory (not shared)
 CLAUDE.local.md
 .claude/
+
+# Private/local docs (business strategy, plans) — never published
+*.local.md
