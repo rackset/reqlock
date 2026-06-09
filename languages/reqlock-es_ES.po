@@ -1,210 +1,331 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
+"Report-Msgid-Bugs-To: https://rackset.com\n"
+"POT-Creation-Date: 2026-06-09 15:40+0400\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Could not locate wp-config.php."
-msgstr "No se pudo encontrar wp-config.php."
-
-msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
-msgstr "wp-config.php no admite escritura — comenta manualmente la línea WP_HTTP_BLOCK_EXTERNAL."
-
-msgid "Could not read wp-config.php."
-msgstr "No se pudo leer wp-config.php."
-
-msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
-msgstr "No se encontró un WP_HTTP_BLOCK_EXTERNAL activo para desarmar."
-
-msgid "Safety check failed — wp-config.php was left unchanged."
-msgstr "La comprobación de seguridad falló — wp-config.php no se modificó."
-
-msgid "Failed to write wp-config.php."
-msgstr "No se pudo escribir wp-config.php."
-
-msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
-msgstr "WP_HTTP_BLOCK_EXTERNAL se ha comentado en wp-config.php. Ahora ReqLock controla el bloqueo externo — activa el interruptor principal para bloquear."
-
-msgid "wp-config.php is not writable — edit it manually."
-msgstr "wp-config.php no admite escritura — edítalo manualmente."
-
-msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
-msgstr "No se encontró ningún WP_HTTP_BLOCK_EXTERNAL desarmado por ReqLock para restaurar."
-
-msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
-msgstr "WP_HTTP_BLOCK_EXTERNAL restaurado en wp-config.php — WordPress vuelve a bloquear todas las solicitudes externas, independientemente de ReqLock."
-
-msgid "Settings"
-msgstr "Ajustes"
-
-msgid "ReqLock active — external requests blocked"
-msgstr "ReqLock activo: solicitudes externas bloqueadas"
-
-msgid "Detected-hosts list cleared."
-msgstr "Se ha vaciado la lista de hosts detectados."
-
-msgid "Saved — ReqLock is ON (external requests blocked)."
-msgstr "Guardado: ReqLock está ACTIVADO (solicitudes externas bloqueadas)."
-
-msgid "Saved — ReqLock is OFF."
-msgstr "Guardado: ReqLock está APAGADO."
-
-msgid "ACTIVE"
-msgstr "ACTIVO"
-
-msgid "OFF"
-msgstr "APAGADO"
-
-msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
-msgstr "Un cortafuegos de salida (egress). Activa el interruptor principal para bloquear todas las llamadas externas del lado del servidor y del navegador. Tres usos en un interruptor: resiliencia cuando internet se corta o restringe, rendimiento (las llamadas de terceros lentas o caídas fallan al instante en vez de bloquear la carga de la página) y privacidad (elimina rastreadores y peticiones «phone-home»)."
-
-msgid "Master switch — Block external requests"
-msgstr "Interruptor principal: bloquear solicitudes externas"
-
-msgid "When ON, blocking is applied per the options below."
-msgstr "Cuando está activado, el bloqueo se aplica según las opciones de abajo."
-
-msgid "Server-side"
-msgstr "Lado del servidor"
-
-msgid "Block outbound WP HTTP API"
-msgstr "Bloquear la API HTTP saliente de WP"
-
-msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
-msgstr "Actualizaciones, wordpress.org, OpenAI/Gemini, cualquier wp_remote_*. Falla al instante en vez de agotar el tiempo de espera."
-
-msgid "Browser-side"
-msgstr "Lado del navegador"
-
-msgid "External <script src>"
-msgstr "<script src> externo"
-
-msgid "Removes external JavaScript files."
-msgstr "Elimina los archivos JavaScript externos."
-
-msgid "External stylesheets"
-msgstr "Hojas de estilo externas"
-
-msgid "Removes external stylesheets (e.g. Google Fonts)."
-msgstr "Elimina las hojas de estilo externas (p. ej. Google Fonts)."
-
-msgid "External resource hints"
-msgstr "Sugerencias de recursos externas"
-
-msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
-msgstr "Elimina preconnect / dns-prefetch / preload / prefetch a hosts externos."
-
-msgid "External iframes"
-msgstr "iframes externos"
-
-msgid "Replaces external iframes with a local placeholder."
-msgstr "Sustituye los iframes externos por un marcador local."
-
-msgid "Inline analytics"
-msgstr "Analíticas en línea"
-
-msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
-msgstr "Elimina los fragmentos en línea de GA/GTM/Clarity/Ahrefs/Pixel."
-
-msgid "External images"
-msgstr "Imágenes externas"
-
-msgid "Replaces external images with a transparent placeholder. (off by default)"
-msgstr "Sustituye las imágenes externas por un marcador transparente. (desactivado por defecto)"
-
-msgid "Scope & logging"
-msgstr "Alcance y registro"
-
-msgid "Also sanitize wp-admin"
-msgstr "Sanear también wp-admin"
-
-msgid "Off by default — to avoid disrupting wp-admin."
-msgstr "Desactivado por defecto, para no afectar a wp-admin."
-
-msgid "Log detected hosts"
-msgstr "Registrar hosts detectados"
-
-msgid "Keeps a list of detected external hosts."
-msgstr "Mantiene una lista de los hosts externos detectados."
-
-msgid "Allow-list"
-msgstr "Lista de permitidos"
-
-msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
-msgstr "Hosts que siempre se permiten (uno por línea o separados por comas). Tu propio dominio y sus subdominios siempre se permiten."
-
-msgid "Save settings"
-msgstr "Guardar cambios"
-
-msgid "Detected external hosts"
-msgstr "Hosts externos detectados"
-
-msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
-msgstr "Aún no hay registros. Mientras esté activo, los hosts externos bloqueados aparecerán aquí cuando los visitantes carguen páginas; úsalos para crear tu lista de permitidos."
-
-msgid "First seen"
-msgstr "Primera vez visto"
-
-msgid "Clear list"
-msgstr "Vaciar lista"
-
-msgid "External HTTP block (wp-config.php)"
-msgstr "Bloqueo HTTP externo (wp-config.php)"
-
-msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
-msgstr "ReqLock debería ser el único interruptor para el bloqueo externo. Un WP_HTTP_BLOCK_EXTERNAL fijado en el código bloquea las solicitudes incluso cuando ReqLock está APAGADO (rompiendo instalaciones de plugins/temas, actualizaciones y el directorio) — desármalo para que ReqLock controle el bloqueo. Puedes rearmarlo (restaurarlo) en cualquier momento."
-
-msgid "Hardcoded block"
-msgstr "Bloqueo fijado en el código"
-
-msgid "Location"
-msgstr "Ubicación"
-
-msgid "Action"
-msgstr "Acción"
-
-msgid "Disarm (comment out)"
-msgstr "Desarmar (comentar)"
-
-msgid "Re-arm (restore block)"
-msgstr "Rearmar (restaurar bloqueo)"
-
-msgid "review manually"
-msgstr "revisar manualmente"
-
-msgid "not writable — edit manually"
-msgstr "sin permiso de escritura — editar manualmente"
-
-msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
-msgstr "Desarrollado y mantenido por el <strong>equipo de DevOps de Rackset</strong>."
-
-msgid "Website:"
-msgstr "Sitio web:"
-
-
-msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
-msgstr "<strong>ReqLock Pro</strong>: hosts ilimitados, subdominios comodín <code>*.example.com</code>, bloqueo automático de hosts lentos y localización de fuentes/JS/CSS externos."
-
+#: reqlock.php:247
 msgid "Block all external requests (allow-list exceptions)"
 msgstr "Bloquear todas las solicitudes externas (excepciones de la lista de permitidos)"
 
+#: reqlock.php:248
 msgid "Block only listed hosts (block-list)"
 msgstr "Bloquear solo los hosts indicados (lista de bloqueo)"
 
-msgid "Block-list"
-msgstr "Lista de bloqueo"
+#: reqlock.php:418
+#, php-format
+msgid "Plugin: %s"
+msgstr "Plugin: %s"
 
-msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
-msgstr "Hosts que se bloquearán cuando el modo sea «Lista de bloqueo» (uno por línea o separados por comas). Se ignora en el modo «Bloquear todo lo externo». Tu propio dominio y sus subdominios nunca se bloquean. La versión gratuita bloquea hasta 2 hosts exactos."
+#: reqlock.php:422
+#, php-format
+msgid "Theme: %s"
+msgstr "Tema: %s"
 
-msgid "Learn more"
-msgstr "Más información"
+#: reqlock.php:426
+#, php-format
+msgid "Front-end (%s)"
+msgstr "Front-end (%s)"
 
+#: reqlock.php:429
+msgid "WordPress core"
+msgstr "Núcleo de WordPress"
+
+#: reqlock.php:430
+msgid "Must-use plugin"
+msgstr "Plugin de uso obligatorio (mu-plugin)"
+
+#: reqlock.php:431
+msgid "Front-end"
+msgstr "Front-end"
+
+#: reqlock.php:432
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: reqlock.php:767 reqlock.php:807
+msgid "Could not locate wp-config.php."
+msgstr "No se pudo encontrar wp-config.php."
+
+#: reqlock.php:770
+msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
+msgstr "wp-config.php no admite escritura — comenta manualmente la línea WP_HTTP_BLOCK_EXTERNAL."
+
+#: reqlock.php:774 reqlock.php:814
+msgid "Could not read wp-config.php."
+msgstr "No se pudo leer wp-config.php."
+
+#: reqlock.php:784
+msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
+msgstr "No se encontró un WP_HTTP_BLOCK_EXTERNAL activo para desarmar."
+
+#: reqlock.php:788 reqlock.php:828
+msgid "Safety check failed — wp-config.php was left unchanged."
+msgstr "La comprobación de seguridad falló — wp-config.php no se modificó."
+
+#: reqlock.php:793 reqlock.php:833
+msgid "Failed to write wp-config.php."
+msgstr "No se pudo escribir wp-config.php."
+
+#: reqlock.php:795
+msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
+msgstr "WP_HTTP_BLOCK_EXTERNAL se ha comentado en wp-config.php. Ahora ReqLock controla el bloqueo externo — activa el interruptor principal para bloquear."
+
+#: reqlock.php:810
+msgid "wp-config.php is not writable — edit it manually."
+msgstr "wp-config.php no admite escritura — edítalo manualmente."
+
+#: reqlock.php:824
+msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
+msgstr "No se encontró ningún WP_HTTP_BLOCK_EXTERNAL desarmado por ReqLock para restaurar."
+
+#: reqlock.php:835
+msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
+msgstr "WP_HTTP_BLOCK_EXTERNAL restaurado en wp-config.php — WordPress vuelve a bloquear todas las solicitudes externas, independientemente de ReqLock."
+
+#: reqlock.php:856
+msgid "Settings"
+msgstr "Ajustes"
+
+#: reqlock.php:871
+msgid "ReqLock firewall is ON — external requests are being blocked"
+msgstr "El cortafuegos ReqLock está activado: se están bloqueando las solicitudes externas"
+
+#: reqlock.php:875
+msgid "ReqLock firewall is OFF — optimizers are active (localize / lazy-load)"
+msgstr "El cortafuegos ReqLock está desactivado: los optimizadores están activos (localización / carga diferida)"
+
+#: reqlock.php:878
+msgid "ReqLock is idle — firewall off, no optimizers active"
+msgstr "ReqLock está inactivo: cortafuegos desactivado, sin optimizadores activos"
+
+#: reqlock.php:932
+msgid "Detected-hosts list cleared."
+msgstr "Se ha vaciado la lista de hosts detectados."
+
+#: reqlock.php:979
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr "Guardado: ReqLock está ACTIVADO (solicitudes externas bloqueadas)."
+
+#: reqlock.php:980
+msgid "Saved — ReqLock is OFF."
+msgstr "Guardado: ReqLock está APAGADO."
+
+#: reqlock.php:990
+#, php-format
+msgid "⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgid_plural "⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgstr[0] "⚠ Lista de bloqueo: se eliminó %1$d entrada. La versión gratuita permite hasta %2$d host(s) exacto(s) y no admite subdominios comodín (*.example.com). Actualiza a ReqLock Pro para hosts ilimitados y subdominios comodín."
+msgstr[1] "⚠ Lista de bloqueo: se eliminaron %1$d entradas. La versión gratuita permite hasta %2$d host(s) exacto(s) y no admite subdominios comodín (*.example.com). Actualiza a ReqLock Pro para hosts ilimitados y subdominios comodín."
+
+#: reqlock.php:1083
+msgid "ACTIVE"
+msgstr "ACTIVO"
+
+#: reqlock.php:1083
+msgid "OFF"
+msgstr "APAGADO"
+
+#: reqlock.php:1084
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr "Un cortafuegos de salida (egress). Activa el interruptor principal para bloquear todas las llamadas externas del lado del servidor y del navegador. Tres usos en un interruptor: resiliencia cuando internet se corta o restringe, rendimiento (las llamadas de terceros lentas o caídas fallan al instante en vez de bloquear la carga de la página) y privacidad (elimina rastreadores y peticiones «phone-home»)."
+
+#: reqlock.php:1092
+msgid "Master switch — Block external requests"
+msgstr "Interruptor principal: bloquear solicitudes externas"
+
+#: reqlock.php:1093
+msgid "When ON, blocking is applied per the options below."
+msgstr "Cuando está activado, el bloqueo se aplica según las opciones de abajo."
+
+#: reqlock.php:1097
 msgid "Mode"
 msgstr "Modo"
 
+#: reqlock.php:1105
 msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
 msgstr "«Bloquear todo lo externo» bloquea todos los hosts externos excepto los de tu lista de permitidos. «Lista de bloqueo» mantiene el sitio en línea y bloquea solo los hosts que indiques abajo. Tu propio dominio y sus subdominios nunca se bloquean."
+
+#: reqlock.php:1110
+msgid "Server-side"
+msgstr "Lado del servidor"
+
+#: reqlock.php:1112
+msgid "Block outbound WP HTTP API"
+msgstr "Bloquear la API HTTP saliente de WP"
+
+#: reqlock.php:1113
+msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
+msgstr "Actualizaciones, wordpress.org, OpenAI/Gemini, cualquier wp_remote_*. Falla al instante en vez de agotar el tiempo de espera."
+
+#: reqlock.php:1117
+msgid "Browser-side"
+msgstr "Lado del navegador"
+
+#: reqlock.php:1118
+msgid "External <script src>"
+msgstr "<script src> externo"
+
+#: reqlock.php:1118
+msgid "Removes external JavaScript files."
+msgstr "Elimina los archivos JavaScript externos."
+
+#: reqlock.php:1119
+msgid "External stylesheets"
+msgstr "Hojas de estilo externas"
+
+#: reqlock.php:1119
+msgid "Removes external stylesheets (e.g. Google Fonts)."
+msgstr "Elimina las hojas de estilo externas (p. ej. Google Fonts)."
+
+#: reqlock.php:1120
+msgid "External resource hints"
+msgstr "Sugerencias de recursos externas"
+
+#: reqlock.php:1120
+msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
+msgstr "Elimina preconnect / dns-prefetch / preload / prefetch a hosts externos."
+
+#: reqlock.php:1121
+msgid "External iframes"
+msgstr "iframes externos"
+
+#: reqlock.php:1121
+msgid "Replaces external iframes with a local placeholder."
+msgstr "Sustituye los iframes externos por un marcador local."
+
+#: reqlock.php:1122
+msgid "Inline analytics"
+msgstr "Analíticas en línea"
+
+#: reqlock.php:1122
+msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
+msgstr "Elimina los fragmentos en línea de GA/GTM/Clarity/Ahrefs/Pixel."
+
+#: reqlock.php:1123
+msgid "External images"
+msgstr "Imágenes externas"
+
+#: reqlock.php:1123
+msgid "Replaces external images with a transparent placeholder. (off by default)"
+msgstr "Sustituye las imágenes externas por un marcador transparente. (desactivado por defecto)"
+
+#: reqlock.php:1127
+msgid "Scope & logging"
+msgstr "Alcance y registro"
+
+#: reqlock.php:1128
+msgid "Also sanitize wp-admin"
+msgstr "Sanear también wp-admin"
+
+#: reqlock.php:1128
+msgid "Off by default — to avoid disrupting wp-admin."
+msgstr "Desactivado por defecto, para no afectar a wp-admin."
+
+#: reqlock.php:1129
+msgid "Log detected hosts"
+msgstr "Registrar hosts detectados"
+
+#: reqlock.php:1129
+msgid "Keeps a list of detected external hosts."
+msgstr "Mantiene una lista de los hosts externos detectados."
+
+#: reqlock.php:1134
+msgid "Allow-list"
+msgstr "Lista de permitidos"
+
+#: reqlock.php:1135
+msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
+msgstr "Hosts que siempre se permiten (uno por línea o separados por comas). Tu propio dominio y sus subdominios siempre se permiten."
+
+#: reqlock.php:1140
+msgid "Block-list"
+msgstr "Lista de bloqueo"
+
+#: reqlock.php:1141
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "Hosts que se bloquearán cuando el modo sea «Lista de bloqueo» (uno por línea o separados por comas). Se ignora en el modo «Bloquear todo lo externo». Tu propio dominio y sus subdominios nunca se bloquean. La versión gratuita bloquea hasta 2 hosts exactos."
+
+#: reqlock.php:1143
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>: hosts ilimitados, subdominios comodín <code>*.example.com</code>, bloqueo automático de hosts lentos y localización de fuentes/JS/CSS externos."
+
+#: reqlock.php:1143
+msgid "Learn more"
+msgstr "Más información"
+
+#: reqlock.php:1147
+msgid "Save settings"
+msgstr "Guardar cambios"
+
+#: reqlock.php:1152
+msgid "Detected external hosts"
+msgstr "Hosts externos detectados"
+
+#: reqlock.php:1154
+msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
+msgstr "Aún no hay registros. Mientras esté activo, los hosts externos bloqueados aparecerán aquí cuando los visitantes carguen páginas; úsalos para crear tu lista de permitidos."
+
+#: reqlock.php:1157
+msgid "Source"
+msgstr "Origen"
+
+#: reqlock.php:1157
+msgid "First seen"
+msgstr "Primera vez visto"
+
+#: reqlock.php:1175
+msgid "Clear list"
+msgstr "Vaciar lista"
+
+#: reqlock.php:1183
+msgid "External HTTP block (wp-config.php)"
+msgstr "Bloqueo HTTP externo (wp-config.php)"
+
+#: reqlock.php:1184
+msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
+msgstr "ReqLock debería ser el único interruptor para el bloqueo externo. Un WP_HTTP_BLOCK_EXTERNAL fijado en el código bloquea las solicitudes incluso cuando ReqLock está APAGADO (rompiendo instalaciones de plugins/temas, actualizaciones y el directorio) — desármalo para que ReqLock controle el bloqueo. Puedes rearmarlo (restaurarlo) en cualquier momento."
+
+#: reqlock.php:1189
+msgid "Hardcoded block"
+msgstr "Bloqueo fijado en el código"
+
+#: reqlock.php:1189
+msgid "Location"
+msgstr "Ubicación"
+
+#: reqlock.php:1189
+msgid "Action"
+msgstr "Acción"
+
+#: reqlock.php:1197
+msgid "Disarm (comment out)"
+msgstr "Desarmar (comentar)"
+
+#: reqlock.php:1199
+msgid "Re-arm (restore block)"
+msgstr "Rearmar (restaurar bloqueo)"
+
+#: reqlock.php:1201
+msgid "review manually"
+msgstr "revisar manualmente"
+
+#: reqlock.php:1203
+msgid "not writable — edit manually"
+msgstr "sin permiso de escritura — editar manualmente"
+
+#: reqlock.php:1230
+msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
+msgstr "Desarrollado y mantenido por el <strong>equipo de DevOps de Rackset</strong>."
+
+#: reqlock.php:1231
+msgid "Website:"
+msgstr "Sitio web:"
+
+#~ msgid "ReqLock active — external requests blocked"
+#~ msgstr "ReqLock activo: solicitudes externas bloqueadas"

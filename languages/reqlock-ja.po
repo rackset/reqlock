@@ -1,210 +1,330 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
+"Report-Msgid-Bugs-To: https://rackset.com\n"
+"POT-Creation-Date: 2026-06-09 15:40+0400\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "Could not locate wp-config.php."
-msgstr "wp-config.php が見つかりませんでした。"
-
-msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
-msgstr "wp-config.php に書き込めません — WP_HTTP_BLOCK_EXTERNAL の行を手動でコメントアウトしてください。"
-
-msgid "Could not read wp-config.php."
-msgstr "wp-config.php を読み取れませんでした。"
-
-msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
-msgstr "無効化できる有効な WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
-
-msgid "Safety check failed — wp-config.php was left unchanged."
-msgstr "安全性チェックに失敗しました — wp-config.php は変更されていません。"
-
-msgid "Failed to write wp-config.php."
-msgstr "wp-config.php への書き込みに失敗しました。"
-
-msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
-msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL をコメントアウトしました。これで外部ブロックは ReqLock が制御します — ブロックするにはマスタースイッチをオンにしてください。"
-
-msgid "wp-config.php is not writable — edit it manually."
-msgstr "wp-config.php に書き込めません — 手動で編集してください。"
-
-msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
-msgstr "復元できる、ReqLock により無効化された WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
-
-msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
-msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL を復元しました — WordPress は ReqLock とは独立して、再びすべての外部リクエストをブロックします。"
-
-msgid "Settings"
-msgstr "設定"
-
-msgid "ReqLock active — external requests blocked"
-msgstr "ReqLock 有効 — 外部リクエストをブロック中"
-
-msgid "Detected-hosts list cleared."
-msgstr "検出ホストのリストをクリアしました。"
-
-msgid "Saved — ReqLock is ON (external requests blocked)."
-msgstr "保存しました — ReqLock はオンです（外部リクエストをブロック）。"
-
-msgid "Saved — ReqLock is OFF."
-msgstr "保存しました — ReqLock はオフです。"
-
-msgid "ACTIVE"
-msgstr "有効"
-
-msgid "OFF"
-msgstr "オフ"
-
-msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
-msgstr "送信（アウトバウンド）ファイアウォール。マスタースイッチをオンにすると、サーバー側とブラウザー側のすべての外部呼び出しをブロックします。1つのスイッチで3つの用途 — インターネットが遮断・制限されたときの耐障害性、パフォーマンス（遅いまたは応答しないサードパーティ呼び出しがタイムアウトを待たず即座に失敗）、プライバシー（トラッカーとホームへの通信を除去）。"
-
-msgid "Master switch — Block external requests"
-msgstr "マスタースイッチ — 外部リクエストをブロック"
-
-msgid "When ON, blocking is applied per the options below."
-msgstr "オンのとき、以下のオプションに従ってブロックが適用されます。"
-
-msgid "Server-side"
-msgstr "サーバー側"
-
-msgid "Block outbound WP HTTP API"
-msgstr "送信 WP HTTP API をブロック"
-
-msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
-msgstr "更新、wordpress.org、OpenAI/Gemini、あらゆる wp_remote_*。タイムアウトを待たず即座に失敗します。"
-
-msgid "Browser-side"
-msgstr "ブラウザー側"
-
-msgid "External <script src>"
-msgstr "外部 <script src>"
-
-msgid "Removes external JavaScript files."
-msgstr "外部の JavaScript ファイルを除去します。"
-
-msgid "External stylesheets"
-msgstr "外部スタイルシート"
-
-msgid "Removes external stylesheets (e.g. Google Fonts)."
-msgstr "外部スタイルシート（例：Google Fonts）を除去します。"
-
-msgid "External resource hints"
-msgstr "外部リソースヒント"
-
-msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
-msgstr "外部ホストへの preconnect / dns-prefetch / preload / prefetch を除去します。"
-
-msgid "External iframes"
-msgstr "外部 iframe"
-
-msgid "Replaces external iframes with a local placeholder."
-msgstr "外部 iframe をローカルのプレースホルダーに置き換えます。"
-
-msgid "Inline analytics"
-msgstr "インライン分析"
-
-msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
-msgstr "インラインの GA/GTM/Clarity/Ahrefs/Pixel スニペットを除去します。"
-
-msgid "External images"
-msgstr "外部画像"
-
-msgid "Replaces external images with a transparent placeholder. (off by default)"
-msgstr "外部画像を透明なプレースホルダーに置き換えます。（既定はオフ）"
-
-msgid "Scope & logging"
-msgstr "範囲とログ"
-
-msgid "Also sanitize wp-admin"
-msgstr "wp-admin もサニタイズする"
-
-msgid "Off by default — to avoid disrupting wp-admin."
-msgstr "既定はオフ — wp-admin の不具合を避けるため。"
-
-msgid "Log detected hosts"
-msgstr "検出ホストを記録"
-
-msgid "Keeps a list of detected external hosts."
-msgstr "検出された外部ホストのリストを保持します。"
-
-msgid "Allow-list"
-msgstr "許可リスト"
-
-msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
-msgstr "常に許可するホスト（1行に1つ、またはカンマ区切り）。自分のドメインとそのサブドメインは常に許可されます。"
-
-msgid "Save settings"
-msgstr "設定を保存"
-
-msgid "Detected external hosts"
-msgstr "検出された外部ホスト"
-
-msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
-msgstr "まだ記録はありません。有効な間、ブロックされた外部ホストは訪問者がページを読み込むとここに表示されます — 許可リストの作成に利用してください。"
-
-msgid "First seen"
-msgstr "初回検出"
-
-msgid "Clear list"
-msgstr "リストをクリア"
-
-msgid "External HTTP block (wp-config.php)"
-msgstr "外部 HTTP ブロック（wp-config.php）"
-
-msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
-msgstr "外部ブロックの唯一のスイッチは ReqLock であるべきです。ハードコードされた WP_HTTP_BLOCK_EXTERNAL は ReqLock がオフのときでもリクエストをブロックし（プラグイン/テーマのインストール、更新、ディレクトリが壊れます）— 無効化すれば ReqLock がブロックを制御します。いつでも再度有効化（復元）できます。"
-
-msgid "Hardcoded block"
-msgstr "ハードコードされたブロック"
-
-msgid "Location"
-msgstr "場所"
-
-msgid "Action"
-msgstr "操作"
-
-msgid "Disarm (comment out)"
-msgstr "無効化（コメントアウト）"
-
-msgid "Re-arm (restore block)"
-msgstr "再有効化（ブロックを復元）"
-
-msgid "review manually"
-msgstr "手動で確認"
-
-msgid "not writable — edit manually"
-msgstr "書き込み不可 — 手動で編集"
-
-msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
-msgstr "<strong>Rackset DevOps Team</strong> によって開発・保守されています。"
-
-msgid "Website:"
-msgstr "ウェブサイト："
-
-
-msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
-msgstr "<strong>ReqLock Pro</strong>：ホスト数無制限、<code>*.example.com</code> のワイルドカードサブドメイン、低速ホストの自動ブロック、外部フォント/JS/CSS のローカル配信。"
-
+#: reqlock.php:247
 msgid "Block all external requests (allow-list exceptions)"
 msgstr "すべての外部リクエストをブロック（許可リストは例外）"
 
+#: reqlock.php:248
 msgid "Block only listed hosts (block-list)"
 msgstr "リストにあるホストのみブロック（ブロックリスト）"
 
-msgid "Block-list"
-msgstr "ブロックリスト"
+#: reqlock.php:418
+#, php-format
+msgid "Plugin: %s"
+msgstr "プラグイン: %s"
 
-msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
-msgstr "モードが「ブロックリスト」のときにブロックするホスト（1行に1つ、またはカンマ区切り）。「すべての外部をブロック」モードでは無視されます。自サイトのドメインとそのサブドメインは決してブロックされません。無料版では最大2件の完全一致ホストをブロックできます。"
+#: reqlock.php:422
+#, php-format
+msgid "Theme: %s"
+msgstr "テーマ: %s"
 
-msgid "Learn more"
-msgstr "詳細"
+#: reqlock.php:426
+#, php-format
+msgid "Front-end (%s)"
+msgstr "フロントエンド (%s)"
 
+#: reqlock.php:429
+msgid "WordPress core"
+msgstr "WordPress コア"
+
+#: reqlock.php:430
+msgid "Must-use plugin"
+msgstr "必須使用プラグイン (mu-plugin)"
+
+#: reqlock.php:431
+msgid "Front-end"
+msgstr "フロントエンド"
+
+#: reqlock.php:432
+msgid "Unknown"
+msgstr "不明"
+
+#: reqlock.php:767 reqlock.php:807
+msgid "Could not locate wp-config.php."
+msgstr "wp-config.php が見つかりませんでした。"
+
+#: reqlock.php:770
+msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
+msgstr "wp-config.php に書き込めません — WP_HTTP_BLOCK_EXTERNAL の行を手動でコメントアウトしてください。"
+
+#: reqlock.php:774 reqlock.php:814
+msgid "Could not read wp-config.php."
+msgstr "wp-config.php を読み取れませんでした。"
+
+#: reqlock.php:784
+msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
+msgstr "無効化できる有効な WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
+
+#: reqlock.php:788 reqlock.php:828
+msgid "Safety check failed — wp-config.php was left unchanged."
+msgstr "安全性チェックに失敗しました — wp-config.php は変更されていません。"
+
+#: reqlock.php:793 reqlock.php:833
+msgid "Failed to write wp-config.php."
+msgstr "wp-config.php への書き込みに失敗しました。"
+
+#: reqlock.php:795
+msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
+msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL をコメントアウトしました。これで外部ブロックは ReqLock が制御します — ブロックするにはマスタースイッチをオンにしてください。"
+
+#: reqlock.php:810
+msgid "wp-config.php is not writable — edit it manually."
+msgstr "wp-config.php に書き込めません — 手動で編集してください。"
+
+#: reqlock.php:824
+msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
+msgstr "復元できる、ReqLock により無効化された WP_HTTP_BLOCK_EXTERNAL が見つかりませんでした。"
+
+#: reqlock.php:835
+msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
+msgstr "wp-config.php の WP_HTTP_BLOCK_EXTERNAL を復元しました — WordPress は ReqLock とは独立して、再びすべての外部リクエストをブロックします。"
+
+#: reqlock.php:856
+msgid "Settings"
+msgstr "設定"
+
+#: reqlock.php:871
+msgid "ReqLock firewall is ON — external requests are being blocked"
+msgstr "ReqLock ファイアウォールは ON です — 外部リクエストはブロックされています"
+
+#: reqlock.php:875
+msgid "ReqLock firewall is OFF — optimizers are active (localize / lazy-load)"
+msgstr "ReqLock ファイアウォールは OFF です — オプティマイザーが有効です（ローカライズ / 遅延読み込み）"
+
+#: reqlock.php:878
+msgid "ReqLock is idle — firewall off, no optimizers active"
+msgstr "ReqLock はアイドル状態です — ファイアウォールは OFF、オプティマイザーも無効です"
+
+#: reqlock.php:932
+msgid "Detected-hosts list cleared."
+msgstr "検出ホストのリストをクリアしました。"
+
+#: reqlock.php:979
+msgid "Saved — ReqLock is ON (external requests blocked)."
+msgstr "保存しました — ReqLock はオンです（外部リクエストをブロック）。"
+
+#: reqlock.php:980
+msgid "Saved — ReqLock is OFF."
+msgstr "保存しました — ReqLock はオフです。"
+
+#: reqlock.php:990
+#, php-format
+msgid "⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgid_plural "⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgstr[0] "⚠ ブロックリスト: %1$d 件の項目が削除されました。無料版では完全一致のホストは最大 %2$d 件まで、ワイルドカードのサブドメイン（*.example.com）は使用できません。ホスト数無制限とワイルドカードサブドメインには ReqLock Pro をご利用ください。"
+
+#: reqlock.php:1083
+msgid "ACTIVE"
+msgstr "有効"
+
+#: reqlock.php:1083
+msgid "OFF"
+msgstr "オフ"
+
+#: reqlock.php:1084
+msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
+msgstr "送信（アウトバウンド）ファイアウォール。マスタースイッチをオンにすると、サーバー側とブラウザー側のすべての外部呼び出しをブロックします。1つのスイッチで3つの用途 — インターネットが遮断・制限されたときの耐障害性、パフォーマンス（遅いまたは応答しないサードパーティ呼び出しがタイムアウトを待たず即座に失敗）、プライバシー（トラッカーとホームへの通信を除去）。"
+
+#: reqlock.php:1092
+msgid "Master switch — Block external requests"
+msgstr "マスタースイッチ — 外部リクエストをブロック"
+
+#: reqlock.php:1093
+msgid "When ON, blocking is applied per the options below."
+msgstr "オンのとき、以下のオプションに従ってブロックが適用されます。"
+
+#: reqlock.php:1097
 msgid "Mode"
 msgstr "モード"
 
+#: reqlock.php:1105
 msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
 msgstr "「すべての外部をブロック」は許可リストを除くすべての外部ホストをブロックします。「ブロックリスト」はサイトをオンラインに保ち、下に列挙したホストのみをブロックします。自サイトのドメインとサブドメインは決してブロックされません。"
+
+#: reqlock.php:1110
+msgid "Server-side"
+msgstr "サーバー側"
+
+#: reqlock.php:1112
+msgid "Block outbound WP HTTP API"
+msgstr "送信 WP HTTP API をブロック"
+
+#: reqlock.php:1113
+msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
+msgstr "更新、wordpress.org、OpenAI/Gemini、あらゆる wp_remote_*。タイムアウトを待たず即座に失敗します。"
+
+#: reqlock.php:1117
+msgid "Browser-side"
+msgstr "ブラウザー側"
+
+#: reqlock.php:1118
+msgid "External <script src>"
+msgstr "外部 <script src>"
+
+#: reqlock.php:1118
+msgid "Removes external JavaScript files."
+msgstr "外部の JavaScript ファイルを除去します。"
+
+#: reqlock.php:1119
+msgid "External stylesheets"
+msgstr "外部スタイルシート"
+
+#: reqlock.php:1119
+msgid "Removes external stylesheets (e.g. Google Fonts)."
+msgstr "外部スタイルシート（例：Google Fonts）を除去します。"
+
+#: reqlock.php:1120
+msgid "External resource hints"
+msgstr "外部リソースヒント"
+
+#: reqlock.php:1120
+msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
+msgstr "外部ホストへの preconnect / dns-prefetch / preload / prefetch を除去します。"
+
+#: reqlock.php:1121
+msgid "External iframes"
+msgstr "外部 iframe"
+
+#: reqlock.php:1121
+msgid "Replaces external iframes with a local placeholder."
+msgstr "外部 iframe をローカルのプレースホルダーに置き換えます。"
+
+#: reqlock.php:1122
+msgid "Inline analytics"
+msgstr "インライン分析"
+
+#: reqlock.php:1122
+msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
+msgstr "インラインの GA/GTM/Clarity/Ahrefs/Pixel スニペットを除去します。"
+
+#: reqlock.php:1123
+msgid "External images"
+msgstr "外部画像"
+
+#: reqlock.php:1123
+msgid "Replaces external images with a transparent placeholder. (off by default)"
+msgstr "外部画像を透明なプレースホルダーに置き換えます。（既定はオフ）"
+
+#: reqlock.php:1127
+msgid "Scope & logging"
+msgstr "範囲とログ"
+
+#: reqlock.php:1128
+msgid "Also sanitize wp-admin"
+msgstr "wp-admin もサニタイズする"
+
+#: reqlock.php:1128
+msgid "Off by default — to avoid disrupting wp-admin."
+msgstr "既定はオフ — wp-admin の不具合を避けるため。"
+
+#: reqlock.php:1129
+msgid "Log detected hosts"
+msgstr "検出ホストを記録"
+
+#: reqlock.php:1129
+msgid "Keeps a list of detected external hosts."
+msgstr "検出された外部ホストのリストを保持します。"
+
+#: reqlock.php:1134
+msgid "Allow-list"
+msgstr "許可リスト"
+
+#: reqlock.php:1135
+msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
+msgstr "常に許可するホスト（1行に1つ、またはカンマ区切り）。自分のドメインとそのサブドメインは常に許可されます。"
+
+#: reqlock.php:1140
+msgid "Block-list"
+msgstr "ブロックリスト"
+
+#: reqlock.php:1141
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "モードが「ブロックリスト」のときにブロックするホスト（1行に1つ、またはカンマ区切り）。「すべての外部をブロック」モードでは無視されます。自サイトのドメインとそのサブドメインは決してブロックされません。無料版では最大2件の完全一致ホストをブロックできます。"
+
+#: reqlock.php:1143
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>：ホスト数無制限、<code>*.example.com</code> のワイルドカードサブドメイン、低速ホストの自動ブロック、外部フォント/JS/CSS のローカル配信。"
+
+#: reqlock.php:1143
+msgid "Learn more"
+msgstr "詳細"
+
+#: reqlock.php:1147
+msgid "Save settings"
+msgstr "設定を保存"
+
+#: reqlock.php:1152
+msgid "Detected external hosts"
+msgstr "検出された外部ホスト"
+
+#: reqlock.php:1154
+msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
+msgstr "まだ記録はありません。有効な間、ブロックされた外部ホストは訪問者がページを読み込むとここに表示されます — 許可リストの作成に利用してください。"
+
+#: reqlock.php:1157
+msgid "Source"
+msgstr "ソース"
+
+#: reqlock.php:1157
+msgid "First seen"
+msgstr "初回検出"
+
+#: reqlock.php:1175
+msgid "Clear list"
+msgstr "リストをクリア"
+
+#: reqlock.php:1183
+msgid "External HTTP block (wp-config.php)"
+msgstr "外部 HTTP ブロック（wp-config.php）"
+
+#: reqlock.php:1184
+msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
+msgstr "外部ブロックの唯一のスイッチは ReqLock であるべきです。ハードコードされた WP_HTTP_BLOCK_EXTERNAL は ReqLock がオフのときでもリクエストをブロックし（プラグイン/テーマのインストール、更新、ディレクトリが壊れます）— 無効化すれば ReqLock がブロックを制御します。いつでも再度有効化（復元）できます。"
+
+#: reqlock.php:1189
+msgid "Hardcoded block"
+msgstr "ハードコードされたブロック"
+
+#: reqlock.php:1189
+msgid "Location"
+msgstr "場所"
+
+#: reqlock.php:1189
+msgid "Action"
+msgstr "操作"
+
+#: reqlock.php:1197
+msgid "Disarm (comment out)"
+msgstr "無効化（コメントアウト）"
+
+#: reqlock.php:1199
+msgid "Re-arm (restore block)"
+msgstr "再有効化（ブロックを復元）"
+
+#: reqlock.php:1201
+msgid "review manually"
+msgstr "手動で確認"
+
+#: reqlock.php:1203
+msgid "not writable — edit manually"
+msgstr "書き込み不可 — 手動で編集"
+
+#: reqlock.php:1230
+msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
+msgstr "<strong>Rackset DevOps Team</strong> によって開発・保守されています。"
+
+#: reqlock.php:1231
+msgid "Website:"
+msgstr "ウェブサイト："
+
+#~ msgid "ReqLock active — external requests blocked"
+#~ msgstr "ReqLock 有効 — 外部リクエストをブロック中"
