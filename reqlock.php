@@ -722,31 +722,53 @@ class ReqLock {
      * ========================================================================= */
 
     public function admin_menu() {
-        add_options_page(
+        add_menu_page(
             'ReqLock',
             'ReqLock',
             'manage_options',
             'reqlock',
-            array($this, 'render_settings')
+            array($this, 'render_settings'),
+            'dashicons-lock',
+            80
         );
     }
 
     public function action_links($links) {
-        $url = admin_url('options-general.php?page=reqlock');
+        $url = admin_url('admin.php?page=reqlock');
         array_unshift($links, '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'reqlock') . '</a>');
         return $links;
     }
 
+    /**
+     * Always-on admin-bar indicator: a closed green padlock when ReqLock is ON,
+     * an open amber padlock when OFF. Inline SVG (self-sized + self-colored) so it
+     * needs no extra CSS and contrasts well against the dark admin bar.
+     */
     public function admin_bar($bar) {
-        if (!current_user_can('manage_options') || !$this->is_enabled()) {
+        if (!current_user_can('manage_options')) {
             return;
         }
+        $on = $this->is_enabled();
+        $title = '<span class="rql-ab" style="display:inline-flex;align-items:center;gap:7px;line-height:1;">'
+            . $this->lock_icon($on) . '<span>ReqLock</span></span>';
         $bar->add_node(array(
-            'id'    => 'rql-indicator',
-            'title' => '🔒 ' . __('ReqLock active — external requests blocked', 'reqlock'),
-            'href'  => admin_url('options-general.php?page=reqlock'),
-            'meta'  => array('title' => 'External requests are being blocked'),
+            'id'    => 'reqlock',
+            'title' => $title,
+            'href'  => admin_url('admin.php?page=reqlock'),
+            'meta'  => array('title' => $on
+                ? __('ReqLock is ON — external requests are being blocked', 'reqlock')
+                : __('ReqLock is OFF — external requests are allowed', 'reqlock')),
         ));
+    }
+
+    /** Inline padlock SVG: closed/green when enabled, open/amber when disabled. */
+    private function lock_icon($on) {
+        $color = $on ? '#46d369' : '#f0b849';
+        $path  = $on
+            ? 'M17 8h-1V6a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 1 1 4 0v2h-4V6z'
+            : 'M17 8H10V6a2 2 0 1 1 4 0 1 1 0 0 0 2 0 4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z';
+        return '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="display:block;">'
+            . '<path fill="' . $color . '" d="' . $path . '"/></svg>';
     }
 
     public function maybe_save() {
@@ -817,7 +839,7 @@ class ReqLock {
     }
 
     public function admin_assets($hook) {
-        if ($hook !== 'settings_page_reqlock') {
+        if ($hook !== 'toplevel_page_reqlock') {
             return;
         }
         wp_enqueue_style(
