@@ -57,6 +57,18 @@ add_filter( 'reqlock_filter_html', function ( $html, $reqlock ) {
 }, 10, 2 );
 ```
 
+### `reqlock_prefilter_html`
+Like `reqlock_filter_html`, but runs **before** the blocking transforms. Use this to
+rewrite external URLs to local copies *before* ReqLock would strip them — e.g. ReqLock
+Pro serving locally-cached resources during an outage instead of blocking them. Also
+starts the output buffer when registered.
+
+```php
+add_filter( 'reqlock_prefilter_html', function ( $html, $reqlock ) {
+    return $html; // rewrite external -> local before blocking runs
+}, 10, 2 );
+```
+
 ### `reqlock_addon_active`
 Lets an add-on tell ReqLock it is doing work even when the firewall master switch is
 OFF, so the admin-bar indicator shows the "optimizing" state (blue open padlock) instead

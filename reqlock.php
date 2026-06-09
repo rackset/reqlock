@@ -400,7 +400,7 @@ class ReqLock {
         // Capture output if we're actively blocking, OR if an add-on registered an
         // HTML transform (so Pro localize/lazy-load works even with the master switch off).
         $blocking = $this->is_enabled() && $this->should_filter_output();
-        if (!$blocking && !has_filter('reqlock_filter_html')) {
+        if (!$blocking && !has_filter('reqlock_filter_html') && !has_filter('reqlock_prefilter_html')) {
             return;
         }
         ob_start(array($this, 'filter_html'));
@@ -414,6 +414,16 @@ class ReqLock {
         if (stripos($html, '<html') === false && stripos($html, '<!doctype') === false) {
             return $html;
         }
+
+        /**
+         * Pre-block pass: add-ons rewrite the HTML BEFORE blocking runs — e.g. ReqLock
+         * Pro localizing external URLs to local cached copies so that, in blocking mode,
+         * resources are served from local instead of being stripped (outage resilience).
+         *
+         * @param string  $html    The buffered page HTML.
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        $html = apply_filters('reqlock_prefilter_html', $html, $this);
 
         // Blocking transforms run only when the master switch is ON.
         if ($this->is_enabled() && $this->should_filter_output()) {
