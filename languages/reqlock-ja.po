@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-09 15:40+0400\n"
+"POT-Creation-Date: 2026-06-09 16:13+0400\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -254,7 +254,7 @@ msgstr "モードが「ブロックリスト」のときにブロックするホ
 msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
 msgstr "<strong>ReqLock Pro</strong>：ホスト数無制限、<code>*.example.com</code> のワイルドカードサブドメイン、低速ホストの自動ブロック、外部フォント/JS/CSS のローカル配信。"
 
-#: reqlock.php:1143
+#: reqlock.php:1143 reqlock.php:1228
 msgid "Learn more"
 msgstr "詳細"
 
@@ -318,11 +318,19 @@ msgstr "手動で確認"
 msgid "not writable — edit manually"
 msgstr "書き込み不可 — 手動で編集"
 
-#: reqlock.php:1230
+#: reqlock.php:1226
+msgid "Upgrade to ReqLock Pro"
+msgstr "ReqLock Pro へアップグレード"
+
+#: reqlock.php:1227
+msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
+msgstr "外部フォント・JS・CSS のローカライズ（GDPR 対応・高速化）、埋め込みと画像の遅延読み込み、低速ホストの自動ブロック、無制限＋ワイルドカードのブロックリスト、そして接続断時にもキャッシュ済みリソースを提供してサイトを動作させ続けます。"
+
+#: reqlock.php:1238
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "<strong>Rackset DevOps Team</strong> によって開発・保守されています。"
 
-#: reqlock.php:1231
+#: reqlock.php:1239
 msgid "Website:"
 msgstr "ウェブサイト："
 

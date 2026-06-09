@@ -1221,6 +1221,14 @@ class ReqLock {
             do_action('reqlock_settings_after_cards', $this);
             ?>
 
+            <?php if (!class_exists('ReqLock_Pro')) : ?>
+            <div class="rql-card rql-upsell">
+                <h2>⚡ <?php echo esc_html__('Upgrade to ReqLock Pro', 'reqlock'); ?></h2>
+                <p><?php echo esc_html__('Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working.', 'reqlock'); ?></p>
+                <p><a class="button button-primary" href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
+            </div>
+            <?php endif; ?>
+
             <p class="rql-credit">
                 <?php if ($fa) : // Persian audience -> WebRamz brand ?>
                 Developed and maintained by the <strong>WebRamz DevOps Team</strong>.<br>

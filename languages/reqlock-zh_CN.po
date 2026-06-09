@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-09 15:40+0400\n"
+"POT-Creation-Date: 2026-06-09 16:13+0400\n"
 "PO-Revision-Date: 2026-06-04 20:30+0330\n"
 "Last-Translator: Rackset DevOps Team <https://rackset.com>\n"
 "Language-Team: Simplified Chinese\n"
@@ -260,7 +260,7 @@ msgstr "当模式为“黑名单”时要拦截的主机（每行一个，或用
 msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
 msgstr "<strong>ReqLock Pro</strong>：主机数量不限、<code>*.example.com</code> 通配符子域名、自动拦截慢速主机，以及本地化外部字体/JS/CSS。"
 
-#: reqlock.php:1143
+#: reqlock.php:1143 reqlock.php:1228
 msgid "Learn more"
 msgstr "了解更多"
 
@@ -324,11 +324,19 @@ msgstr "请手动检查"
 msgid "not writable — edit manually"
 msgstr "不可写 —— 请手动编辑"
 
-#: reqlock.php:1230
+#: reqlock.php:1226
+msgid "Upgrade to ReqLock Pro"
+msgstr "升级到 ReqLock Pro"
+
+#: reqlock.php:1227
+msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
+msgstr "本地化外部字体、JS 和 CSS（符合 GDPR、更快），延迟加载嵌入内容和图片，自动拦截慢速主机，不限数量且支持通配符的黑名单，并在断网期间提供已缓存的资源，让网站持续运行。"
+
+#: reqlock.php:1238
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "由 <strong>Rackset DevOps 团队</strong>开发和维护。"
 
-#: reqlock.php:1231
+#: reqlock.php:1239
 msgid "Website:"
 msgstr "网站："
 
