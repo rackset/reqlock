@@ -57,6 +57,15 @@ add_filter( 'reqlock_filter_html', function ( $html, $reqlock ) {
 }, 10, 2 );
 ```
 
+### `reqlock_addon_active`
+Lets an add-on tell ReqLock it is doing work even when the firewall master switch is
+OFF, so the admin-bar indicator shows the "optimizing" state (blue open padlock) instead
+of "idle". Return `true` when your always-on optimizer is enabled.
+
+```php
+add_filter( 'reqlock_addon_active', '__return_true' );
+```
+
 ## Actions
 
 ### `reqlock_host_seen`

@@ -770,25 +770,46 @@ class ReqLock {
         if (!current_user_can('manage_options')) {
             return;
         }
-        $on = $this->is_enabled();
+        if ($this->is_enabled()) {
+            $state = 'blocking';
+            $tip   = __('ReqLock firewall is ON — external requests are being blocked', 'reqlock');
+        } elseif (apply_filters('reqlock_addon_active', false)) {
+            // Firewall off, but an add-on optimizer (e.g. Pro localize / lazy-load) is running.
+            $state = 'optimizing';
+            $tip   = __('ReqLock firewall is OFF — optimizers are active (localize / lazy-load)', 'reqlock');
+        } else {
+            $state = 'idle';
+            $tip   = __('ReqLock is idle — firewall off, no optimizers active', 'reqlock');
+        }
         $title = '<span class="rql-ab" style="display:inline-flex;align-items:center;gap:7px;line-height:1;">'
-            . $this->lock_icon($on) . '<span>ReqLock</span></span>';
+            . $this->lock_icon($state) . '<span>ReqLock</span></span>';
         $bar->add_node(array(
             'id'    => 'reqlock',
             'title' => $title,
             'href'  => admin_url('admin.php?page=reqlock'),
-            'meta'  => array('title' => $on
-                ? __('ReqLock is ON — external requests are being blocked', 'reqlock')
-                : __('ReqLock is OFF — external requests are allowed', 'reqlock')),
+            'meta'  => array('title' => $tip),
         ));
     }
 
-    /** Inline padlock SVG: closed/green when enabled, open/amber when disabled. */
-    private function lock_icon($on) {
-        $color = $on ? '#46d369' : '#f0b849';
-        $path  = $on
-            ? 'M17 8h-1V6a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 1 1 4 0v2h-4V6z'
-            : 'M17 8H10V6a2 2 0 1 1 4 0 1 1 0 0 0 2 0 4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z';
+    /**
+     * Inline padlock SVG for the admin bar, reflecting overall activity:
+     *  - blocking   → green closed padlock (firewall on)
+     *  - optimizing → blue open padlock (firewall off, optimizers running)
+     *  - idle       → grey open padlock (nothing active)
+     */
+    private function lock_icon($state) {
+        $closed = 'M17 8h-1V6a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 1 1 4 0v2h-4V6z';
+        $open   = 'M17 8H10V6a2 2 0 1 1 4 0 1 1 0 0 0 2 0 4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z';
+        if ($state === 'blocking') {
+            $color = '#46d369';
+            $path  = $closed;
+        } elseif ($state === 'optimizing') {
+            $color = '#3b9ef0';
+            $path  = $open;
+        } else {
+            $color = '#a7aaad';
+            $path  = $open;
+        }
         return '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="display:block;">'
             . '<path fill="' . $color . '" d="' . $path . '"/></svg>';
     }
