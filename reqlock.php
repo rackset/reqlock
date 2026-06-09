@@ -52,6 +52,14 @@ class ReqLock {
         add_action('admin_bar_menu', array($this, 'admin_bar'), 100);
         add_action('init', array($this, 'load_textdomain'));
 
+        // Output buffer — registered on every front-end request. start_buffer() decides at
+        // template_redirect (after add-ons have loaded) whether to actually capture: for
+        // blocking (master switch ON) and/or for add-ons that hook `reqlock_filter_html`
+        // (e.g. ReqLock Pro localize / lazy-load). Very EARLY priority so it is the OUTERMOST
+        // buffer — it must wrap full-page-cache plugins (which serve via readfile()+exit or
+        // ob_get_clean() at template_redirect 0), so we also filter cached-page hits.
+        add_action('template_redirect', array($this, 'start_buffer'), -9999);
+
         // ---- Active blocking only when the master switch is ON ----
         if (!$this->is_enabled()) {
             return;
@@ -65,15 +73,6 @@ class ReqLock {
         // 2) Dequeue WP-enqueued external scripts/styles cleanly (before they print).
         add_action('wp_enqueue_scripts', array($this, 'dequeue_external'), 9999);
         add_action('wp_footer', array($this, 'dequeue_external'), 0);
-
-        // 3) Browser-side: sanitize the rendered HTML (strip external tags/snippets).
-        //    Use a very EARLY priority so our output buffer is the OUTERMOST one — it must
-        //    wrap full-page cache plugins (which serve via readfile()+exit, or capture with
-        //    ob_get_clean(), at template_redirect priority 0). As the outer buffer we filter
-        //    everything on the way to the browser, including cached-page hits.
-        if ($this->should_filter_output()) {
-            add_action('template_redirect', array($this, 'start_buffer'), -9999);
-        }
 
         // Persist newly-detected external hosts once per request (no per-request DB writes unless new).
         add_action('shutdown', array($this, 'persist_seen_hosts'), 99);
@@ -398,6 +397,12 @@ class ReqLock {
         if (function_exists('wp_is_json_request') && wp_is_json_request()) {
             return;
         }
+        // Capture output if we're actively blocking, OR if an add-on registered an
+        // HTML transform (so Pro localize/lazy-load works even with the master switch off).
+        $blocking = $this->is_enabled() && $this->should_filter_output();
+        if (!$blocking && !has_filter('reqlock_filter_html')) {
+            return;
+        }
         ob_start(array($this, 'filter_html'));
     }
 
@@ -410,6 +415,23 @@ class ReqLock {
             return $html;
         }
 
+        // Blocking transforms run only when the master switch is ON.
+        if ($this->is_enabled() && $this->should_filter_output()) {
+            $html = $this->filter_html_blocking($html);
+        }
+
+        /**
+         * Let add-ons transform the fully rendered HTML. Runs even when the master
+         * switch is OFF (perf features like ReqLock Pro localize / lazy-load).
+         *
+         * @param string  $html    The buffered page HTML.
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        return apply_filters('reqlock_filter_html', $html, $this);
+    }
+
+    /** The blocking HTML transforms (scripts/styles/hints/iframes/images/inline analytics). */
+    private function filter_html_blocking($html) {
         if ($this->opt('block_scripts')) {
             // external <script src="...">...</script>
             $html = preg_replace_callback(
@@ -816,9 +838,13 @@ class ReqLock {
         $new['allowlist'] = isset($_POST['reqlock']['allowlist'])
             ? sanitize_textarea_field(wp_unslash($_POST['reqlock']['allowlist']))
             : '';
-        $new['blocklist'] = isset($_POST['reqlock']['blocklist'])
+        $raw_blocklist = isset($_POST['reqlock']['blocklist'])
             ? sanitize_textarea_field(wp_unslash($_POST['reqlock']['blocklist']))
             : '';
+        // Enforce the block-list policy (free: 2 exact hosts, no wildcards). Excess
+        // entries are dropped from what we store — add-ons (Pro) lift this via filters.
+        $policy = $this->enforce_blocklist_policy($raw_blocklist);
+        $new['blocklist'] = $policy['kept'];
 
         // Mode — validate against the registered modes (defaults to 'all').
         $modes = $this->modes();
@@ -836,6 +862,63 @@ class ReqLock {
             ? __('Saved — ReqLock is ON (external requests blocked).', 'reqlock')
             : __('Saved — ReqLock is OFF.', 'reqlock'));
         add_settings_error('reqlock', 'reqlock_saved', $msg, 'updated');
+
+        // Danger notice (shown directly under the saved message) when block-list
+        // entries were dropped to fit the free limit.
+        if (!empty($policy['removed'])) {
+            $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+            $notice = sprintf(
+                /* translators: 1: number of removed entries, 2: allowed host count. */
+                _n(
+                    '⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains.',
+                    '⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains.',
+                    (int) $policy['removed'],
+                    'reqlock'
+                ),
+                (int) $policy['removed'],
+                $limit
+            );
+            add_settings_error('reqlock', 'reqlock_blocklist_trim', $notice, 'error');
+        }
+    }
+
+    /**
+     * Apply the block-list policy to raw textarea input. The free plugin keeps at most
+     * `reqlock_blocklist_limit` (2) exact hosts and drops wildcard (`*.example.com`)
+     * entries unless `reqlock_blocklist_wildcards` is enabled — add-ons (ReqLock Pro)
+     * relax both filters, in which case nothing is removed.
+     *
+     * @return array{kept:string, removed:int, had_wildcards:bool}
+     */
+    private function enforce_blocklist_policy($raw) {
+        $entries = preg_split('/[\s,]+/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
+        $allow_wildcards = (bool) apply_filters('reqlock_blocklist_wildcards', false);
+        $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+
+        $kept = array();
+        $removed = 0;
+        $had_wildcards = false;
+        foreach ($entries as $entry) {
+            $entry = trim($entry);
+            if ($entry === '') {
+                continue;
+            }
+            if (!$allow_wildcards && strpos($entry, '*') !== false) {
+                $had_wildcards = true;
+                $removed++;
+                continue;
+            }
+            if ($limit > 0 && count($kept) >= $limit) {
+                $removed++;
+                continue;
+            }
+            $kept[] = $entry;
+        }
+        return array(
+            'kept'          => implode("\n", $kept),
+            'removed'       => $removed,
+            'had_wildcards' => $had_wildcards,
+        );
     }
 
     public function admin_assets($hook) {

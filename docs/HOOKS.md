@@ -45,6 +45,18 @@ Defaults to `false` (free strips them and matches exact hosts only).
 add_filter( 'reqlock_blocklist_wildcards', '__return_true' );
 ```
 
+### `reqlock_filter_html`
+Transform the fully rendered page HTML. Fires from ReqLock's outermost output buffer
+**even when the master switch is OFF**, so add-ons can run perf features (localizing
+assets, lazy-loading embeds). Registering a callback also makes ReqLock start its output
+buffer when it otherwise wouldn't.
+
+```php
+add_filter( 'reqlock_filter_html', function ( $html, $reqlock ) {
+    return $html; // your transform of the whole-page HTML
+}, 10, 2 );
+```
+
 ## Actions
 
 ### `reqlock_host_seen`
