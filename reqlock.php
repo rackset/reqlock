@@ -271,7 +271,7 @@ class ReqLock {
         }
         $remote = !$this->host_matches($host, $this->base_host()); // not our own site/subdomains
         if ($remote) {
-            $this->note_host($host); // log every external host for the panel + add-ons
+            $this->note_host($host, $context); // log every external host (+ its source) for the panel
         }
 
         if ($this->mode() === 'blocklist') {
@@ -333,10 +333,10 @@ class ReqLock {
         return $this->opt($key);
     }
 
-    private function note_host($host) {
+    private function note_host($host, $context = '') {
         $host = strtolower(preg_replace('/^www\./i', '', (string) $host));
         if ($host !== '' && !isset($this->session_hosts[$host])) {
-            $this->session_hosts[$host] = 1;
+            $this->session_hosts[$host] = $this->detect_source($context);
             /**
              * Fires the first time an external host is seen during a request.
              * Add-ons (e.g. ReqLock Pro latency monitoring / stats) hook this.
@@ -344,6 +344,92 @@ class ReqLock {
              * @param string $host Normalized external host name.
              */
             do_action('reqlock_host_seen', $host);
+        }
+    }
+
+    /**
+     * Best-effort attribution of what triggered a request to an external host.
+     * Server-side calls (context 'http') are traced through the call stack to the
+     * originating component (core / a plugin / the theme). Browser-side resources are
+     * labelled by how they appeared in the rendered page.
+     *
+     * @return string e.g. 'core', 'plugin:woocommerce', 'theme:twentytwentyfive',
+     *                'mu-plugin', 'page:script', 'unknown'.
+     */
+    private function detect_source($context) {
+        if ($context !== 'http') {
+            return $context !== '' ? 'page:' . $context : 'page';
+        }
+        // WP HTTP API plumbing to step over so we reach the real caller.
+        $skip = array(
+            'class-wp-http.php', 'class-http.php', 'http.php', 'class-requests.php',
+            'class-wp-http-curl.php', 'class-wp-http-streams.php',
+            'class-wp-http-requests-hooks.php', 'class-wp-http-requests-response.php',
+            'class-snoopy.php', 'class-wp-http-proxy.php',
+            // hook plumbing — step over so we reach the real caller, not core's dispatcher
+            'class-wp-hook.php', 'plugin.php',
+        );
+        $self = wp_normalize_path(plugin_dir_path(__FILE__));
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- intentional: attribute an outbound request to the component that triggered it (core/plugin/theme) for the detected-hosts "Source" column; args are ignored for performance.
+        foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
+            if (empty($frame['file'])) {
+                continue;
+            }
+            $file = wp_normalize_path($frame['file']);
+            if (strpos($file, $self) === 0 || strpos($file, '/Requests/') !== false) {
+                continue;
+            }
+            if (in_array(basename($file), $skip, true)) {
+                continue;
+            }
+            $src = $this->classify_file($file);
+            if ($src !== '') {
+                return $src;
+            }
+        }
+        return 'unknown';
+    }
+
+    /** Map an absolute file path to a component label (or '' if unknown). */
+    private function classify_file($file) {
+        $content = wp_normalize_path(WP_CONTENT_DIR);
+        $segments = array('/mu-plugins/' => 'mu-plugin', '/plugins/' => 'plugin', '/themes/' => 'theme');
+        foreach ($segments as $seg => $kind) {
+            $pos = strpos($file, $content . $seg);
+            if ($pos !== false) {
+                if ($kind === 'mu-plugin') {
+                    return 'mu-plugin';
+                }
+                $slug = strtok(substr($file, $pos + strlen($content . $seg)), '/');
+                return $kind . ':' . $slug;
+            }
+        }
+        $abs = wp_normalize_path(ABSPATH);
+        if (strpos($file, $abs . 'wp-admin/') === 0 || strpos($file, $abs . 'wp-includes/') === 0) {
+            return 'core';
+        }
+        return '';
+    }
+
+    /** Human-readable label for a stored source code (used in the detected-hosts table). */
+    private function format_source($src) {
+        if (strpos($src, 'plugin:') === 0) {
+            /* translators: %s: plugin folder slug. */
+            return sprintf(__('Plugin: %s', 'reqlock'), substr($src, 7));
+        }
+        if (strpos($src, 'theme:') === 0) {
+            /* translators: %s: theme folder slug. */
+            return sprintf(__('Theme: %s', 'reqlock'), substr($src, 6));
+        }
+        if (strpos($src, 'page:') === 0) {
+            /* translators: %s: resource type (script, style, iframe, image, …). */
+            return sprintf(__('Front-end (%s)', 'reqlock'), substr($src, 5));
+        }
+        switch ($src) {
+            case 'core':      return __('WordPress core', 'reqlock');
+            case 'mu-plugin': return __('Must-use plugin', 'reqlock');
+            case 'page':      return __('Front-end', 'reqlock');
+            default:          return __('Unknown', 'reqlock');
         }
     }
 
@@ -543,9 +629,9 @@ class ReqLock {
             $seen = array();
         }
         $changed = false;
-        foreach (array_keys($this->session_hosts) as $host) {
+        foreach ($this->session_hosts as $host => $source) {
             if (!isset($seen[$host])) {
-                $seen[$host] = time();
+                $seen[$host] = array('first' => time(), 'src' => $source);
                 $changed = true;
             }
         }
@@ -1068,11 +1154,17 @@ class ReqLock {
                     <p class="rql-help"><?php echo esc_html__('Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list.', 'reqlock'); ?></p>
                 <?php else : ?>
                     <table class="widefat striped rql-hosts">
-                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html(__('First seen', 'reqlock')); ?></th></tr></thead>
+                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html(__('Source', 'reqlock')); ?></th><th><?php echo esc_html(__('First seen', 'reqlock')); ?></th></tr></thead>
                         <tbody>
-                        <?php foreach ($seen as $host => $ts) : ?>
+                        <?php foreach ($seen as $host => $info) : ?>
+                            <?php
+                            // New entries are array('first'=>ts,'src'=>code); legacy entries are an int timestamp.
+                            $ts  = is_array($info) ? (int) ($info['first'] ?? 0) : (int) $info;
+                            $src = is_array($info) ? (string) ($info['src'] ?? '') : '';
+                            ?>
                             <tr><td dir="ltr"><code><?php echo esc_html($host); ?></code></td>
-                                <td><?php echo esc_html(date_i18n('Y-m-d H:i', (int) $ts)); ?></td></tr>
+                                <td><?php echo esc_html($src !== '' ? $this->format_source($src) : '—'); ?></td>
+                                <td><?php echo esc_html(date_i18n('Y-m-d H:i', $ts)); ?></td></tr>
                         <?php endforeach; ?>
                         </tbody>
                     </table>
