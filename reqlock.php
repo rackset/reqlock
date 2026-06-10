@@ -1224,8 +1224,17 @@ class ReqLock {
             <?php if (!class_exists('ReqLock_Pro')) : ?>
             <div class="rql-card rql-upsell">
                 <h2>⚡ <?php echo esc_html__('Upgrade to ReqLock Pro', 'reqlock'); ?></h2>
-                <p><?php echo esc_html__('Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working.', 'reqlock'); ?></p>
-                <p><a class="button button-primary" href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
+                <div class="rql-plans" style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch;margin-top:8px;">
+                    <div class="rql-plan" style="flex:1;min-width:240px;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;background:#fff;">
+                        <h3 style="margin:0 0 8px;"><?php echo esc_html__('Free', 'reqlock'); ?></h3>
+                        <p><?php echo esc_html__('Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control.', 'reqlock'); ?></p>
+                    </div>
+                    <div class="rql-plan rql-plan-pro" style="flex:1;min-width:240px;border:2px solid #2271b1;border-radius:8px;padding:14px 16px;background:#fff;">
+                        <h3 style="margin:0 0 8px;"><?php echo esc_html__('Pro — everything in Free, plus:', 'reqlock'); ?></h3>
+                        <p><?php echo esc_html__('Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working.', 'reqlock'); ?></p>
+                        <p style="margin-bottom:0;"><a class="button button-primary" href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
+                    </div>
+                </div>
             </div>
             <?php endif; ?>
 

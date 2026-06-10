@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-09 16:13+0400\n"
+"POT-Creation-Date: 2026-06-10 11:59+0400\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -255,7 +255,7 @@ msgstr "Hôtes à bloquer lorsque le mode est « Liste de blocage » (un par lig
 msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
 msgstr "<strong>ReqLock Pro</strong> : hôtes illimités, sous-domaines génériques <code>*.example.com</code>, blocage automatique des hôtes lents et localisation des polices/JS/CSS externes."
 
-#: reqlock.php:1143 reqlock.php:1228
+#: reqlock.php:1143 reqlock.php:1235
 msgid "Learn more"
 msgstr "En savoir plus"
 
@@ -323,15 +323,27 @@ msgstr "non modifiable — éditer manuellement"
 msgid "Upgrade to ReqLock Pro"
 msgstr "Passez à ReqLock Pro"
 
-#: reqlock.php:1227
+#: reqlock.php:1229
+msgid "Free"
+msgstr "Gratuit"
+
+#: reqlock.php:1230
+msgid "Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control."
+msgstr "Interrupteur principal pour bloquer toutes les requêtes externes, interrupteurs par catégorie, une liste d’autorisation, le panneau des hôtes détectés avec attribution de la source, le mode liste de blocage (jusqu’à 2 hôtes) et le contrôle des conflits wp-config."
+
+#: reqlock.php:1233
+msgid "Pro — everything in Free, plus:"
+msgstr "Pro — tout ce qui est dans Gratuit, plus :"
+
+#: reqlock.php:1234
 msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
 msgstr "Localisez les polices, JS et CSS externes (compatible RGPD, plus rapide), chargement différé des intégrations et images, blocage automatique des hôtes lents, liste de blocage illimitée avec caractères génériques, et servez les ressources mises en cache pendant une coupure pour que votre site continue de fonctionner."
 
-#: reqlock.php:1238
+#: reqlock.php:1247
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "Développé et maintenu par l’<strong>équipe DevOps de Rackset</strong>."
 
-#: reqlock.php:1239
+#: reqlock.php:1248
 msgid "Website:"
 msgstr "Site web :"
 

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-09 16:13+0400\n"
+"POT-Creation-Date: 2026-06-10 11:59+0400\n"
 "PO-Revision-Date: 2026-06-04 20:30+0330\n"
 "Last-Translator: Rackset DevOps Team <https://rackset.com>\n"
 "Language-Team: Simplified Chinese\n"
@@ -260,7 +260,7 @@ msgstr "当模式为“黑名单”时要拦截的主机（每行一个，或用
 msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
 msgstr "<strong>ReqLock Pro</strong>：主机数量不限、<code>*.example.com</code> 通配符子域名、自动拦截慢速主机，以及本地化外部字体/JS/CSS。"
 
-#: reqlock.php:1143 reqlock.php:1228
+#: reqlock.php:1143 reqlock.php:1235
 msgid "Learn more"
 msgstr "了解更多"
 
@@ -328,15 +328,27 @@ msgstr "不可写 —— 请手动编辑"
 msgid "Upgrade to ReqLock Pro"
 msgstr "升级到 ReqLock Pro"
 
-#: reqlock.php:1227
+#: reqlock.php:1229
+msgid "Free"
+msgstr "免费版"
+
+#: reqlock.php:1230
+msgid "Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control."
+msgstr "用于拦截所有外部请求的总开关、分类开关、白名单、带来源归属的已检测主机面板、黑名单模式（最多 2 个主机），以及 wp-config 冲突控制。"
+
+#: reqlock.php:1233
+msgid "Pro — everything in Free, plus:"
+msgstr "Pro — 包含免费版全部功能，另加："
+
+#: reqlock.php:1234
 msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
 msgstr "本地化外部字体、JS 和 CSS（符合 GDPR、更快），延迟加载嵌入内容和图片，自动拦截慢速主机，不限数量且支持通配符的黑名单，并在断网期间提供已缓存的资源，让网站持续运行。"
 
-#: reqlock.php:1238
+#: reqlock.php:1247
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "由 <strong>Rackset DevOps 团队</strong>开发和维护。"
 
-#: reqlock.php:1239
+#: reqlock.php:1248
 msgid "Website:"
 msgstr "网站："
 
