@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ReqLock — An outbound firewall for WordPress</title>
+<meta name="description" content="ReqLock is a master kill-switch WordPress plugin that disarms external internet calls from core, themes and plugins — for resilience, performance, privacy and offline development. One switch, fully reversible." />
+<meta name="theme-color" content="#5e16eb" />
+<!-- This page makes ZERO external requests — exactly what ReqLock does. System fonts, inline SVG, inline i18n, no CDN. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%235e16eb'/><stop offset='1' stop-color='%233858e9'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='url(%23g)'/><path d='M22 28v-4a10 10 0 0 1 20 0v4h3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H19a3 3 0 0 1-3-3V31a3 3 0 0 1 3-3h3zm5 0h10v-4a5 5 0 0 0-10 0v4z' fill='%23fff'/><circle cx='32' cy='38' r='3.4' fill='%23f4a91e'/><rect x='30.4' y='38' width='3.2' height='6' rx='1.6' fill='%23f4a91e'/></svg>" />
+<style>
+  :root{
+    --purple:#5e16eb; --blue:#3858e9; --amber:#f4a91e;
+    --ink:#14161c; --muted:#5b6470; --soft:#f6f7fb; --soft2:#eef0f6;
+    --line:#e6e8ec; --line2:#dfe2ea; --white:#fff;
+    --grad:linear-gradient(135deg,var(--purple),var(--blue));
+    --radius:16px; --maxw:1140px;
+    --green:#1e9e5a; --red:#e2465b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Noto Sans Arabic",Tahoma,sans-serif;
+    color:var(--ink);background:var(--white);-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:11px;font-weight:700;font-size:15px;border:1.5px solid transparent;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;cursor:pointer;white-space:nowrap}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 22px rgba(94,22,235,.28)}
+  .btn-primary:hover{box-shadow:0 12px 28px rgba(94,22,235,.36)}
+  .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line2)}
+  .btn-ghost:hover{border-color:var(--purple);color:var(--purple)}
+  .btn-light{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.4)}
+  .btn-light:hover{background:rgba(255,255,255,.22)}
+  .btn-solid-light{background:#fff;color:var(--purple)}
+  .ico{width:18px;height:18px;flex:none}
+
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:saturate(160%) blur(12px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;letter-spacing:-.02em}
+  .brand .logo{width:34px;height:34px;border-radius:9px;flex:none}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a.lnk{color:var(--muted);font-weight:600;font-size:14.5px}
+  .nav-links a.lnk:hover{color:var(--ink)}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+
+  /* Language switcher */
+  .lang{position:relative;display:inline-flex;align-items:center}
+  .lang svg{position:absolute;left:11px;width:16px;height:16px;color:var(--muted);pointer-events:none}
+  .lang select{appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid var(--line2);color:var(--ink);font:inherit;font-weight:600;font-size:14px;padding:9px 30px 9px 33px;border-radius:10px;cursor:pointer;transition:border-color .15s}
+  .lang select:hover{border-color:var(--purple)}
+  .lang .chev{position:absolute;right:11px;width:13px;height:13px;color:var(--muted);pointer-events:none}
+  [dir=rtl] .lang svg{left:auto;right:11px}
+  [dir=rtl] .lang select{padding:9px 33px 9px 30px}
+  [dir=rtl] .lang .chev{right:auto;left:11px}
+
+  @media(max-width:980px){.nav-links a.lnk{display:none}}
+  @media(max-width:560px){.brand span.bt{display:none}.btn.nav-get{display:none}}
+
+  .hero{position:relative;overflow:hidden;background:
+    radial-gradient(120% 120% at 85% -10%,rgba(94,22,235,.10),transparent 55%),
+    radial-gradient(90% 90% at 5% 0%,rgba(56,88,233,.08),transparent 50%);
+    padding:clamp(48px,8vw,96px) 0 clamp(40px,6vw,72px)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line2);color:var(--muted);font-weight:600;font-size:13px;padding:6px 13px;border-radius:999px;margin-bottom:22px}
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--grad);box-shadow:0 0 0 4px rgba(94,22,235,.12)}
+  .hero h1{font-size:clamp(38px,5.4vw,60px);line-height:1.04;letter-spacing:-.03em;font-weight:850;margin-bottom:18px}
+  .hero p.sub{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:560px;margin-bottom:14px}
+  .hero .alt{font-size:13px;color:#9098a6;letter-spacing:.01em;margin-bottom:28px}
+  .hero .alt b{color:var(--muted);font-weight:600}
+  .hero-btns{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:26px}
+  .trust{display:flex;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;font-weight:600}
+  .trust span.t{display:inline-flex;align-items:center;gap:7px}
+  .trust svg{width:15px;height:15px;color:var(--green)}
+  @media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+
+  .demo{background:#0f1118;border-radius:20px;padding:6px;box-shadow:0 24px 60px -20px rgba(20,18,48,.5);border:1px solid #20242f}
+  .demo-bar{display:flex;align-items:center;gap:7px;padding:12px 14px}
+  .demo-bar .d{width:11px;height:11px;border-radius:50%}
+  .demo-bar .d.r{background:#ff5f57}.demo-bar .d.y{background:#febc2e}.demo-bar .d.g{background:#28c840}
+  .demo-bar .url{margin-left:10px;background:#1b1f2a;color:#7d869b;font-size:12px;padding:5px 12px;border-radius:7px;flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .demo-body{background:#13161f;border-radius:0 0 15px 15px;padding:18px;margin:0 2px 2px}
+  .switch-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:4px 2px 16px;border-bottom:1px solid #232733;margin-bottom:14px}
+  .switch-row .lbl{color:#e8ebf2;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:9px}
+  .switch-row .lbl small{display:block;color:#6f7891;font-weight:500;font-size:11.5px;margin-top:2px}
+  .switch-row .lbl .lk{width:30px;height:30px;border-radius:8px;background:var(--grad);display:grid;place-items:center;flex:none}
+  .switch-row .lbl .lk svg{width:16px;height:16px;color:#fff}
+  .toggle{position:relative;width:52px;height:30px;flex:none;cursor:pointer}
+  .toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+  .toggle .track{position:absolute;inset:0;background:#2a2f3d;border-radius:999px;transition:background .25s}
+  .toggle .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+  .toggle input:checked ~ .track{background:linear-gradient(135deg,var(--purple),var(--blue))}
+  .toggle input:checked ~ .knob{transform:translateX(22px)}
+  .reqs{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .req{display:flex;align-items:center;gap:11px;background:#1a1e29;border:1px solid #232733;border-radius:10px;padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;transition:opacity .3s,border-color .3s}
+  .req .host{color:#c7cede;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .req .tag{font-weight:700;font-size:10.5px;letter-spacing:.04em;padding:3px 8px;border-radius:6px;flex:none;font-family:inherit}
+  .req .tag.allow{color:#5ce69a;background:rgba(30,158,90,.16)}
+  .req .tag.block{color:#ff8a98;background:rgba(226,70,91,.16)}
+  .req .tag.pending{color:#febc2e;background:rgba(254,188,46,.14)}
+  .req svg{width:16px;height:16px;flex:none}
+  .demo.armed .req.ext{opacity:.55}
+  .demo.armed .req.ext .host{text-decoration:line-through;text-decoration-color:#e2465b80}
+  .demo-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:13px;border-top:1px solid #232733;font-size:12.5px;color:#7d869b}
+  .count-pill{font-family:ui-monospace,monospace;font-weight:700;color:#ff8a98;background:rgba(226,70,91,.14);padding:4px 10px;border-radius:7px;transition:color .3s,background .3s}
+  .demo:not(.armed) .count-pill{color:#5ce69a;background:rgba(30,158,90,.14)}
+
+  section{padding:clamp(54px,7vw,86px) 0}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto clamp(34px,4vw,52px)}
+  .kicker{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+  .sec-head h2{font-size:clamp(28px,3.6vw,40px);line-height:1.12;letter-spacing:-.025em;font-weight:850;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:17px}
+
+  .jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .job{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;transition:border-color .2s,transform .2s,box-shadow .2s}
+  .job:hover{border-color:#cfc2f5;transform:translateY(-4px);box-shadow:0 16px 36px -16px rgba(94,22,235,.3)}
+  .job .ji{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;background:linear-gradient(135deg,rgba(94,22,235,.12),rgba(56,88,233,.12))}
+  .job .ji svg{width:23px;height:23px;color:var(--purple)}
+  .job h3{font-size:18px;margin-bottom:7px;letter-spacing:-.01em}
+  .job p{color:var(--muted);font-size:14.5px;line-height:1.6}
+  @media(max-width:920px){.jobs{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.jobs{grid-template-columns:1fr}}
+
+  .blocks-wrap{background:var(--soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .blocks{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .bcol{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px}
+  .bcol .badge{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;padding:6px 12px;border-radius:8px;margin-bottom:18px}
+  .bcol.server .badge{color:var(--purple);background:rgba(94,22,235,.1)}
+  .bcol.browser .badge{color:var(--blue);background:rgba(56,88,233,.1)}
+  .bcol h3{font-size:19px;margin-bottom:4px}
+  .bcol .desc{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .blist{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .blist li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;color:var(--ink)}
+  .blist li svg{width:19px;height:19px;flex:none;margin-top:2px;color:var(--green)}
+  code{background:var(--soft2);border-radius:5px;padding:1px 6px;font-size:.86em;font-family:ui-monospace,monospace;color:#3a3f49}
+  @media(max-width:760px){.blocks{grid-template-columns:1fr}}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:s}
+  .step{position:relative;padding:28px 24px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+  .step::before{counter-increment:s;content:"0" counter(s);font-weight:850;font-size:34px;letter-spacing:-.04em;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:12px}
+  .step h3{font-size:17px;margin-bottom:7px}
+  .step p{color:var(--muted);font-size:14.5px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+
+  .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 36px;max-width:880px;margin:0 auto}
+  .feat li{list-style:none;display:flex;gap:12px;align-items:flex-start;font-size:15px}
+  .feat li .ck{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,rgba(94,22,235,.14),rgba(56,88,233,.14));display:grid;place-items:center;flex:none;margin-top:1px}
+  .feat li .ck svg{width:13px;height:13px;color:var(--purple)}
+  @media(max-width:640px){.feat{grid-template-columns:1fr}}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;text-align:center;max-width:900px;margin:0 auto}
+  .stat .n{font-size:clamp(30px,4vw,44px);font-weight:850;letter-spacing:-.03em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .l{color:var(--muted);font-size:14px;margin-top:8px;font-weight:600}
+  @media(max-width:620px){.stats{grid-template-columns:repeat(2,1fr);gap:30px 22px}}
+
+  .cta-band{position:relative;overflow:hidden;background:var(--grad);border-radius:24px;padding:clamp(44px,6vw,68px);text-align:center;color:#fff}
+  .cta-band::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 100% at 90% 0,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+  .cta-band h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.025em;margin-bottom:12px;position:relative}
+  .cta-band p{font-size:17px;opacity:.92;max-width:520px;margin:0 auto 26px;position:relative}
+  .cta-band .hero-btns{justify-content:center;position:relative;margin:0}
+
+  footer{border-top:1px solid var(--line);padding:42px 0 48px;color:var(--muted)}
+  .foot-in{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .foot-brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink)}
+  .foot-brand .logo{width:28px;height:28px;border-radius:8px}
+  .foot-links{display:flex;gap:22px;font-size:14px;font-weight:600}
+  .foot-links a:hover{color:var(--purple)}
+  .foot-note{width:100%;font-size:13px;color:#9098a6;padding-top:8px}
+  .foot-note a{color:var(--blue);font-weight:600}
+
+  /* RTL niceties */
+  [dir=rtl] .demo-bar .url{margin-left:0;margin-right:10px}
+  [dir=rtl]{letter-spacing:0}
+  [dir=rtl] .hero h1,[dir=rtl] .sec-head h2{letter-spacing:0}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a href="#top" class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e16eb"/><stop offset="1" stop-color="#3858e9"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#lg)"/><path d="M22 28v-4a10 10 0 0 1 20 0v4h3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H19a3 3 0 0 1-3-3V31a3 3 0 0 1 3-3h3zm5 0h10v-4a5 5 0 0 0-10 0v4z" fill="#fff"/><circle cx="32" cy="38" r="3.4" fill="#f4a91e"/><rect x="30.4" y="38" width="3.2" height="6" rx="1.6" fill="#f4a91e"/></svg>
+      <span class="bt">ReqLock</span>
+    </a>
+    <nav class="nav-links">
+      <a class="lnk" href="#why" data-i18n="nav.why">Why</a>
+      <a class="lnk" href="#blocks" data-i18n="nav.blocks">What it blocks</a>
+      <a class="lnk" href="#how" data-i18n="nav.how">How it works</a>
+      <a class="lnk" href="#features" data-i18n="nav.features">Features</a>
+    </nav>
+    <div class="nav-cta">
+      <span class="lang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        <select id="lang" aria-label="Language"></select>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </span>
+      <a class="btn btn-primary nav-get" href="https://wordpress.org/plugins/reqlock/"><span data-i18n="nav.getplugin">Get the plugin</span></a>
+    </div>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">WordPress outbound firewall · open source</span></span>
+      <h1 data-i18n="hero.h1">One switch that <span class="grad-text">silences every external call</span> your WordPress site makes.</h1>
+      <p class="sub" data-i18n="hero.sub">ReqLock disarms outbound internet requests from WordPress core, your theme, and plugins — on both the server and the browser. Keep working when the internet is cut, kill slow third-party calls, and stop phoning home.</p>
+      <p class="alt"><span data-i18n="hero.altlabel">Also written RequestLock or Request Lock.</span></p>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="https://wordpress.org/plugins/reqlock/">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-8.5 10a8.5 8.5 0 0 1 .8-3.6l4.6 12.6A8.5 8.5 0 0 1 3.5 12Zm8.5 8.5c-.8 0-1.6-.1-2.3-.3l2.5-7.2 2.5 6.9.1.1a8.5 8.5 0 0 1-2.8.5Zm1.2-12.5c.5 0 1-.1 1-.1.4 0 .4.7-.1.7 0 0-.5.1-1 .1l3 9 1.8-6c.4-1.3 0-2.2-.4-2.9-.3-.6-.7-1-.7-1.6 0-.7.6-1.4 1.4-1.4h.1A8.5 8.5 0 0 0 7.7 4.2c.2 0 .4 0 .5.1.8 0 2-.1 2-.1.5 0 .5.7 0 .7 0 0-.5.1-1 .1l3 8.8 1-3c.4-1.1-.1-1.9-.3-2.4Z"/></svg>
+          <span data-i18n="hero.cta1">Get it on WordPress.org</span>
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/rackset/reqlock">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.3-.5-1.5.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 5 18 5.3 18 5.3c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+          <span data-i18n="hero.cta2">View source</span>
+        </a>
+      </div>
+      <div class="trust">
+        <span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="hero.trust1">GPL-2.0 · 100% free</span></span>
+        <span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="hero.trust2">No account, no telemetry</span></span>
+        <span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="hero.trust3">Inert when off</span></span>
+      </div>
+    </div>
+
+    <div class="demo" id="demo" dir="ltr" aria-label="Interactive ReqLock demo">
+      <div class="demo-bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="url">https://your-site.com/wp-admin</span>
+      </div>
+      <div class="demo-body">
+        <div class="switch-row">
+          <span class="lbl">
+            <span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+            <span><span data-i18n="demo.master">ReqLock master switch</span><small id="state-txt">Off — site reaches the internet freely</small></span>
+          </span>
+          <label class="toggle" title="Toggle ReqLock">
+            <input type="checkbox" id="master" aria-label="ReqLock master switch">
+            <span class="track"></span><span class="knob"></span>
+          </label>
+        </div>
+        <ul class="reqs" id="reqs">
+          <li class="req ext" data-ext="1"><span class="host">api.openai.com/v1/chat</span><span class="tag pending">…</span></li>
+          <li class="req ext" data-ext="1"><span class="host">fonts.googleapis.com/css</span><span class="tag pending">…</span></li>
+          <li class="req ext" data-ext="1"><span class="host">www.google-analytics.com</span><span class="tag pending">…</span></li>
+          <li class="req ext" data-ext="1"><span class="host">api.wordpress.org/update</span><span class="tag pending">…</span></li>
+          <li class="req"><span class="host">your-site.com/wp-json</span><span class="tag allow" data-i18n="demo.allowed">ALLOWED</span></li>
+        </ul>
+        <div class="demo-foot">
+          <span id="foot-txt">Calls leaving the server</span>
+          <span class="count-pill" id="count">0 blocked</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker grad-text" data-i18n="why.kicker">One switch, four jobs</div>
+      <h2 data-i18n="why.h2">Built for resilience — useful every day</h2>
+      <p data-i18n="why.p">The same kill-switch that keeps you online through an outage also makes a noisy WordPress install faster, more private, and easy to run offline.</p>
+    </div>
+    <div class="jobs">
+      <div class="job">
+        <span class="ji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg></span>
+        <h3 data-i18n="job1.h">Resilience</h3>
+        <p data-i18n="job1.p">Keep the site working when international internet is cut or restricted. Pages serve from local assets and wp-admin stops hanging on dead requests.</p>
+      </div>
+      <div class="job">
+        <span class="ji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span>
+        <h3 data-i18n="job2.h">Performance</h3>
+        <p data-i18n="job2.p">Slow or dead third-party calls fail instantly instead of stalling front-end and back-end page loads on long network timeouts.</p>
+      </div>
+      <div class="job">
+        <span class="ji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+        <h3 data-i18n="job3.h">Privacy</h3>
+        <p data-i18n="job3.p">Strip analytics, trackers, external fonts and phone-home requests, so nothing about your visitors quietly leaves the server.</p>
+      </div>
+      <div class="job">
+        <span class="ji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m13 6-2 12"/></svg></span>
+        <h3 data-i18n="job4.h">Development</h3>
+        <p data-i18n="job4.p">Turn any install into a self-contained, offline-capable environment — no external calls or tracking from a staging copy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="blocks-wrap" id="blocks">
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker grad-text" data-i18n="blocks.kicker">Total coverage</div>
+        <h2 data-i18n="blocks.h2">Both sides of every request</h2>
+        <p data-i18n="blocks.p">ReqLock works where other plugins can't — intercepting calls before they leave the server <em>and</em> scrubbing what the browser would otherwise fetch.</p>
+      </div>
+      <div class="blocks">
+        <div class="bcol server">
+          <span class="badge"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/></svg> <span data-i18n="blocks.server.badge">Server-side</span></span>
+          <h3 data-i18n="blocks.server.h">PHP · WP HTTP API</h3>
+          <p class="desc" data-i18n="blocks.server.desc">Hooks <code>pre_http_request</code> and short-circuits external hosts before the request ever leaves your server.</p>
+          <ul class="blist">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.server.li1">Outbound <code>wp_remote_*</code> calls to external hosts</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.server.li2">WordPress.org update &amp; version checks</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.server.li3">Analytics &amp; AI APIs — OpenAI, Gemini, remote fonts</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.server.li4">License / phone-home pings — fail fast, no timeouts</span></li>
+          </ul>
+        </div>
+        <div class="bcol browser">
+          <span class="badge"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg> <span data-i18n="blocks.browser.badge">Browser-side</span></span>
+          <h3 data-i18n="blocks.browser.h">Rendered HTML</h3>
+          <p class="desc" data-i18n="blocks.browser.desc">Buffers page output and strips external resource tags and known inline trackers — leaving a traceable comment, never a request.</p>
+          <ul class="blist">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.browser.li1">External <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> stylesheets (Google Fonts)</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.browser.li2">Resource hints: preconnect / dns-prefetch / preload</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.browser.li3">External iframes → clean local placeholder</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="blocks.browser.li4">Inline analytics: GA/GTM, Clarity, Meta Pixel, Hotjar…</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker grad-text" data-i18n="how.kicker">Up in 60 seconds</div>
+      <h2 data-i18n="how.h2">Install, activate, flip the switch</h2>
+      <p data-i18n="how.p">No theme edits, no build step, no configuration required to start. Safe to keep installed permanently.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3 data-i18n="step1.h">Drop it in</h3>
+        <p data-i18n="step1.p">Copy the <code>reqlock</code> folder into <code>wp-content/plugins/</code> and activate it from the Plugins screen.</p>
+      </div>
+      <div class="step">
+        <h3 data-i18n="step2.h">Tune the layers</h3>
+        <p data-i18n="step2.p">Open <strong>Settings → ReqLock</strong>. Every blocking layer has its own toggle; your domain and subdomains are always allowed.</p>
+      </div>
+      <div class="step">
+        <h3 data-i18n="step3.h">Arm it</h3>
+        <p data-i18n="step3.p">Flip the <strong>master switch</strong> on when the internet is cut — or leave it on for good as a privacy &amp; performance baseline.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="n">1</div><div class="l" data-i18n="stat1.l">Master switch</div></div>
+      <div class="stat"><div class="n">2</div><div class="l" data-i18n="stat2.l">Sides intercepted</div></div>
+      <div class="stat"><div class="n">7</div><div class="l" data-i18n="stat3.l">Languages bundled</div></div>
+      <div class="stat"><div class="n">0ms</div><div class="l" data-i18n="stat4.l">Wait on blocked calls</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="blocks-wrap" id="features">
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker grad-text" data-i18n="feat.kicker">Built right</div>
+        <h2 data-i18n="feat.h2">Precise, reversible, and safe</h2>
+        <p data-i18n="feat.p">Conservative, well-anchored matching that leaves SEO links and internal URLs untouched.</p>
+      </div>
+      <ul class="feat">
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat1">Your own domain &amp; all subdomains are always allowed</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat2">Allow-list for any host that must stay reachable</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat3">Detected-hosts panel audits what your site contacts</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat4">Per-category toggles — each layer independent</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat5">Controls <code>WP_HTTP_BLOCK_EXTERNAL</code> conflicts</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat6">Inert when off — flip on only when needed</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat7">Works over full-page caches (outermost buffer)</span></li>
+        <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span> <span data-i18n="feat8">Admin-bar indicator shows when ReqLock is active</span></li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <h2 data-i18n="cta.h2">Put your site in control of its own traffic.</h2>
+      <p data-i18n="cta.p">Free and open source under GPL-2.0. Install from the WordPress directory or grab the source on GitHub.</p>
+      <div class="hero-btns">
+        <a class="btn btn-solid-light" href="https://wordpress.org/plugins/reqlock/"><span data-i18n="cta.btn1">Get it on WordPress.org</span></a>
+        <a class="btn btn-light" href="https://github.com/rackset/reqlock"><span data-i18n="cta.btn2">View on GitHub</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div class="foot-brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="url(#lg)"/><path d="M22 28v-4a10 10 0 0 1 20 0v4h3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H19a3 3 0 0 1-3-3V31a3 3 0 0 1 3-3h3zm5 0h10v-4a5 5 0 0 0-10 0v4z" fill="#fff"/><circle cx="32" cy="38" r="3.4" fill="#f4a91e"/><rect x="30.4" y="38" width="3.2" height="6" rx="1.6" fill="#f4a91e"/></svg>
+      ReqLock
+    </div>
+    <div class="foot-links">
+      <a href="https://wordpress.org/plugins/reqlock/">WordPress.org</a>
+      <a href="https://github.com/rackset/reqlock">GitHub</a>
+      <a href="#blocks" data-i18n="nav.blocks">What it blocks</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+    </div>
+    <p class="foot-note" data-i18n="foot.note">Developed and maintained by the <strong>Rackset DevOps Team</strong> — <a href="https://rackset.com/">rackset.com</a>. ReqLock is free software, GPL-2.0-or-later.</p>
+  </div>
+</footer>
+
+<script id="rql-i18n" type="application/json">{"en":{"meta.title":"ReqLock — An outbound firewall for WordPress","meta.desc":"ReqLock is a master kill-switch WordPress plugin that disarms external internet calls from core, themes and plugins — for resilience, performance, privacy and offline development. One switch, fully reversible.","nav.why":"Why","nav.blocks":"What it blocks","nav.how":"How it works","nav.features":"Features","nav.github":"GitHub","nav.getplugin":"Get the plugin","hero.eyebrow":"WordPress outbound firewall · open source","hero.h1":"One switch that <span class=\"grad-text\">silences every external call</span> your WordPress site makes.","hero.sub":"ReqLock disarms outbound internet requests from WordPress core, your theme, and plugins — on both the server and the browser. Keep working when the internet is cut, kill slow third-party calls, and stop phoning home.","hero.altlabel":"Also:","hero.cta1":"Get it on WordPress.org","hero.cta2":"View source","hero.trust1":"GPL-2.0 · 100% free","hero.trust2":"No account, no telemetry","hero.trust3":"Inert when off","demo.master":"ReqLock master switch","demo.state.off":"Off — site reaches the internet freely","demo.state.on":"On — only your own domain is reachable","demo.foot.off":"Calls leaving the server","demo.foot.on":"Failed instantly — no timeout, no data sent","demo.allowed":"ALLOWED","demo.blocked":"BLOCKED","demo.sent":"sent","demo.blockedword":"blocked","why.kicker":"One switch, four jobs","why.h2":"Built for resilience — useful every day","why.p":"The same kill-switch that keeps you online through an outage also makes a noisy WordPress install faster, more private, and easy to run offline.","job1.h":"Resilience","job1.p":"Keep the site working when international internet is cut or restricted. Pages serve from local assets and wp-admin stops hanging on dead requests.","job2.h":"Performance","job2.p":"Slow or dead third-party calls fail instantly instead of stalling front-end and back-end page loads on long network timeouts.","job3.h":"Privacy","job3.p":"Strip analytics, trackers, external fonts and phone-home requests, so nothing about your visitors quietly leaves the server.","job4.h":"Development","job4.p":"Turn any install into a self-contained, offline-capable environment — no external calls or tracking from a staging copy.","blocks.kicker":"Total coverage","blocks.h2":"Both sides of every request","blocks.p":"ReqLock works where other plugins can't — intercepting calls before they leave the server <em>and</em> scrubbing what the browser would otherwise fetch.","blocks.server.badge":"Server-side","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"Hooks <code>pre_http_request</code> and short-circuits external hosts before the request ever leaves your server.","blocks.server.li1":"Outbound <code>wp_remote_*</code> calls to external hosts","blocks.server.li2":"WordPress.org update &amp; version checks","blocks.server.li3":"Analytics &amp; AI APIs — OpenAI, Gemini, remote fonts","blocks.server.li4":"License / phone-home pings — fail fast, no timeouts","blocks.browser.badge":"Browser-side","blocks.browser.h":"Rendered HTML","blocks.browser.desc":"Buffers page output and strips external resource tags and known inline trackers — leaving a traceable comment, never a request.","blocks.browser.li1":"External <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> stylesheets (Google Fonts)","blocks.browser.li2":"Resource hints: preconnect / dns-prefetch / preload","blocks.browser.li3":"External iframes → clean local placeholder","blocks.browser.li4":"Inline analytics: GA/GTM, Clarity, Meta Pixel, Hotjar…","how.kicker":"Up in 60 seconds","how.h2":"Install, activate, flip the switch","how.p":"No theme edits, no build step, no configuration required to start. Safe to keep installed permanently.","step1.h":"Drop it in","step1.p":"Copy the <code>reqlock</code> folder into <code>wp-content/plugins/</code> and activate it from the Plugins screen.","step2.h":"Tune the layers","step2.p":"Open <strong>Settings → ReqLock</strong>. Every blocking layer has its own toggle; your domain and subdomains are always allowed.","step3.h":"Arm it","step3.p":"Flip the <strong>master switch</strong> on when the internet is cut — or leave it on for good as a privacy &amp; performance baseline.","stat1.l":"Master switch","stat2.l":"Sides intercepted","stat3.l":"Languages bundled","stat4.l":"Wait on blocked calls","feat.kicker":"Built right","feat.h2":"Precise, reversible, and safe","feat.p":"Conservative, well-anchored matching that leaves SEO links and internal URLs untouched.","feat1":"Your own domain &amp; all subdomains are always allowed","feat2":"Allow-list for any host that must stay reachable","feat3":"Detected-hosts panel audits what your site contacts","feat4":"Per-category toggles — each layer independent","feat5":"Controls <code>WP_HTTP_BLOCK_EXTERNAL</code> conflicts","feat6":"Inert when off — flip on only when needed","feat7":"Works over full-page caches (outermost buffer)","feat8":"Admin-bar indicator shows when ReqLock is active","cta.h2":"Put your site in control of its own traffic.","cta.p":"Free and open source under GPL-2.0. Install from the WordPress directory or grab the source on GitHub.","cta.btn1":"Get it on WordPress.org","cta.btn2":"View on GitHub","foot.note":"Developed and maintained by the <strong>Rackset DevOps Team</strong> — <a href=\"https://rackset.com/\">rackset.com</a>. ReqLock is free software, GPL-2.0-or-later."},"de":{"meta.title":"ReqLock — Eine ausgehende Firewall für WordPress","meta.desc":"ReqLock ist ein WordPress-Plugin mit zentralem Hauptschalter, das externe Internet-Aufrufe von Core, Themes und Plugins entschärft — für Ausfallsicherheit, Leistung, Datenschutz und Offline-Entwicklung. Ein Schalter, vollständig umkehrbar.","nav.why":"Warum","nav.blocks":"Was blockiert wird","nav.how":"Wie es funktioniert","nav.features":"Funktionen","nav.github":"GitHub","nav.getplugin":"Plugin holen","hero.eyebrow":"Ausgehende Firewall für WordPress · Open Source","hero.h1":"Ein Schalter, der <span class=\"grad-text\">jeden externen Aufruf deiner WordPress-Seite verstummen lässt</span>.","hero.sub":"ReqLock entschärft ausgehende Internet-Anfragen von WordPress-Core, deinem Theme und Plugins — sowohl auf dem Server als auch im Browser. Arbeite weiter, wenn das Internet getrennt ist, kappe langsame Drittanbieter-Aufrufe und stoppe das Nachhausetelefonieren.","hero.altlabel":"Außerdem:","hero.cta1":"Auf WordPress.org holen","hero.cta2":"Quellcode ansehen","hero.trust1":"GPL-2.0 · 100 % kostenlos","hero.trust2":"Kein Konto, keine Telemetrie","hero.trust3":"Inaktiv, wenn aus","demo.master":"ReqLock-Hauptschalter","demo.state.off":"Aus — Seite erreicht das Internet frei","demo.state.on":"Ein — nur deine eigene Domain ist erreichbar","demo.foot.off":"Aufrufe verlassen den Server","demo.foot.on":"Sofort fehlgeschlagen — kein Timeout, keine Daten gesendet","demo.allowed":"ERLAUBT","demo.blocked":"BLOCKIERT","demo.sent":"gesendet","demo.blockedword":"blockiert","why.kicker":"Ein Schalter, vier Aufgaben","why.h2":"Für Ausfallsicherheit gebaut — täglich nützlich","why.p":"Derselbe Hauptschalter, der dich durch einen Ausfall online hält, macht eine geschwätzige WordPress-Installation auch schneller, privater und einfach offline betreibbar.","job1.h":"Ausfallsicherheit","job1.p":"Halte die Website am Laufen, wenn das internationale Internet getrennt oder eingeschränkt ist. Seiten werden aus lokalen Ressourcen ausgeliefert und wp-admin hängt nicht mehr an toten Anfragen.","job2.h":"Leistung","job2.p":"Langsame oder tote Drittanbieter-Aufrufe schlagen sofort fehl, statt das Laden von Front-End- und Back-End-Seiten mit langen Netzwerk-Timeouts aufzuhalten.","job3.h":"Datenschutz","job3.p":"Entferne Analytics, Tracker, externe Schriften und Phone-Home-Anfragen, sodass nichts über deine Besucher unbemerkt den Server verlässt.","job4.h":"Entwicklung","job4.p":"Verwandle jede Installation in eine eigenständige, offline-fähige Umgebung — keine externen Aufrufe oder Tracking aus einer Staging-Kopie.","blocks.kicker":"Vollständige Abdeckung","blocks.h2":"Beide Seiten jeder Anfrage","blocks.p":"ReqLock wirkt dort, wo andere Plugins es nicht können — es fängt Aufrufe ab, bevor sie den Server verlassen <em>und</em> bereinigt, was der Browser sonst laden würde.","blocks.server.badge":"Serverseitig","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"Hängt sich an <code>pre_http_request</code> und kappt externe Hosts, bevor die Anfrage je deinen Server verlässt.","blocks.server.li1":"Ausgehende <code>wp_remote_*</code>-Aufrufe an externe Hosts","blocks.server.li2":"WordPress.org-Update- &amp; Versionsprüfungen","blocks.server.li3":"Analytics- &amp; KI-APIs — OpenAI, Gemini, entfernte Schriften","blocks.server.li4":"Lizenz-/Phone-Home-Pings — schlagen schnell fehl, keine Timeouts","blocks.browser.badge":"Browserseitig","blocks.browser.h":"Gerendertes HTML","blocks.browser.desc":"Puffert die Seitenausgabe und entfernt externe Ressourcen-Tags und bekannte Inline-Tracker — hinterlässt einen nachvollziehbaren Kommentar, niemals eine Anfrage.","blocks.browser.li1":"Externe <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code>-Stylesheets (Google Fonts)","blocks.browser.li2":"Resource Hints: preconnect / dns-prefetch / preload","blocks.browser.li3":"Externe iframes → sauberer lokaler Platzhalter","blocks.browser.li4":"Inline-Analytics: GA/GTM, Clarity, Meta Pixel, Hotjar…","how.kicker":"In 60 Sekunden einsatzbereit","how.h2":"Installieren, aktivieren, Schalter umlegen","how.p":"Keine Theme-Bearbeitung, kein Build-Schritt, keine Konfiguration zum Loslegen erforderlich. Kann dauerhaft installiert bleiben.","step1.h":"Einfügen","step1.p":"Kopiere den Ordner <code>reqlock</code> nach <code>wp-content/plugins/</code> und aktiviere ihn über die Plugins-Seite.","step2.h":"Ebenen abstimmen","step2.p":"Öffne <strong>Einstellungen → ReqLock</strong>. Jede Blockierungsebene hat ihren eigenen Schalter; deine Domain und Subdomains sind immer erlaubt.","step3.h":"Scharfschalten","step3.p":"Lege den <strong>Hauptschalter</strong> um, wenn das Internet getrennt ist — oder lass ihn dauerhaft an als Datenschutz- &amp; Leistungs-Basislinie.","stat1.l":"Hauptschalter","stat2.l":"Abgefangene Seiten","stat3.l":"Mitgelieferte Sprachen","stat4.l":"Warten bei blockierten Aufrufen","feat.kicker":"Richtig gebaut","feat.h2":"Präzise, umkehrbar und sicher","feat.p":"Konservatives, gut verankertes Matching, das SEO-Links und interne URLs unangetastet lässt.","feat1":"Deine eigene Domain &amp; alle Subdomains sind immer erlaubt","feat2":"Zulassungsliste für jeden Host, der erreichbar bleiben muss","feat3":"Panel erkannter Hosts prüft, womit deine Seite Kontakt aufnimmt","feat4":"Schalter pro Kategorie — jede Ebene unabhängig","feat5":"Steuert <code>WP_HTTP_BLOCK_EXTERNAL</code>-Konflikte","feat6":"Inaktiv, wenn aus — nur bei Bedarf einschalten","feat7":"Funktioniert über Vollseiten-Caches (äußerster Puffer)","feat8":"Admin-Bar-Anzeige zeigt, wann ReqLock aktiv ist","cta.h2":"Gib deiner Seite die Kontrolle über ihren eigenen Datenverkehr.","cta.p":"Kostenlos und Open Source unter GPL-2.0. Installiere aus dem WordPress-Verzeichnis oder hol dir den Quellcode auf GitHub.","cta.btn1":"Auf WordPress.org holen","cta.btn2":"Auf GitHub ansehen","foot.note":"Entwickelt und gepflegt vom <strong>Rackset DevOps Team</strong> — <a href=\"https://rackset.com/\">rackset.com</a>. ReqLock ist freie Software, GPL-2.0-or-later."},"es":{"meta.title":"ReqLock — Un cortafuegos de salida para WordPress","meta.desc":"ReqLock es un plugin de WordPress con interruptor principal que desarma las llamadas a internet externas del núcleo, los temas y los plugins — para resiliencia, rendimiento, privacidad y desarrollo sin conexión. Un solo interruptor, totalmente reversible.","nav.why":"Por qué","nav.blocks":"Qué bloquea","nav.how":"Cómo funciona","nav.features":"Características","nav.github":"GitHub","nav.getplugin":"Consigue el plugin","hero.eyebrow":"Cortafuegos de salida para WordPress · código abierto","hero.h1":"Un solo interruptor que <span class=\"grad-text\">silencia cada llamada externa</span> que hace tu sitio WordPress.","hero.sub":"ReqLock desarma las peticiones salientes a internet del núcleo de WordPress, tu tema y tus plugins — tanto en el servidor como en el navegador. Sigue trabajando cuando se corta internet, corta las llamadas lentas de terceros y deja de «llamar a casa».","hero.altlabel":"También:","hero.cta1":"Consíguelo en WordPress.org","hero.cta2":"Ver el código","hero.trust1":"GPL-2.0 · 100% gratis","hero.trust2":"Sin cuenta, sin telemetría","hero.trust3":"Inerte cuando está apagado","demo.master":"Interruptor principal de ReqLock","demo.state.off":"Apagado — el sitio accede a internet libremente","demo.state.on":"Encendido — solo tu propio dominio es accesible","demo.foot.off":"Llamadas saliendo del servidor","demo.foot.on":"Fallaron al instante — sin tiempo de espera, sin datos enviados","demo.allowed":"PERMITIDA","demo.blocked":"BLOQUEADA","demo.sent":"enviada","demo.blockedword":"bloqueada","why.kicker":"Un interruptor, cuatro funciones","why.h2":"Diseñado para la resiliencia — útil cada día","why.p":"El mismo interruptor principal que te mantiene en línea durante un corte también hace que una instalación ruidosa de WordPress sea más rápida, más privada y fácil de ejecutar sin conexión.","job1.h":"Resiliencia","job1.p":"Mantén el sitio funcionando cuando internet externo está cortado o restringido. Las páginas se sirven desde recursos locales y wp-admin deja de bloquearse en peticiones sin respuesta.","job2.h":"Rendimiento","job2.p":"Las llamadas de terceros lentas o caídas fallan al instante en lugar de bloquear la carga de las páginas del front-end y del back-end con largos tiempos de espera de red.","job3.h":"Privacidad","job3.p":"Elimina analíticas, rastreadores, fuentes externas y peticiones «phone-home», para que nada sobre tus visitantes salga discretamente del servidor.","job4.h":"Desarrollo","job4.p":"Convierte cualquier instalación en un entorno autónomo y capaz de funcionar sin conexión — sin llamadas externas ni seguimiento desde una copia de pruebas.","blocks.kicker":"Cobertura total","blocks.h2":"Ambos lados de cada petición","blocks.p":"ReqLock funciona donde otros plugins no pueden — interceptando las llamadas antes de que salgan del servidor <em>y</em> limpiando lo que el navegador, de otro modo, descargaría.","blocks.server.badge":"Lado del servidor","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"Engancha <code>pre_http_request</code> y cortocircuita los hosts externos antes de que la petición salga de tu servidor.","blocks.server.li1":"Llamadas salientes <code>wp_remote_*</code> a hosts externos","blocks.server.li2":"Comprobaciones de actualización &amp; versión de WordPress.org","blocks.server.li3":"APIs de analítica &amp; de IA — OpenAI, Gemini, fuentes remotas","blocks.server.li4":"Pings de licencia / phone-home — fallan rápido, sin tiempos de espera","blocks.browser.badge":"Lado del navegador","blocks.browser.h":"HTML renderizado","blocks.browser.desc":"Almacena en búfer la salida de la página y elimina las etiquetas de recursos externos y los rastreadores en línea conocidos — dejando un comentario rastreable, nunca una petición.","blocks.browser.li1":"Hojas de estilo <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> externas (Google Fonts)","blocks.browser.li2":"Sugerencias de recursos: preconnect / dns-prefetch / preload","blocks.browser.li3":"Iframes externos → marcador local limpio","blocks.browser.li4":"Analítica en línea: GA/GTM, Clarity, Meta Pixel, Hotjar…","how.kicker":"Listo en 60 segundos","how.h2":"Instala, activa, acciona el interruptor","how.p":"Sin editar el tema, sin paso de compilación, sin configuración necesaria para empezar. Seguro para dejarlo instalado de forma permanente.","step1.h":"Colócalo","step1.p":"Copia la carpeta <code>reqlock</code> en <code>wp-content/plugins/</code> y actívala desde la pantalla de Plugins.","step2.h":"Ajusta las capas","step2.p":"Abre <strong>Ajustes → ReqLock</strong>. Cada capa de bloqueo tiene su propio conmutador; tu dominio y subdominios siempre están permitidos.","step3.h":"Ármalo","step3.p":"Acciona el <strong>interruptor principal</strong> cuando se corte internet — o déjalo encendido para siempre como base de privacidad &amp; rendimiento.","stat1.l":"Interruptor principal","stat2.l":"Lados interceptados","stat3.l":"Idiomas incluidos","stat4.l":"Espera en llamadas bloqueadas","feat.kicker":"Bien construido","feat.h2":"Preciso, reversible y seguro","feat.p":"Coincidencia conservadora y bien anclada que deja intactos los enlaces SEO y las URL internas.","feat1":"Tu propio dominio &amp; todos sus subdominios siempre están permitidos","feat2":"Lista de permitidos para cualquier host que deba seguir siendo accesible","feat3":"El panel de hosts detectados audita con qué contacta tu sitio","feat4":"Conmutadores por categoría — cada capa independiente","feat5":"Controla los conflictos de <code>WP_HTTP_BLOCK_EXTERNAL</code>","feat6":"Inerte cuando está apagado — enciéndelo solo cuando haga falta","feat7":"Funciona sobre cachés de página completa (búfer más externo)","feat8":"El indicador de la barra de administración muestra cuándo ReqLock está activo","cta.h2":"Pon tu sitio en control de su propio tráfico.","cta.p":"Gratis y de código abierto bajo GPL-2.0. Instálalo desde el directorio de WordPress o consigue el código en GitHub.","cta.btn1":"Consíguelo en WordPress.org","cta.btn2":"Ver en GitHub","foot.note":"Desarrollado y mantenido por el <strong>Rackset DevOps Team</strong> — <a href=\"https://rackset.com/\">rackset.com</a>. ReqLock es software libre, GPL-2.0-or-later."},"fa":{"meta.title":"ReqLock — یک فایروالِ خروجی برای وردپرس","meta.desc":"ReqLock یک افزونهٔ وردپرس با کلید اصلیِ قطع‌کننده است که فراخوانی‌های خارجیِ اینترنت را از هسته، قالب‌ها و افزونه‌ها خنثی می‌کند — برای تاب‌آوری، کارایی، حریم خصوصی و توسعهٔ آفلاین. یک کلید، کاملاً برگشت‌پذیر.","nav.why":"چرا","nav.blocks":"چه چیزی را مسدود می‌کند","nav.how":"چطور کار می‌کند","nav.features":"ویژگی‌ها","nav.github":"GitHub","nav.getplugin":"دریافت افزونه","hero.eyebrow":"فایروالِ خروجی وردپرس · متن‌باز","hero.h1":"یک کلید که <span class=\"grad-text\">هر فراخوانی خارجی را خاموش می‌کند</span> که سایت وردپرسی شما انجام می‌دهد.","hero.sub":"ReqLock درخواست‌های خروجیِ اینترنت را از هستهٔ وردپرس، قالب و افزونه‌هایتان خنثی می‌کند — هم در سمت سرور و هم در مرورگر. وقتی اینترنت قطع است به کار ادامه دهید، فراخوانی‌های کندِ شخص‌ثالث را قطع کنید و جلوی phone-home را بگیرید.","hero.altlabel":"همچنین:","hero.cta1":"دریافت از WordPress.org","hero.cta2":"مشاهدهٔ سورس","hero.trust1":"GPL-2.0 · ۱۰۰٪ رایگان","hero.trust2":"بدون حساب کاربری، بدون تله‌متری","hero.trust3":"خاموش = بی‌اثر","demo.master":"کلید اصلی ReqLock","demo.state.off":"خاموش — سایت آزادانه به اینترنت می‌رسد","demo.state.on":"روشن — فقط دامنهٔ خودتان در دسترس است","demo.foot.off":"فراخوانی‌هایی که سرور را ترک می‌کنند","demo.foot.on":"بی‌درنگ ناموفق — بدون تایم‌اوت، بدون ارسال داده","demo.allowed":"مجاز","demo.blocked":"مسدود","demo.sent":"ارسال","demo.blockedword":"مسدود","why.kicker":"یک کلید، چهار کاربرد","why.h2":"ساخته‌شده برای تاب‌آوری — مفید در هر روز","why.p":"همان کلیدِ قطع‌کننده‌ای که شما را در زمان قطعی آنلاین نگه می‌دارد، یک نصبِ پرسروصدای وردپرس را هم سریع‌تر، خصوصی‌تر و آماده برای اجرای آفلاین می‌کند.","job1.h":"تاب‌آوری","job1.p":"وقتی اینترنت بین‌المللی قطع یا محدود می‌شود، سایت را پابرجا نگه می‌دارد. صفحه‌ها از منابع محلی سرویس داده می‌شوند و wp-admin دیگر روی درخواست‌های بی‌پاسخ معطل نمی‌ماند.","job2.h":"کارایی","job2.p":"فراخوانی‌های کند یا بی‌پاسخِ شخص‌ثالث، به‌جای معطل‌کردنِ بارگذاری صفحه‌های بخش کاربری و پیشخوان با تایم‌اوت‌های طولانی، بی‌درنگ ناموفق می‌شوند.","job3.h":"حریم خصوصی","job3.p":"تحلیل‌گرها، ردیاب‌ها، فونت‌های خارجی و فراخوانی‌های phone-home را حذف می‌کند تا هیچ چیزی دربارهٔ بازدیدکنندگانتان بی‌سروصدا از سرور خارج نشود.","job4.h":"توسعه","job4.p":"هر نصبی را به یک محیطِ خودبسنده و آفلاین‌پذیر تبدیل می‌کند — بدون هیچ فراخوانی خارجی یا ردیابی از یک نسخهٔ استیجینگ.","blocks.kicker":"پوشش کامل","blocks.h2":"هر دو سمتِ هر درخواست","blocks.p":"ReqLock جایی کار می‌کند که افزونه‌های دیگر نمی‌توانند — فراخوانی‌ها را پیش از خروج از سرور رهگیری می‌کند <em>و</em> آنچه را که مرورگر در غیر این صورت واکشی می‌کرد پاک‌سازی می‌کند.","blocks.server.badge":"سمت سرور","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"به <code>pre_http_request</code> هوک می‌شود و میزبان‌های خارجی را پیش از آنکه درخواست سرور شما را ترک کند، کوتاه‌مدار می‌کند.","blocks.server.li1":"فراخوانی‌های خروجیِ <code>wp_remote_*</code> به میزبان‌های خارجی","blocks.server.li2":"بررسی‌های به‌روزرسانی &amp; نسخهٔ WordPress.org","blocks.server.li3":"تحلیل‌گرها &amp; APIهای هوش مصنوعی — OpenAI، Gemini، فونت‌های راه‌دور","blocks.server.li4":"پینگ‌های مجوز / phone-home — ناموفقیِ سریع، بدون تایم‌اوت","blocks.browser.badge":"سمت مرورگر","blocks.browser.h":"HTMLِ رندرشده","blocks.browser.desc":"خروجی صفحه را بافر می‌کند و تگ‌های منابع خارجی و ردیاب‌های درون‌خطیِ شناخته‌شده را حذف می‌کند — و به‌جای یک درخواست، یک کامنتِ قابل‌رهگیری بر جای می‌گذارد.","blocks.browser.li1":"استایل‌شیت‌های خارجیِ <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> (Google Fonts)","blocks.browser.li2":"Resource hintها: preconnect / dns-prefetch / preload","blocks.browser.li3":"iframeهای خارجی ← جای‌نگه‌دار محلیِ تمیز","blocks.browser.li4":"تحلیل‌گرهای درون‌خطی: GA/GTM، Clarity، Meta Pixel، Hotjar…","how.kicker":"آماده در ۶۰ ثانیه","how.h2":"نصب کنید، فعال کنید، کلید را بزنید","how.p":"بدون ویرایش قالب، بدون مرحلهٔ ساخت، بدون نیاز به پیکربندی برای شروع. می‌توان آن را برای همیشه نصب نگه داشت.","step1.h":"آن را رها کنید","step1.p":"پوشهٔ <code>reqlock</code> را در <code>wp-content/plugins/</code> کپی کنید و از صفحهٔ افزونه‌ها فعالش کنید.","step2.h":"لایه‌ها را تنظیم کنید","step2.p":"<strong>تنظیمات ← ReqLock</strong> را باز کنید. هر لایهٔ مسدودسازی کلید جداگانهٔ خود را دارد؛ دامنه و زیردامنه‌هایتان همیشه مجازند.","step3.h":"مسلحش کنید","step3.p":"<strong>کلید اصلی</strong> را هنگام قطعِ اینترنت روشن کنید — یا آن را برای همیشه روشن بگذارید تا یک خط‌مبنای حریم خصوصی &amp; کارایی داشته باشید.","stat1.l":"کلید اصلی","stat2.l":"سمت‌های رهگیری‌شده","stat3.l":"زبان‌های همراه","stat4.l":"انتظار روی فراخوانی‌های مسدود","feat.kicker":"درست ساخته‌شده","feat.h2":"دقیق، برگشت‌پذیر و امن","feat.p":"تطبیقی محافظه‌کارانه و خوش‌لنگر که لینک‌های سئو و URLهای داخلی را دست‌نخورده باقی می‌گذارد.","feat1":"دامنهٔ خودتان &amp; همهٔ زیردامنه‌ها همیشه مجازند","feat2":"فهرست مجاز برای هر میزبانی که باید در دسترس بماند","feat3":"پنل میزبان‌های شناسایی‌شده، تماس‌های سایت شما را ممیزی می‌کند","feat4":"کلیدهای جداگانه برای هر دسته — هر لایه مستقل","feat5":"تعارض‌های <code>WP_HTTP_BLOCK_EXTERNAL</code> را کنترل می‌کند","feat6":"خاموش = بی‌اثر — فقط هنگام نیاز روشنش کنید","feat7":"روی کش‌های تمام‌صفحه کار می‌کند (بیرونی‌ترین بافر)","feat8":"نشانگرِ نوار مدیریت نشان می‌دهد ReqLock کِی فعال است","cta.h2":"سایتتان را بر ترافیک خودش مسلط کنید.","cta.p":"رایگان و متن‌باز تحت GPL-2.0. از دایرکتوری وردپرس نصب کنید یا سورس را روی GitHub بردارید.","cta.btn1":"دریافت از WordPress.org","cta.btn2":"مشاهده در GitHub","foot.note":"توسعه‌یافته و نگهداری‌شده توسط <strong>Rackset DevOps Team</strong> — <a href=\"https://rackset.com/\">rackset.com</a>. ReqLock نرم‌افزار آزاد است، GPL-2.0-or-later."},"fr":{"meta.title":"ReqLock — Un pare-feu sortant pour WordPress","meta.desc":"ReqLock est une extension WordPress « interrupteur principal » qui désarme les appels Internet externes du cœur, des thèmes et des extensions — pour la résilience, la performance, la confidentialité et le développement hors ligne. Un seul interrupteur, entièrement réversible.","nav.why":"Pourquoi","nav.blocks":"Ce qui est bloqué","nav.how":"Comment ça marche","nav.features":"Fonctionnalités","nav.github":"GitHub","nav.getplugin":"Obtenir l’extension","hero.eyebrow":"Pare-feu sortant pour WordPress · open source","hero.h1":"Un seul interrupteur qui <span class=\"grad-text\">fait taire chaque appel externe</span> émis par votre site WordPress.","hero.sub":"ReqLock désarme les requêtes Internet sortantes du cœur de WordPress, de votre thème et de vos extensions — à la fois sur le serveur et dans le navigateur. Continuez à travailler quand l’Internet est coupé, supprimez les appels tiers lents et arrêtez de « téléphoner à la maison ».","hero.altlabel":"Aussi :","hero.cta1":"Obtenez-la sur WordPress.org","hero.cta2":"Voir le code source","hero.trust1":"GPL-2.0 · 100 % gratuit","hero.trust2":"Pas de compte, pas de télémétrie","hero.trust3":"Inerte lorsqu’il est inactif","demo.master":"Interrupteur principal de ReqLock","demo.state.off":"Inactif — le site accède librement à Internet","demo.state.on":"Actif — seul votre propre domaine est accessible","demo.foot.off":"Appels quittant le serveur","demo.foot.on":"Échec instantané — aucun délai d’attente, aucune donnée envoyée","demo.allowed":"AUTORISÉ","demo.blocked":"BLOQUÉ","demo.sent":"envoyé","demo.blockedword":"bloqué","why.kicker":"Un interrupteur, quatre usages","why.h2":"Conçu pour la résilience — utile au quotidien","why.p":"Le même interrupteur qui vous garde en ligne pendant une panne rend aussi une installation WordPress bavarde plus rapide, plus respectueuse de la vie privée et facile à faire tourner hors ligne.","job1.h":"Résilience","job1.p":"Gardez le site fonctionnel quand l’Internet international est coupé ou restreint. Les pages sont servies depuis des ressources locales et wp-admin ne se fige plus sur des requêtes mortes.","job2.h":"Performance","job2.p":"Les appels tiers lents ou morts échouent instantanément au lieu de bloquer le chargement des pages du front-end et du back-end sur de longs délais d’attente réseau.","job3.h":"Confidentialité","job3.p":"Supprimez les outils d’analyse, les traqueurs, les polices externes et les requêtes « phone-home », afin que rien sur vos visiteurs ne quitte discrètement le serveur.","job4.h":"Développement","job4.p":"Transformez n’importe quelle installation en environnement autonome et utilisable hors ligne — aucun appel externe ni suivi depuis une copie de préproduction.","blocks.kicker":"Couverture totale","blocks.h2":"Les deux côtés de chaque requête","blocks.p":"ReqLock agit là où d’autres extensions ne le peuvent pas — en interceptant les appels avant qu’ils ne quittent le serveur <em>et</em> en nettoyant ce que le navigateur récupérerait autrement.","blocks.server.badge":"Côté serveur","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"S’accroche à <code>pre_http_request</code> et court-circuite les hôtes externes avant que la requête ne quitte votre serveur.","blocks.server.li1":"Appels sortants <code>wp_remote_*</code> vers des hôtes externes","blocks.server.li2":"Vérifications de mise à jour &amp; de version WordPress.org","blocks.server.li3":"API d’analyse &amp; d’IA — OpenAI, Gemini, polices distantes","blocks.server.li4":"Pings de licence / phone-home — échec rapide, sans délais d’attente","blocks.browser.badge":"Côté navigateur","blocks.browser.h":"HTML rendu","blocks.browser.desc":"Met en tampon la sortie de la page et supprime les balises de ressources externes et les traqueurs en ligne connus — en laissant un commentaire traçable, jamais une requête.","blocks.browser.li1":"Feuilles de style <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> externes (Google Fonts)","blocks.browser.li2":"Indices de ressources : preconnect / dns-prefetch / preload","blocks.browser.li3":"Iframes externes → espace réservé local propre","blocks.browser.li4":"Analyses en ligne : GA/GTM, Clarity, Meta Pixel, Hotjar…","how.kicker":"Prêt en 60 secondes","how.h2":"Installez, activez, basculez l’interrupteur","how.p":"Aucune modification de thème, aucune étape de build, aucune configuration requise pour démarrer. Vous pouvez la laisser installée en permanence en toute sécurité.","step1.h":"Déposez-la","step1.p":"Copiez le dossier <code>reqlock</code> dans <code>wp-content/plugins/</code> et activez-le depuis l’écran des extensions.","step2.h":"Réglez les couches","step2.p":"Ouvrez <strong>Réglages → ReqLock</strong>. Chaque couche de blocage a son propre interrupteur ; votre domaine et ses sous-domaines sont toujours autorisés.","step3.h":"Armez-le","step3.p":"Activez l’<strong>interrupteur principal</strong> quand l’Internet est coupé — ou laissez-le activé en permanence comme socle de confidentialité &amp; de performance.","stat1.l":"Interrupteur principal","stat2.l":"Côtés interceptés","stat3.l":"Langues incluses","stat4.l":"Attente sur les appels bloqués","feat.kicker":"Bien conçu","feat.h2":"Précis, réversible et sûr","feat.p":"Une correspondance prudente et bien ancrée qui laisse intacts les liens SEO et les URL internes.","feat1":"Votre propre domaine &amp; tous ses sous-domaines sont toujours autorisés","feat2":"Liste d’autorisation pour tout hôte qui doit rester accessible","feat3":"Le panneau des hôtes détectés audite ce que votre site contacte","feat4":"Interrupteurs par catégorie — chaque couche indépendante","feat5":"Contrôle les conflits liés à <code>WP_HTTP_BLOCK_EXTERNAL</code>","feat6":"Inerte lorsqu’il est inactif — activez-le seulement au besoin","feat7":"Fonctionne avec les caches de page complète (tampon le plus externe)","feat8":"Un indicateur dans la barre d’administration montre quand ReqLock est actif","cta.h2":"Mettez votre site aux commandes de son propre trafic.","cta.p":"Gratuit et open source sous GPL-2.0. Installez-la depuis le répertoire WordPress ou récupérez le code source sur GitHub.","cta.btn1":"Obtenez-la sur WordPress.org","cta.btn2":"Voir sur GitHub","foot.note":"Développé et maintenu par la <strong>Rackset DevOps Team</strong> — <a href=\"https://rackset.com/\">rackset.com</a>. ReqLock est un logiciel libre, GPL-2.0-or-later."},"ja":{"meta.title":"ReqLock — WordPress 向けの送信ファイアウォール","meta.desc":"ReqLock は、コア・テーマ・プラグインからの外部インターネット呼び出しを無効化するマスターキルスイッチ型の WordPress プラグインです。回復力・性能・プライバシー・オフライン開発を実現します。ワンスイッチで、完全に可逆的。","nav.why":"なぜ必要か","nav.blocks":"遮断する対象","nav.how":"仕組み","nav.features":"機能","nav.github":"GitHub","nav.getplugin":"プラグインを入手","hero.eyebrow":"WordPress 送信ファイアウォール · オープンソース","hero.h1":"WordPress サイトが行う<span class=\"grad-text\">あらゆる外部呼び出しを黙らせる</span>ワンスイッチ。","hero.sub":"ReqLock は、WordPress コア、テーマ、プラグインからの送信インターネット要求を、サーバー側とブラウザー側の両方で無効化します。インターネットが遮断されても作業を続け、遅いサードパーティ呼び出しを断ち切り、phone-home を止めます。","hero.altlabel":"さらに:","hero.cta1":"WordPress.org で入手","hero.cta2":"ソースを見る","hero.trust1":"GPL-2.0 · 100% 無料","hero.trust2":"アカウント不要、テレメトリーなし","hero.trust3":"オフ時は不活性","demo.master":"ReqLock マスタースイッチ","demo.state.off":"オフ — サイトは自由にインターネットへ到達","demo.state.on":"オン — 到達できるのは自分のドメインのみ","demo.foot.off":"サーバーから出ていく呼び出し","demo.foot.on":"即座に失敗 — タイムアウトなし、データ送信なし","demo.allowed":"許可","demo.blocked":"ブロック","demo.sent":"送信","demo.blockedword":"ブロック","why.kicker":"ワンスイッチ、4 つの用途","why.h2":"回復力のために設計 — 毎日役立つ","why.p":"障害時にサイトをオンラインに保つのと同じキルスイッチが、「おしゃべり」な WordPress インストールをより速く、よりプライベートに、そしてオフラインで扱いやすくします。","job1.h":"回復力","job1.p":"国際的なインターネットが遮断・制限されてもサイトを稼働させ続けます。ページはローカル資産から配信され、wp-admin が応答のないリクエストでハングしなくなります。","job2.h":"性能","job2.p":"遅い・応答のないサードパーティ呼び出しは、長いネットワークタイムアウトでフロントエンドや管理画面の読み込みを止める代わりに、即座に失敗します。","job3.h":"プライバシー","job3.p":"アナリティクス、トラッカー、外部フォント、phone-home 要求を取り除き、訪問者に関する情報がサーバーから密かに出ていかないようにします。","job4.h":"開発","job4.p":"どんなインストールも、自己完結したオフライン対応の環境に変えます。ステージングのコピーからの外部呼び出しやトラッキングは一切ありません。","blocks.kicker":"完全なカバレッジ","blocks.h2":"すべての要求の両側","blocks.p":"ReqLock は他のプラグインにできないところで機能します。呼び出しがサーバーから出ていく前に捕捉し、<em>さらに</em>ブラウザーが取得しようとするものを取り除きます。","blocks.server.badge":"サーバー側","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"<code>pre_http_request</code> をフックし、要求がサーバーから出ていく前に外部ホストを短絡します。","blocks.server.li1":"外部ホストへの送信 <code>wp_remote_*</code> 呼び出し","blocks.server.li2":"WordPress.org の更新 &amp; バージョン確認","blocks.server.li3":"アナリティクス &amp; AI API — OpenAI、Gemini、リモートフォント","blocks.server.li4":"ライセンス／phone-home の ping — 即座に失敗、タイムアウトなし","blocks.browser.badge":"ブラウザー側","blocks.browser.h":"描画された HTML","blocks.browser.desc":"ページ出力をバッファリングし、外部リソースタグと既知のインライントラッカーを取り除きます。残るのは追跡可能なコメントで、要求は決して発生しません。","blocks.browser.li1":"外部 <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> スタイルシート（Google Fonts）","blocks.browser.li2":"リソースヒント: preconnect / dns-prefetch / preload","blocks.browser.li3":"外部 iframe → クリーンなローカルのプレースホルダー","blocks.browser.li4":"インラインのアナリティクス: GA/GTM、Clarity、Meta Pixel、Hotjar…","how.kicker":"60 秒で稼働","how.h2":"インストールして、有効化して、スイッチを入れる","how.p":"テーマの編集も、ビルド手順も、開始時の設定も不要。インストールしたまま永続的に使っても安全です。","step1.h":"入れるだけ","step1.p":"<code>reqlock</code> フォルダーを <code>wp-content/plugins/</code> にコピーし、プラグイン画面から有効化します。","step2.h":"レイヤーを調整","step2.p":"<strong>設定 → ReqLock</strong> を開きます。各遮断レイヤーには専用のトグルがあり、自分のドメインとサブドメインは常に許可されます。","step3.h":"起動する","step3.p":"インターネットが遮断されたら<strong>マスタースイッチ</strong>をオンにします。あるいはプライバシー &amp; 性能のベースラインとして常時オンのままにもできます。","stat1.l":"マスタースイッチ","stat2.l":"捕捉する側","stat3.l":"同梱の言語","stat4.l":"ブロックした呼び出しの待ち時間","feat.kicker":"正しく作られた","feat.h2":"精密で、可逆的で、安全","feat.p":"保守的でしっかり基準づけられたマッチングにより、SEO リンクや内部 URL には手を触れません。","feat1":"自分のドメイン &amp; すべてのサブドメインは常に許可","feat2":"到達可能なまま残したいホストのための許可リスト","feat3":"検出ホストパネルがサイトの通信先を監査","feat4":"カテゴリー別トグル — 各レイヤーは個別に独立","feat5":"<code>WP_HTTP_BLOCK_EXTERNAL</code> の競合を制御","feat6":"オフ時は不活性 — 必要なときだけオンに","feat7":"全ページキャッシュ対応（最も外側のバッファー）","feat8":"管理バーのインジケーターが ReqLock の動作中を表示","cta.h2":"サイトを自らのトラフィックの主導権の下に。","cta.p":"GPL-2.0 のもとで無料・オープンソース。WordPress ディレクトリからインストールするか、GitHub でソースを入手してください。","cta.btn1":"WordPress.org で入手","cta.btn2":"GitHub で見る","foot.note":"<strong>Rackset DevOps Team</strong> によって開発・保守されています — <a href=\"https://rackset.com/\">rackset.com</a>。ReqLock はフリーソフトウェアで、GPL-2.0-or-later です。"},"zh":{"meta.title":"ReqLock —— WordPress 出站防火墙","meta.desc":"ReqLock 是一款主控总开关式 WordPress 插件，可切断来自核心、主题和插件的对外互联网调用 —— 兼顾韧性、性能、隐私与离线开发。一个开关，完全可逆。","nav.why":"为何使用","nav.blocks":"拦截哪些内容","nav.how":"工作原理","nav.features":"功能特性","nav.github":"GitHub","nav.getplugin":"获取插件","hero.eyebrow":"WordPress 出站防火墙 · 开源","hero.h1":"一个开关，<span class=\"grad-text\">让你的 WordPress 站点停止一切对外调用</span>。","hero.sub":"ReqLock 切断来自 WordPress 核心、主题和插件的出站互联网请求 —— 服务器端和浏览器端双向覆盖。断网时也能继续工作，干掉缓慢的第三方调用，杜绝 phone-home。","hero.altlabel":"同时还能：","hero.cta1":"在 WordPress.org 获取","hero.cta2":"查看源码","hero.trust1":"GPL-2.0 · 100% 免费","hero.trust2":"无需账户，零遥测","hero.trust3":"关闭即无效","demo.master":"ReqLock 主开关","demo.state.off":"关闭 —— 站点可自由访问互联网","demo.state.on":"开启 —— 仅可访问你自己的域名","demo.foot.off":"正在离开服务器的调用","demo.foot.on":"立即失败 —— 不超时，不发送数据","demo.allowed":"允许","demo.blocked":"拦截","demo.sent":"发送","demo.blockedword":"拦截","why.kicker":"一个开关，四种用途","why.h2":"为韧性而生 —— 日常同样好用","why.p":"那个在中断时让你保持在线的总开关，同样能让一个“吵闹”的 WordPress 安装更快、更私密，也更易于离线运行。","job1.h":"韧性","job1.p":"当外部互联网被切断或受限时，让站点保持可用。页面从本地资源提供，wp-admin 不再卡在无响应的请求上。","job2.h":"性能","job2.p":"缓慢或失效的第三方调用立即失败，而不是让前台和后台页面在漫长的网络超时上空等。","job3.h":"隐私","job3.p":"剥离统计分析、追踪器、外部字体和 phone-home 请求，让访客的任何信息都不会悄悄离开服务器。","job4.h":"开发","job4.p":"把任意安装变成自给自足、可离线运行的环境 —— 测试副本不发出任何外部调用或追踪数据。","blocks.kicker":"全面覆盖","blocks.h2":"每次请求的两端","blocks.p":"ReqLock 能做到其他插件做不到的事 —— 在请求离开服务器之前拦截它们，<em>同时</em>清除浏览器原本会去抓取的内容。","blocks.server.badge":"服务器端","blocks.server.h":"PHP · WP HTTP API","blocks.server.desc":"挂钩 <code>pre_http_request</code>，在请求离开服务器之前对外部主机进行短路拦截。","blocks.server.li1":"发往外部主机的出站 <code>wp_remote_*</code> 调用","blocks.server.li2":"WordPress.org 更新 &amp; 版本检查","blocks.server.li3":"统计分析 &amp; AI 接口 —— OpenAI、Gemini、远程字体","blocks.server.li4":"授权 / phone-home 回拨 —— 快速失败，不超时","blocks.browser.badge":"浏览器端","blocks.browser.h":"渲染出的 HTML","blocks.browser.desc":"缓冲页面输出，剥离外部资源标签和已知的内联追踪器 —— 只留下可追溯的注释，绝不发出请求。","blocks.browser.li1":"外部 <code>&lt;script&gt;</code> &amp; <code>&lt;link&gt;</code> 样式表（Google Fonts）","blocks.browser.li2":"资源提示：preconnect / dns-prefetch / preload","blocks.browser.li3":"外部 iframe → 干净的本地占位符","blocks.browser.li4":"内联统计代码：GA/GTM、Clarity、Meta Pixel、Hotjar……","how.kicker":"60 秒上手","how.h2":"安装、启用、拨动开关","how.p":"无需编辑主题，无需构建步骤，开箱即用无需配置。可安心长期保留安装。","step1.h":"放进去","step1.p":"将 <code>reqlock</code> 文件夹复制到 <code>wp-content/plugins/</code>，并在插件页面启用它。","step2.h":"调整各层","step2.p":"打开 <strong>设置 → ReqLock</strong>。每一个拦截层都有独立开关；你的域名及子域名始终被允许。","step3.h":"启动它","step3.p":"断网时拨动<strong>主开关</strong>开启 —— 或将其长期保持开启，作为隐私 &amp; 性能的基线。","stat1.l":"主开关","stat2.l":"拦截端数","stat3.l":"内置语言","stat4.l":"被拦截调用的等待时间","feat.kicker":"做得到位","feat.h2":"精准、可逆、安全","feat.p":"保守且锚定良好的匹配，不会影响 SEO 链接和内部 URL。","feat1":"你自己的域名 &amp; 全部子域名始终被允许","feat2":"允许列表，放行任何需要保持可达的主机","feat3":"“检测到的主机”面板审计站点对外通信","feat4":"分类开关 —— 每一层独立控制","feat5":"管控 <code>WP_HTTP_BLOCK_EXTERNAL</code> 冲突","feat6":"关闭即无效 —— 仅在需要时开启","feat7":"兼容整页缓存（最外层缓冲）","feat8":"管理栏指示器显示 ReqLock 何时处于激活状态","cta.h2":"让你的站点掌控自己的流量。","cta.p":"在 GPL-2.0 下免费开源。从 WordPress 目录安装，或在 GitHub 获取源码。","cta.btn1":"在 WordPress.org 获取","cta.btn2":"在 GitHub 查看","foot.note":"由 <strong>Rackset DevOps Team</strong> 开发与维护 —— <a href=\"https://rackset.com/\">rackset.com</a>。ReqLock 是自由软件，遵循 GPL-2.0-or-later。"}}</script>
+<script>
+  (function () {
+    var I18N = JSON.parse(document.getElementById('rql-i18n').textContent);
+    var NAMES = { en:'English', de:'Deutsch', es:'Español', fa:'فارسی', fr:'Français', ja:'日本語', zh:'简体中文' };
+    var ORDER = ['en','de','es','fr','fa','ja','zh'];
+    var RTL = { fa:1 };
+    var HTMLLANG = { zh:'zh-CN' };
+
+    function hasMarkup(s){ return /[<&]/.test(s); }
+    function t(key){ var d = I18N[current] || I18N.en; return (d[key] != null) ? d[key] : (I18N.en[key] != null ? I18N.en[key] : key); }
+
+    var current = 'en';
+
+    // Build the switcher options
+    var sel = document.getElementById('lang');
+    ORDER.forEach(function (code) {
+      if (!I18N[code]) return;
+      var o = document.createElement('option');
+      o.value = code; o.textContent = NAMES[code] || code;
+      sel.appendChild(o);
+    });
+
+    function detect() {
+      var q = new URLSearchParams(location.search).get('lang');
+      if (q && I18N[q]) return q;
+      try { var s = localStorage.getItem('rql_lang'); if (s && I18N[s]) return s; } catch (e) {}
+      var navs = navigator.languages || [navigator.language || 'en'];
+      for (var i = 0; i < navs.length; i++) {
+        var base = String(navs[i]).toLowerCase().split('-')[0];
+        if (I18N[base]) return base;
+      }
+      return 'en';
+    }
+
+    function apply(lang) {
+      current = I18N[lang] ? lang : 'en';
+      var d = I18N[current];
+      document.documentElement.lang = HTMLLANG[current] || current;
+      document.documentElement.dir = RTL[current] ? 'rtl' : 'ltr';
+      if (d['meta.title']) document.title = d['meta.title'];
+      var md = document.querySelector('meta[name="description"]');
+      if (md && d['meta.desc']) md.setAttribute('content', d['meta.desc']);
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var v = d[el.getAttribute('data-i18n')];
+        if (v == null) return;
+        if (hasMarkup(v)) el.innerHTML = v; else el.textContent = v;
+      });
+      sel.value = current;
+      try { localStorage.setItem('rql_lang', current); } catch (e) {}
+      renderDemo();
+    }
+
+    // ── Interactive demo (local, no network) ──
+    var master = document.getElementById('master');
+    var demo   = document.getElementById('demo');
+    var stateTxt = document.getElementById('state-txt');
+    var footTxt  = document.getElementById('foot-txt');
+    var count    = document.getElementById('count');
+    var ext      = Array.prototype.slice.call(document.querySelectorAll('#reqs .req.ext .tag'));
+    var n = ext.length;
+
+    function renderDemo() {
+      var on = master.checked;
+      demo.classList.toggle('armed', on);
+      ext.forEach(function (tag) {
+        tag.textContent = on ? t('demo.blocked') : t('demo.sent');
+        tag.className = 'tag ' + (on ? 'block' : 'pending');
+      });
+      count.textContent = (on ? n : 0) + ' ' + t('demo.blockedword');
+      stateTxt.textContent = on ? t('demo.state.on') : t('demo.state.off');
+      footTxt.textContent  = on ? t('demo.foot.on')  : t('demo.foot.off');
+    }
+
+    master.addEventListener('change', renderDemo);
+    sel.addEventListener('change', function () { apply(sel.value); });
+
+    apply(detect());
+
+    // Gentle auto-demo on first view.
+    var played = false;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && !played) {
+          played = true;
+          setTimeout(function () { master.checked = true; renderDemo(); }, 900);
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    io.observe(demo);
+  })();
+</script>
+</body>
+</html>
