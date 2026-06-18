@@ -1,22 +1,22 @@
-=== ReqLock ===
+=== ReqLock – Block External Requests & Outbound Firewall ===
 Contributors: rackset
-Tags: firewall, external-requests, privacy, performance, offline
+Tags: firewall, privacy, performance, google fonts, gdpr
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Block external & slow third-party requests in WordPress — for resilience, performance, privacy, and offline development. One master switch.
+Block external HTTP requests & slow third-party calls in WordPress. Outbound firewall for resilience, performance, privacy & offline dev.
 
 == Description ==
 
 **ReqLock** — also written **RequestLock** or **Request Lock** — is an outbound (egress)
-firewall for WordPress. It controls every call your site makes *out* to the internet, on
-both sides of the request: the **server** (PHP / WP HTTP API) and the **browser** (the HTML
-your pages render). One master switch puts your site fully in control of its own outbound
-traffic.
+firewall for WordPress that lets you **block external HTTP requests** on demand. It controls
+every call your site makes *out* to the internet, on both sides of the request: the **server**
+(PHP / WP HTTP API) and the **browser** (the HTML your pages render). One master switch puts
+your site fully in control of its own outbound traffic.
 
 Modern WordPress sites are noisy: update checks, license pings, analytics, tag managers,
 external fonts, embedded widgets, AI APIs, and assorted "phone-home" calls all reach out to
@@ -94,6 +94,18 @@ theme files or hunting down plugins.
 
 == Frequently Asked Questions ==
 
+= How do I block external HTTP requests in WordPress? =
+Install ReqLock, go to **Settings → ReqLock**, and turn the master switch ON. Every outbound `wp_remote_*` request to an external host is then blocked instantly (with an allow-list for exceptions you want to keep). To block only certain hosts while the site otherwise stays online, switch to **Block-list mode**.
+
+= How do I stop WordPress from "phoning home" or sending visitor data externally? =
+Turn ReqLock on. It strips analytics, trackers, external fonts, iframes, and phone-home pings on both the server side and the browser side, so nothing about your visitors leaves your server.
+
+= Does it block or disable external Google Fonts? =
+Yes. ReqLock removes external stylesheets such as Google Fonts (and other third-party CSS/JS) from your rendered pages, so no request is made to those hosts. (Downloading and self-hosting those fonts locally is planned for ReqLock Pro.)
+
+= Does it help with GDPR / privacy compliance? =
+It can. By blocking third-party requests (analytics, fonts, pixels, embeds), ReqLock prevents visitor data from being sent to external services without consent — and the Detected-hosts panel shows you exactly which hosts your themes and plugins contact, so you decide what to allow.
+
 = Will activating it break my site? =
 No. With the master switch OFF the plugin is completely inert. Even when ON, your own domain and its subdomains are always allowed.
 
@@ -121,6 +133,11 @@ Standalone scripts that use raw `curl`/`file_get_contents` outside WordPress are
 
 == Changelog ==
 
+= 1.1.0 =
+* New: **Block-list mode** — block specific external hosts while the rest of the site stays online (free: up to 2 hosts).
+* New: developer **hook API** so companion plugins can extend ReqLock's blocking without forking (see `docs/HOOKS.md`).
+* Unified the block decision across every layer (server-side + rendered HTML) behind a single, filterable gate.
+
 = 1.0.0 =
 * Initial public release.
 * Server-side blocking of outbound WP HTTP API requests to external hosts (with allow-list).
@@ -131,6 +148,9 @@ Standalone scripts that use raw `curl`/`file_get_contents` outside WordPress are
 * Translations: English, 日本語 (Japanese), 简体中文 (Simplified Chinese), Español, Deutsch, Français, فارسی (Persian).
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds Block-list mode (block specific hosts while staying online) and a developer hook API. No settings change required.
 
 = 1.0.0 =
 First public release of ReqLock.

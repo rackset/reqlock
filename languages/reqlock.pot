@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ReqLock 1.0.0\n"
+"Project-Id-Version: ReqLock\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-04 19:09+0330\n"
+"POT-Creation-Date: 2026-06-10 11:59+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,243 +16,342 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:525
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:565
+#: reqlock.php:247
+msgid "Block all external requests (allow-list exceptions)"
+msgstr ""
+
+#: reqlock.php:248
+msgid "Block only listed hosts (block-list)"
+msgstr ""
+
+#: reqlock.php:418
+#, php-format
+msgid "Plugin: %s"
+msgstr ""
+
+#: reqlock.php:422
+#, php-format
+msgid "Theme: %s"
+msgstr ""
+
+#: reqlock.php:426
+#, php-format
+msgid "Front-end (%s)"
+msgstr ""
+
+#: reqlock.php:429
+msgid "WordPress core"
+msgstr ""
+
+#: reqlock.php:430
+msgid "Must-use plugin"
+msgstr ""
+
+#: reqlock.php:431
+msgid "Front-end"
+msgstr ""
+
+#: reqlock.php:432
+msgid "Unknown"
+msgstr ""
+
+#: reqlock.php:767 reqlock.php:807
 msgid "Could not locate wp-config.php."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:528
+#: reqlock.php:770
 msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:532
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:572
+#: reqlock.php:774 reqlock.php:814
 msgid "Could not read wp-config.php."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:542
+#: reqlock.php:784
 msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:546
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:586
+#: reqlock.php:788 reqlock.php:828
 msgid "Safety check failed — wp-config.php was left unchanged."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:551
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:591
+#: reqlock.php:793 reqlock.php:833
 msgid "Failed to write wp-config.php."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:553
+#: reqlock.php:795
 msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:568
+#: reqlock.php:810
 msgid "wp-config.php is not writable — edit it manually."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:582
+#: reqlock.php:824
 msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:593
+#: reqlock.php:835
 msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:612
+#: reqlock.php:856
 msgid "Settings"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:622
-msgid "ReqLock active — external requests blocked"
+#: reqlock.php:871
+msgid "ReqLock firewall is ON — external requests are being blocked"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:639
+#: reqlock.php:875
+msgid "ReqLock firewall is OFF — optimizers are active (localize / lazy-load)"
+msgstr ""
+
+#: reqlock.php:878
+msgid "ReqLock is idle — firewall off, no optimizers active"
+msgstr ""
+
+#: reqlock.php:932
 msgid "Detected-hosts list cleared."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:674
+#: reqlock.php:979
 msgid "Saved — ReqLock is ON (external requests blocked)."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:675
+#: reqlock.php:980
 msgid "Saved — ReqLock is OFF."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:721
+#: reqlock.php:990
+#, php-format
+msgid "⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgid_plural "⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgstr[0] ""
+msgstr[1] ""
+
+#: reqlock.php:1083
 msgid "ACTIVE"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:721
+#: reqlock.php:1083
 msgid "OFF"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:722
+#: reqlock.php:1084
 msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:730
+#: reqlock.php:1092
 msgid "Master switch — Block external requests"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:731
+#: reqlock.php:1093
 msgid "When ON, blocking is applied per the options below."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:736
+#: reqlock.php:1097
+msgid "Mode"
+msgstr ""
+
+#: reqlock.php:1105
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr ""
+
+#: reqlock.php:1110
 msgid "Server-side"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:738
+#: reqlock.php:1112
 msgid "Block outbound WP HTTP API"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:739
+#: reqlock.php:1113
 msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:743
+#: reqlock.php:1117
 msgid "Browser-side"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:744
+#: reqlock.php:1118
 msgid "External <script src>"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:744
+#: reqlock.php:1118
 msgid "Removes external JavaScript files."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:745
+#: reqlock.php:1119
 msgid "External stylesheets"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:745
+#: reqlock.php:1119
 msgid "Removes external stylesheets (e.g. Google Fonts)."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:746
+#: reqlock.php:1120
 msgid "External resource hints"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:746
+#: reqlock.php:1120
 msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:747
+#: reqlock.php:1121
 msgid "External iframes"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:747
+#: reqlock.php:1121
 msgid "Replaces external iframes with a local placeholder."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:748
+#: reqlock.php:1122
 msgid "Inline analytics"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:748
+#: reqlock.php:1122
 msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:749
+#: reqlock.php:1123
 msgid "External images"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:749
+#: reqlock.php:1123
 msgid "Replaces external images with a transparent placeholder. (off by default)"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:753
+#: reqlock.php:1127
 msgid "Scope & logging"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:754
+#: reqlock.php:1128
 msgid "Also sanitize wp-admin"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:754
+#: reqlock.php:1128
 msgid "Off by default — to avoid disrupting wp-admin."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:755
+#: reqlock.php:1129
 msgid "Log detected hosts"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:755
+#: reqlock.php:1129
 msgid "Keeps a list of detected external hosts."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:760
+#: reqlock.php:1134
 msgid "Allow-list"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:761
+#: reqlock.php:1135
 msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:766
+#: reqlock.php:1140
+msgid "Block-list"
+msgstr ""
+
+#: reqlock.php:1141
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr ""
+
+#: reqlock.php:1143
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr ""
+
+#: reqlock.php:1143 reqlock.php:1235
+msgid "Learn more"
+msgstr ""
+
+#: reqlock.php:1147
 msgid "Save settings"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:771
+#: reqlock.php:1152
 msgid "Detected external hosts"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:773
+#: reqlock.php:1154
 msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:776
+#: reqlock.php:1157
+msgid "Source"
+msgstr ""
+
+#: reqlock.php:1157
 msgid "First seen"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:788
+#: reqlock.php:1175
 msgid "Clear list"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:796
+#: reqlock.php:1183
 msgid "External HTTP block (wp-config.php)"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:797
+#: reqlock.php:1184
 msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:802
+#: reqlock.php:1189
 msgid "Hardcoded block"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:802
+#: reqlock.php:1189
 msgid "Location"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:802
+#: reqlock.php:1189
 msgid "Action"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:810
+#: reqlock.php:1197
 msgid "Disarm (comment out)"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:812
+#: reqlock.php:1199
 msgid "Re-arm (restore block)"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:814
+#: reqlock.php:1201
 msgid "review manually"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:816
+#: reqlock.php:1203
 msgid "not writable — edit manually"
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:833
+#: reqlock.php:1226
+msgid "Upgrade to ReqLock Pro"
+msgstr ""
+
+#: reqlock.php:1229
+msgid "Free"
+msgstr ""
+
+#: reqlock.php:1230
+msgid "Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control."
+msgstr ""
+
+#: reqlock.php:1233
+msgid "Pro — everything in Free, plus:"
+msgstr ""
+
+#: reqlock.php:1234
+msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
+msgstr ""
+
+#: reqlock.php:1247
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr ""
 
-#: /home/webrxyz/domains/webramz.com/_repo-reqlock/reqlock.php:834
+#: reqlock.php:1248
 msgid "Website:"
 msgstr ""

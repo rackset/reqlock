@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReqLock 1.0.0\n"
 "Report-Msgid-Bugs-To: https://rackset.com\n"
-"POT-Creation-Date: 2026-06-04 19:09+0330\n"
+"POT-Creation-Date: 2026-06-10 11:59+0400\n"
 "PO-Revision-Date: 2026-06-04 20:30+0330\n"
 "Last-Translator: Rackset DevOps Team <https://rackset.com>\n"
 "Language-Team: Simplified Chinese\n"
@@ -15,179 +15,342 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: reqlock.php:247
+msgid "Block all external requests (allow-list exceptions)"
+msgstr "拦截所有外部请求（白名单除外）"
+
+#: reqlock.php:248
+msgid "Block only listed hosts (block-list)"
+msgstr "仅拦截列出的主机（黑名单）"
+
+#: reqlock.php:418
+#, php-format
+msgid "Plugin: %s"
+msgstr "插件：%s"
+
+#: reqlock.php:422
+#, php-format
+msgid "Theme: %s"
+msgstr "主题：%s"
+
+#: reqlock.php:426
+#, php-format
+msgid "Front-end (%s)"
+msgstr "前端（%s）"
+
+#: reqlock.php:429
+msgid "WordPress core"
+msgstr "WordPress 核心"
+
+#: reqlock.php:430
+msgid "Must-use plugin"
+msgstr "必用插件（mu-plugin）"
+
+#: reqlock.php:431
+msgid "Front-end"
+msgstr "前端"
+
+#: reqlock.php:432
+msgid "Unknown"
+msgstr "未知"
+
+#: reqlock.php:767 reqlock.php:807
 msgid "Could not locate wp-config.php."
 msgstr "无法找到 wp-config.php。"
 
+#: reqlock.php:770
 msgid "wp-config.php is not writable — comment out the WP_HTTP_BLOCK_EXTERNAL line manually."
 msgstr "wp-config.php 不可写 —— 请手动注释掉 WP_HTTP_BLOCK_EXTERNAL 这一行。"
 
+#: reqlock.php:774 reqlock.php:814
 msgid "Could not read wp-config.php."
 msgstr "无法读取 wp-config.php。"
 
+#: reqlock.php:784
 msgid "No active WP_HTTP_BLOCK_EXTERNAL found to disarm."
 msgstr "未找到可禁用的有效 WP_HTTP_BLOCK_EXTERNAL。"
 
+#: reqlock.php:788 reqlock.php:828
 msgid "Safety check failed — wp-config.php was left unchanged."
 msgstr "安全检查失败 —— wp-config.php 未做任何更改。"
 
+#: reqlock.php:793 reqlock.php:833
 msgid "Failed to write wp-config.php."
 msgstr "写入 wp-config.php 失败。"
 
+#: reqlock.php:795
 msgid "WP_HTTP_BLOCK_EXTERNAL has been commented out in wp-config.php. ReqLock now controls external blocking — turn the master switch ON to block."
 msgstr "已在 wp-config.php 中注释掉 WP_HTTP_BLOCK_EXTERNAL。现在由 ReqLock 控制外部拦截 —— 打开主开关即可拦截。"
 
+#: reqlock.php:810
 msgid "wp-config.php is not writable — edit it manually."
 msgstr "wp-config.php 不可写 —— 请手动编辑。"
 
+#: reqlock.php:824
 msgid "No ReqLock-disarmed WP_HTTP_BLOCK_EXTERNAL found to restore."
 msgstr "未找到可恢复的、被 ReqLock 禁用的 WP_HTTP_BLOCK_EXTERNAL。"
 
+#: reqlock.php:835
 msgid "WP_HTTP_BLOCK_EXTERNAL restored in wp-config.php — WordPress now blocks all external requests again, independent of ReqLock."
 msgstr "已在 wp-config.php 中恢复 WP_HTTP_BLOCK_EXTERNAL —— WordPress 现在会再次拦截所有外部请求，与 ReqLock 无关。"
 
+#: reqlock.php:856
 msgid "Settings"
 msgstr "设置"
 
-msgid "ReqLock active — external requests blocked"
-msgstr "ReqLock 已启用 —— 外部请求已被拦截"
+#: reqlock.php:871
+msgid "ReqLock firewall is ON — external requests are being blocked"
+msgstr "ReqLock 防火墙已开启——正在拦截外部请求"
 
+#: reqlock.php:875
+msgid "ReqLock firewall is OFF — optimizers are active (localize / lazy-load)"
+msgstr "ReqLock 防火墙已关闭——优化器处于启用状态（本地化 / 延迟加载）"
+
+#: reqlock.php:878
+msgid "ReqLock is idle — firewall off, no optimizers active"
+msgstr "ReqLock 处于空闲状态——防火墙已关闭，且未启用任何优化器"
+
+#: reqlock.php:932
 msgid "Detected-hosts list cleared."
 msgstr "已清空检测到的主机列表。"
 
+#: reqlock.php:979
 msgid "Saved — ReqLock is ON (external requests blocked)."
 msgstr "已保存 —— ReqLock 已开启（外部请求已被拦截）。"
 
+#: reqlock.php:980
 msgid "Saved — ReqLock is OFF."
 msgstr "已保存 —— ReqLock 已关闭。"
 
+#: reqlock.php:990
+#, php-format
+msgid "⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgid_plural "⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains."
+msgstr[0] "⚠ 黑名单：已移除 %1$d 个条目。免费版最多允许 %2$d 个精确匹配的主机，且不支持通配符子域名（*.example.com）。如需不限主机数量和通配符子域名，请升级到 ReqLock Pro。"
+
+#: reqlock.php:1083
 msgid "ACTIVE"
 msgstr "已启用"
 
+#: reqlock.php:1083
 msgid "OFF"
 msgstr "已关闭"
 
+#: reqlock.php:1084
 msgid "An outbound (egress) firewall. Turn the master switch ON to block all external server-side and browser-side calls. Three uses in one switch — resilience when the internet is cut/restricted, performance (slow or dead third-party calls fail instantly instead of stalling page loads), and privacy (strip trackers and phone-home requests)."
 msgstr "一款出站（egress）防火墙。打开主开关即可拦截所有服务器端和浏览器端的外部调用。一个开关，三种用途 —— 在互联网被切断/受限时保持站点可用（韧性）、提升性能（缓慢或失效的第三方调用会立即失败，而不会拖慢页面加载）、以及保护隐私（剥离追踪器和 phone-home 请求）。"
 
+#: reqlock.php:1092
 msgid "Master switch — Block external requests"
 msgstr "主开关 —— 拦截外部请求"
 
+#: reqlock.php:1093
 msgid "When ON, blocking is applied per the options below."
 msgstr "开启后，将按照下列选项进行拦截。"
 
+#: reqlock.php:1097
+msgid "Mode"
+msgstr "模式"
+
+#: reqlock.php:1105
+msgid "“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked."
+msgstr "“拦截所有外部请求”会拦截白名单之外的所有外部主机。“黑名单”让网站保持在线，仅拦截您在下方列出的主机。您自己的域名及其子域名永远不会被拦截。"
+
+#: reqlock.php:1110
 msgid "Server-side"
 msgstr "服务器端"
 
+#: reqlock.php:1112
 msgid "Block outbound WP HTTP API"
 msgstr "拦截出站 WP HTTP API"
 
+#: reqlock.php:1113
 msgid "Updates, wordpress.org, OpenAI/Gemini, any wp_remote_*. Fails instantly instead of timing out."
 msgstr "更新检查、wordpress.org、OpenAI/Gemini，以及任何 wp_remote_*。立即失败，而不是等待超时。"
 
+#: reqlock.php:1117
 msgid "Browser-side"
 msgstr "浏览器端"
 
+#: reqlock.php:1118
 msgid "External <script src>"
 msgstr "外部 <script src>"
 
+#: reqlock.php:1118
 msgid "Removes external JavaScript files."
 msgstr "移除外部 JavaScript 文件。"
 
+#: reqlock.php:1119
 msgid "External stylesheets"
 msgstr "外部样式表"
 
+#: reqlock.php:1119
 msgid "Removes external stylesheets (e.g. Google Fonts)."
 msgstr "移除外部样式表（例如 Google Fonts）。"
 
+#: reqlock.php:1120
 msgid "External resource hints"
 msgstr "外部资源提示"
 
+#: reqlock.php:1120
 msgid "Removes preconnect / dns-prefetch / preload / prefetch to external hosts."
 msgstr "移除指向外部主机的 preconnect / dns-prefetch / preload / prefetch。"
 
+#: reqlock.php:1121
 msgid "External iframes"
 msgstr "外部 iframe"
 
+#: reqlock.php:1121
 msgid "Replaces external iframes with a local placeholder."
 msgstr "用本地占位符替换外部 iframe。"
 
+#: reqlock.php:1122
 msgid "Inline analytics"
 msgstr "内联分析代码"
 
+#: reqlock.php:1122
 msgid "Removes inline GA/GTM/Clarity/Ahrefs/Pixel snippets."
 msgstr "移除内联的 GA/GTM/Clarity/Ahrefs/Pixel 代码片段。"
 
+#: reqlock.php:1123
 msgid "External images"
 msgstr "外部图片"
 
+#: reqlock.php:1123
 msgid "Replaces external images with a transparent placeholder. (off by default)"
 msgstr "用透明占位符替换外部图片。（默认关闭）"
 
+#: reqlock.php:1127
 msgid "Scope & logging"
 msgstr "范围与日志"
 
+#: reqlock.php:1128
 msgid "Also sanitize wp-admin"
 msgstr "同时净化 wp-admin"
 
+#: reqlock.php:1128
 msgid "Off by default — to avoid disrupting wp-admin."
 msgstr "默认关闭 —— 以免干扰 wp-admin。"
 
+#: reqlock.php:1129
 msgid "Log detected hosts"
 msgstr "记录检测到的主机"
 
+#: reqlock.php:1129
 msgid "Keeps a list of detected external hosts."
 msgstr "保留一份检测到的外部主机列表。"
 
+#: reqlock.php:1134
 msgid "Allow-list"
 msgstr "允许列表"
 
+#: reqlock.php:1135
 msgid "Hosts to always allow (one per line or comma-separated). Your own domain and its subdomains are always allowed."
 msgstr "始终允许的主机（每行一个或以逗号分隔）。您自己的域名及其子域名始终被允许。"
 
+#: reqlock.php:1140
+msgid "Block-list"
+msgstr "黑名单"
+
+#: reqlock.php:1141
+msgid "Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts."
+msgstr "当模式为“黑名单”时要拦截的主机（每行一个，或用逗号分隔）。在“拦截所有外部请求”模式下将被忽略。您自己的域名及其子域名永远不会被拦截。免费版最多可拦截 2 个精确匹配的主机。"
+
+#: reqlock.php:1143
+msgid "<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS."
+msgstr "<strong>ReqLock Pro</strong>：主机数量不限、<code>*.example.com</code> 通配符子域名、自动拦截慢速主机，以及本地化外部字体/JS/CSS。"
+
+#: reqlock.php:1143 reqlock.php:1235
+msgid "Learn more"
+msgstr "了解更多"
+
+#: reqlock.php:1147
 msgid "Save settings"
 msgstr "保存设置"
 
+#: reqlock.php:1152
 msgid "Detected external hosts"
 msgstr "检测到的外部主机"
 
+#: reqlock.php:1154
 msgid "Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list."
 msgstr "暂无记录。启用期间，被拦截的外部主机会在访客加载页面时显示在这里 —— 可据此构建您的允许列表。"
 
+#: reqlock.php:1157
+msgid "Source"
+msgstr "来源"
+
+#: reqlock.php:1157
 msgid "First seen"
 msgstr "首次发现"
 
+#: reqlock.php:1175
 msgid "Clear list"
 msgstr "清空列表"
 
+#: reqlock.php:1183
 msgid "External HTTP block (wp-config.php)"
 msgstr "外部 HTTP 拦截（wp-config.php）"
 
+#: reqlock.php:1184
 msgid "ReqLock should be the single switch for external blocking. A hardcoded WP_HTTP_BLOCK_EXTERNAL blocks requests even when ReqLock is OFF (breaking plugin/theme installs, updates, and the directory) — disarm it so ReqLock controls blocking. You can re-arm (restore) it at any time."
 msgstr "ReqLock 应是外部拦截的唯一开关。硬编码的 WP_HTTP_BLOCK_EXTERNAL 即使在 ReqLock 关闭时也会拦截请求（导致插件/主题安装、更新和插件目录无法使用）—— 请禁用它，以便由 ReqLock 控制拦截。您可以随时重新启用（恢复）它。"
 
+#: reqlock.php:1189
 msgid "Hardcoded block"
 msgstr "硬编码拦截"
 
+#: reqlock.php:1189
 msgid "Location"
 msgstr "位置"
 
+#: reqlock.php:1189
 msgid "Action"
 msgstr "操作"
 
+#: reqlock.php:1197
 msgid "Disarm (comment out)"
 msgstr "禁用（注释掉）"
 
+#: reqlock.php:1199
 msgid "Re-arm (restore block)"
 msgstr "重新启用（恢复拦截）"
 
+#: reqlock.php:1201
 msgid "review manually"
 msgstr "请手动检查"
 
+#: reqlock.php:1203
 msgid "not writable — edit manually"
 msgstr "不可写 —— 请手动编辑"
 
+#: reqlock.php:1226
+msgid "Upgrade to ReqLock Pro"
+msgstr "升级到 ReqLock Pro"
+
+#: reqlock.php:1229
+msgid "Free"
+msgstr "免费版"
+
+#: reqlock.php:1230
+msgid "Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control."
+msgstr "用于拦截所有外部请求的总开关、分类开关、白名单、带来源归属的已检测主机面板、黑名单模式（最多 2 个主机），以及 wp-config 冲突控制。"
+
+#: reqlock.php:1233
+msgid "Pro — everything in Free, plus:"
+msgstr "Pro — 包含免费版全部功能，另加："
+
+#: reqlock.php:1234
+msgid "Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working."
+msgstr "本地化外部字体、JS 和 CSS（符合 GDPR、更快），延迟加载嵌入内容和图片，自动拦截慢速主机，不限数量且支持通配符的黑名单，并在断网期间提供已缓存的资源，让网站持续运行。"
+
+#: reqlock.php:1247
 msgid "Developed and maintained by the <strong>Rackset DevOps Team</strong>."
 msgstr "由 <strong>Rackset DevOps 团队</strong>开发和维护。"
 
+#: reqlock.php:1248
 msgid "Website:"
 msgstr "网站："
+
+#~ msgid "ReqLock active — external requests blocked"
+#~ msgstr "ReqLock 已启用 —— 外部请求已被拦截"

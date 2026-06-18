@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       ReqLock
+ * Plugin Name:       ReqLock – Block External Requests & Outbound Firewall
  * Plugin URI:        https://apps.rackset.com/reqlock/
  * Description:        An outbound (egress) firewall for WordPress: control every external call the site makes — server-side (WP HTTP API: analytics, wordpress.org, OpenAI/Gemini, etc.) and browser-side (external scripts, styles, fonts, iframes, analytics). Three uses in one switch — resilience (keep the site up when the internet is cut or restricted), performance (slow/dead third-party calls fail instantly instead of stalling front-end and admin page loads), and privacy (strip trackers and phone-home requests).
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            Rackset
  * Author URI:        https://rackset.com/
  * License:           GPL-2.0-or-later
@@ -23,7 +23,7 @@ class ReqLock {
 
     const OPT  = 'reqlock_settings';
     const SEEN = 'reqlock_seen_hosts';
-    const VER  = '1.0.0';
+    const VER  = '1.1.0';
 
     /** @var ReqLock */
     private static $instance;
@@ -52,6 +52,14 @@ class ReqLock {
         add_action('admin_bar_menu', array($this, 'admin_bar'), 100);
         add_action('init', array($this, 'load_textdomain'));
 
+        // Output buffer — registered on every front-end request. start_buffer() decides at
+        // template_redirect (after add-ons have loaded) whether to actually capture: for
+        // blocking (master switch ON) and/or for add-ons that hook `reqlock_filter_html`
+        // (e.g. ReqLock Pro localize / lazy-load). Very EARLY priority so it is the OUTERMOST
+        // buffer — it must wrap full-page-cache plugins (which serve via readfile()+exit or
+        // ob_get_clean() at template_redirect 0), so we also filter cached-page hits.
+        add_action('template_redirect', array($this, 'start_buffer'), -9999);
+
         // ---- Active blocking only when the master switch is ON ----
         if (!$this->is_enabled()) {
             return;
@@ -65,15 +73,6 @@ class ReqLock {
         // 2) Dequeue WP-enqueued external scripts/styles cleanly (before they print).
         add_action('wp_enqueue_scripts', array($this, 'dequeue_external'), 9999);
         add_action('wp_footer', array($this, 'dequeue_external'), 0);
-
-        // 3) Browser-side: sanitize the rendered HTML (strip external tags/snippets).
-        //    Use a very EARLY priority so our output buffer is the OUTERMOST one — it must
-        //    wrap full-page cache plugins (which serve via readfile()+exit, or capture with
-        //    ob_get_clean(), at template_redirect priority 0). As the outer buffer we filter
-        //    everything on the way to the browser, including cached-page hits.
-        if ($this->should_filter_output()) {
-            add_action('template_redirect', array($this, 'start_buffer'), -9999);
-        }
 
         // Persist newly-detected external hosts once per request (no per-request DB writes unless new).
         add_action('shutdown', array($this, 'persist_seen_hosts'), 99);
@@ -95,7 +94,9 @@ class ReqLock {
             'block_images'           => 0, // <img src="external"> -> transparent placeholder
             'apply_in_admin'         => 0, // also sanitize wp-admin output (off by default)
             'logging'                => 1, // record detected external hosts
-            'allowlist'              => '', // newline/comma separated hosts to ALLOW
+            'mode'                   => 'all', // 'all' = block every external host (allow-list exceptions); 'blocklist' = allow all except listed hosts
+            'allowlist'              => '', // newline/comma separated hosts to ALLOW (used in 'all' mode)
+            'blocklist'              => '', // newline/comma separated hosts to BLOCK (used in 'blocklist' mode)
         );
     }
 
@@ -153,9 +154,9 @@ class ReqLock {
         return strtolower(preg_replace('/^www\./i', '', (string) $h));
     }
 
-    private function allowlist() {
-        $raw = (string) $this->opt('allowlist');
-        $parts = preg_split('/[\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY);
+    /** Parse a newline/comma separated host list (bare hosts or full URLs) into normalized hosts. */
+    private function parse_hosts($raw) {
+        $parts = preg_split('/[\s,]+/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
         $out = array();
         foreach ($parts as $p) {
             $p = strtolower(trim($p));
@@ -171,27 +172,137 @@ class ReqLock {
         return $out;
     }
 
+    private function allowlist() {
+        return $this->parse_hosts($this->opt('allowlist'));
+    }
+
+    /**
+     * Hosts to block in 'blocklist' mode.
+     *
+     * Free tier is intentionally limited so Pro has room: at most 2 hosts and no
+     * `*.example.com` wildcard subdomains (free entries match the exact host only).
+     * ReqLock Pro lifts both via the filters below and adds wildcard matching.
+     */
+    private function blocklist() {
+        $hosts = $this->parse_hosts($this->opt('blocklist'));
+
+        // Wildcard subdomain patterns (e.g. *.example.com) are a Pro capability.
+        if (!apply_filters('reqlock_blocklist_wildcards', false)) {
+            $hosts = array_values(array_filter($hosts, function ($h) {
+                return strpos($h, '*') === false;
+            }));
+        }
+
+        // Free cap; Pro raises the limit (0 or negative = unlimited).
+        $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+        if ($limit > 0 && count($hosts) > $limit) {
+            $hosts = array_slice($hosts, 0, $limit);
+        }
+        return $hosts;
+    }
+
     private function host_matches($host, $domain) {
         return ($host === $domain) || (substr($host, -strlen('.' . $domain)) === '.' . $domain);
     }
 
-    private function is_external_host($host) {
+    /** True if $host equals or is a subdomain of any entry in $list (used for the allow-list). */
+    private function host_in($host, array $list) {
+        foreach ($list as $domain) {
+            if ($this->host_matches($host, $domain)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Block-list matcher. Free entries match the EXACT host only; a `*.example.com`
+     * entry (Pro) matches the apex domain and all its subdomains.
+     */
+    private function host_in_blocklist($host, array $list) {
+        foreach ($list as $entry) {
+            if (strpos($entry, '*.') === 0) {
+                if ($this->host_matches($host, substr($entry, 2))) {
+                    return true; // wildcard: apex + subdomains (Pro)
+                }
+            } elseif ($host === $entry) {
+                return true; // exact host (free)
+            }
+        }
+        return false;
+    }
+
+    /* =========================================================================
+     *  Modes & the central block decision (extensible)
+     * ========================================================================= */
+
+    /**
+     * Registered blocking modes. Add-ons (e.g. ReqLock Pro) may register more
+     * modes — such as a latency-driven "auto" mode — via the `reqlock_modes` filter.
+     *
+     * @return array map of mode-key => human label
+     */
+    public function modes() {
+        return apply_filters('reqlock_modes', array(
+            'all'       => __('Block all external requests (allow-list exceptions)', 'reqlock'),
+            'blocklist' => __('Block only listed hosts (block-list)', 'reqlock'),
+        ));
+    }
+
+    /** The active, validated mode (falls back to 'all' for unknown values). */
+    public function mode() {
+        $m = (string) $this->opt('mode');
+        $modes = $this->modes();
+        return isset($modes[$m]) ? $m : 'all';
+    }
+
+    /**
+     * Central decision: should ReqLock block this host? Honors the active mode and
+     * the allow/block lists, then exposes the verdict to add-ons via a filter.
+     *
+     * @param string $host    Host name (may include leading www.).
+     * @param string $context One of: http, script, style, resource-hint, iframe, image.
+     * @return bool
+     */
+    public function should_block_host($host, $context = '') {
         $host = strtolower(preg_replace('/^www\./i', '', (string) $host));
         if ($host === '') {
             return false;
         }
-        if ($this->host_matches($host, $this->base_host())) {
-            return false; // same site or its subdomains (e.g. my.webramz.com)
+        $remote = !$this->host_matches($host, $this->base_host()); // not our own site/subdomains
+        if ($remote) {
+            $this->note_host($host, $context); // log every external host (+ its source) for the panel
         }
-        foreach ($this->allowlist() as $allowed) {
-            if ($this->host_matches($host, $allowed)) {
-                return false;
-            }
+
+        if ($this->mode() === 'blocklist') {
+            // Allow everything except hosts the user explicitly listed.
+            $block = $remote && $this->host_in_blocklist($host, $this->blocklist());
+        } else {
+            // 'all': block every external host except the allow-list.
+            $block = $remote && !$this->host_in($host, $this->allowlist());
         }
-        return true;
+
+        /**
+         * Filter ReqLock's per-host block decision.
+         *
+         * @param bool   $block   Whether ReqLock would block this host.
+         * @param string $host    Normalized host name.
+         * @param string $context Where the decision is being made (http|script|style|resource-hint|iframe|image).
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        return (bool) apply_filters('reqlock_should_block_host', $block, $host, $context, $this);
     }
 
-    private function is_external_url($url) {
+    /**
+     * Should this URL be blocked? Parses the host, ignores relative/data/blob URLs,
+     * then defers to should_block_host(). This is the single gate used by every
+     * blocking layer (server-side + rendered HTML).
+     *
+     * @param string $url
+     * @param string $context
+     * @return bool
+     */
+    public function should_block_url($url, $context = '') {
         $url = trim((string) $url);
         if ($url === '' || $url[0] === '#') {
             return false;
@@ -209,17 +320,116 @@ class ReqLock {
         if (!$host) {
             return false;
         }
-        $ext = $this->is_external_host($host);
-        if ($ext) {
-            $this->note_host($host);
-        }
-        return $ext;
+        return $this->should_block_host($host, $context);
     }
 
-    private function note_host($host) {
+    /** Public host of this site (no leading www.) — handy for add-ons. */
+    public function site_host() {
+        return $this->base_host();
+    }
+
+    /** Read a setting value — public accessor for add-ons. */
+    public function get_option_value($key) {
+        return $this->opt($key);
+    }
+
+    private function note_host($host, $context = '') {
         $host = strtolower(preg_replace('/^www\./i', '', (string) $host));
         if ($host !== '' && !isset($this->session_hosts[$host])) {
-            $this->session_hosts[$host] = 1;
+            $this->session_hosts[$host] = $this->detect_source($context);
+            /**
+             * Fires the first time an external host is seen during a request.
+             * Add-ons (e.g. ReqLock Pro latency monitoring / stats) hook this.
+             *
+             * @param string $host Normalized external host name.
+             */
+            do_action('reqlock_host_seen', $host);
+        }
+    }
+
+    /**
+     * Best-effort attribution of what triggered a request to an external host.
+     * Server-side calls (context 'http') are traced through the call stack to the
+     * originating component (core / a plugin / the theme). Browser-side resources are
+     * labelled by how they appeared in the rendered page.
+     *
+     * @return string e.g. 'core', 'plugin:woocommerce', 'theme:twentytwentyfive',
+     *                'mu-plugin', 'page:script', 'unknown'.
+     */
+    private function detect_source($context) {
+        if ($context !== 'http') {
+            return $context !== '' ? 'page:' . $context : 'page';
+        }
+        // WP HTTP API plumbing to step over so we reach the real caller.
+        $skip = array(
+            'class-wp-http.php', 'class-http.php', 'http.php', 'class-requests.php',
+            'class-wp-http-curl.php', 'class-wp-http-streams.php',
+            'class-wp-http-requests-hooks.php', 'class-wp-http-requests-response.php',
+            'class-snoopy.php', 'class-wp-http-proxy.php',
+            // hook plumbing — step over so we reach the real caller, not core's dispatcher
+            'class-wp-hook.php', 'plugin.php',
+        );
+        $self = wp_normalize_path(plugin_dir_path(__FILE__));
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- intentional: attribute an outbound request to the component that triggered it (core/plugin/theme) for the detected-hosts "Source" column; args are ignored for performance.
+        foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
+            if (empty($frame['file'])) {
+                continue;
+            }
+            $file = wp_normalize_path($frame['file']);
+            if (strpos($file, $self) === 0 || strpos($file, '/Requests/') !== false) {
+                continue;
+            }
+            if (in_array(basename($file), $skip, true)) {
+                continue;
+            }
+            $src = $this->classify_file($file);
+            if ($src !== '') {
+                return $src;
+            }
+        }
+        return 'unknown';
+    }
+
+    /** Map an absolute file path to a component label (or '' if unknown). */
+    private function classify_file($file) {
+        $content = wp_normalize_path(WP_CONTENT_DIR);
+        $segments = array('/mu-plugins/' => 'mu-plugin', '/plugins/' => 'plugin', '/themes/' => 'theme');
+        foreach ($segments as $seg => $kind) {
+            $pos = strpos($file, $content . $seg);
+            if ($pos !== false) {
+                if ($kind === 'mu-plugin') {
+                    return 'mu-plugin';
+                }
+                $slug = strtok(substr($file, $pos + strlen($content . $seg)), '/');
+                return $kind . ':' . $slug;
+            }
+        }
+        $abs = wp_normalize_path(ABSPATH);
+        if (strpos($file, $abs . 'wp-admin/') === 0 || strpos($file, $abs . 'wp-includes/') === 0) {
+            return 'core';
+        }
+        return '';
+    }
+
+    /** Human-readable label for a stored source code (used in the detected-hosts table). */
+    private function format_source($src) {
+        if (strpos($src, 'plugin:') === 0) {
+            /* translators: %s: plugin folder slug. */
+            return sprintf(__('Plugin: %s', 'reqlock'), substr($src, 7));
+        }
+        if (strpos($src, 'theme:') === 0) {
+            /* translators: %s: theme folder slug. */
+            return sprintf(__('Theme: %s', 'reqlock'), substr($src, 6));
+        }
+        if (strpos($src, 'page:') === 0) {
+            /* translators: %s: resource type (script, style, iframe, image, …). */
+            return sprintf(__('Front-end (%s)', 'reqlock'), substr($src, 5));
+        }
+        switch ($src) {
+            case 'core':      return __('WordPress core', 'reqlock');
+            case 'mu-plugin': return __('Must-use plugin', 'reqlock');
+            case 'page':      return __('Front-end', 'reqlock');
+            default:          return __('Unknown', 'reqlock');
         }
     }
 
@@ -228,7 +438,7 @@ class ReqLock {
      * ========================================================================= */
 
     public function block_http($pre, $args, $url) {
-        if ($this->is_external_url($url)) {
+        if ($this->should_block_url($url, 'http')) {
             return new WP_Error(
                 'reqlock_blocked',
                 sprintf('External request blocked by ReqLock: %s', esc_url_raw($url))
@@ -243,19 +453,19 @@ class ReqLock {
 
     public function dequeue_external() {
         if ($this->opt('block_scripts')) {
-            $this->dequeue_from($GLOBALS['wp_scripts'] ?? null, 'wp_dequeue_script', 'wp_deregister_script');
+            $this->dequeue_from($GLOBALS['wp_scripts'] ?? null, 'wp_dequeue_script', 'wp_deregister_script', 'script');
         }
         if ($this->opt('block_styles')) {
-            $this->dequeue_from($GLOBALS['wp_styles'] ?? null, 'wp_dequeue_style', 'wp_deregister_style');
+            $this->dequeue_from($GLOBALS['wp_styles'] ?? null, 'wp_dequeue_style', 'wp_deregister_style', 'style');
         }
     }
 
-    private function dequeue_from($dep, $dequeue_fn, $deregister_fn) {
+    private function dequeue_from($dep, $dequeue_fn, $deregister_fn, $context) {
         if (!($dep instanceof WP_Dependencies)) {
             return;
         }
         foreach ((array) $dep->registered as $handle => $obj) {
-            if (!empty($obj->src) && $this->is_external_url($obj->src)) {
+            if (!empty($obj->src) && $this->should_block_url($obj->src, $context)) {
                 call_user_func($dequeue_fn, $handle);
                 call_user_func($deregister_fn, $handle);
             }
@@ -273,6 +483,12 @@ class ReqLock {
         if (function_exists('wp_is_json_request') && wp_is_json_request()) {
             return;
         }
+        // Capture output if we're actively blocking, OR if an add-on registered an
+        // HTML transform (so Pro localize/lazy-load works even with the master switch off).
+        $blocking = $this->is_enabled() && $this->should_filter_output();
+        if (!$blocking && !has_filter('reqlock_filter_html') && !has_filter('reqlock_prefilter_html')) {
+            return;
+        }
         ob_start(array($this, 'filter_html'));
     }
 
@@ -285,12 +501,39 @@ class ReqLock {
             return $html;
         }
 
+        /**
+         * Pre-block pass: add-ons rewrite the HTML BEFORE blocking runs — e.g. ReqLock
+         * Pro localizing external URLs to local cached copies so that, in blocking mode,
+         * resources are served from local instead of being stripped (outage resilience).
+         *
+         * @param string  $html    The buffered page HTML.
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        $html = apply_filters('reqlock_prefilter_html', $html, $this);
+
+        // Blocking transforms run only when the master switch is ON.
+        if ($this->is_enabled() && $this->should_filter_output()) {
+            $html = $this->filter_html_blocking($html);
+        }
+
+        /**
+         * Let add-ons transform the fully rendered HTML. Runs even when the master
+         * switch is OFF (perf features like ReqLock Pro localize / lazy-load).
+         *
+         * @param string  $html    The buffered page HTML.
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        return apply_filters('reqlock_filter_html', $html, $this);
+    }
+
+    /** The blocking HTML transforms (scripts/styles/hints/iframes/images/inline analytics). */
+    private function filter_html_blocking($html) {
         if ($this->opt('block_scripts')) {
             // external <script src="...">...</script>
             $html = preg_replace_callback(
                 '#<script\b[^>]*?\bsrc\s*=\s*([\'"])(.*?)\1[^>]*>\s*</script>#is',
                 function ($m) {
-                    return $this->is_external_url($m[2]) ? $this->note('script', $m[2]) : $m[0];
+                    return $this->should_block_url($m[2], 'script') ? $this->note('script', $m[2]) : $m[0];
                 },
                 $html
             );
@@ -313,19 +556,16 @@ class ReqLock {
             $html = preg_replace_callback(
                 '#<link\b[^>]*?\bhref\s*=\s*([\'"])(.*?)\1[^>]*>#is',
                 function ($m) {
-                    if (!$this->is_external_url($m[2])) {
-                        return $m[0];
-                    }
                     $rel = '';
                     if (preg_match('#\brel\s*=\s*([\'"])(.*?)\1#i', $m[0], $r)) {
                         $rel = strtolower($r[2]);
                     }
                     $is_style = (strpos($rel, 'stylesheet') !== false);
                     $is_hint  = (bool) preg_match('#preconnect|dns-prefetch|prefetch|preload|prerender#', $rel);
-                    if ($is_style && $this->opt('block_styles')) {
+                    if ($is_style && $this->opt('block_styles') && $this->should_block_url($m[2], 'style')) {
                         return $this->note('style', $m[2]);
                     }
-                    if ($is_hint && $this->opt('block_preconnect')) {
+                    if ($is_hint && $this->opt('block_preconnect') && $this->should_block_url($m[2], 'resource-hint')) {
                         return $this->note('resource-hint', $m[2]);
                     }
                     return $m[0]; // keep external canonical/alternate/icon links
@@ -338,7 +578,7 @@ class ReqLock {
             $html = preg_replace_callback(
                 '#<iframe\b[^>]*?\bsrc\s*=\s*([\'"])(.*?)\1[^>]*>(.*?)</iframe>#is',
                 function ($m) {
-                    if (!$this->is_external_url($m[2])) {
+                    if (!$this->should_block_url($m[2], 'iframe')) {
                         return $m[0];
                     }
                     $host = esc_html(wp_parse_url($m[2], PHP_URL_HOST));
@@ -357,10 +597,9 @@ class ReqLock {
             $html = preg_replace_callback(
                 '#<img\b[^>]*?\bsrc\s*=\s*([\'"])(.*?)\1#is',
                 function ($m) use ($blank) {
-                    if (!$this->is_external_url($m[2])) {
+                    if (!$this->should_block_url($m[2], 'image')) {
                         return $m[0];
                     }
-                    $this->note_host(wp_parse_url($m[2], PHP_URL_HOST));
                     return str_replace($m[2], $blank, $m[0]);
                 },
                 $html
@@ -390,9 +629,9 @@ class ReqLock {
             $seen = array();
         }
         $changed = false;
-        foreach (array_keys($this->session_hosts) as $host) {
+        foreach ($this->session_hosts as $host => $source) {
             if (!isset($seen[$host])) {
-                $seen[$host] = time();
+                $seen[$host] = array('first' => time(), 'src' => $source);
                 $changed = true;
             }
         }
@@ -601,31 +840,74 @@ class ReqLock {
      * ========================================================================= */
 
     public function admin_menu() {
-        add_options_page(
+        add_menu_page(
             'ReqLock',
             'ReqLock',
             'manage_options',
             'reqlock',
-            array($this, 'render_settings')
+            array($this, 'render_settings'),
+            'dashicons-lock',
+            80
         );
     }
 
     public function action_links($links) {
-        $url = admin_url('options-general.php?page=reqlock');
+        $url = admin_url('admin.php?page=reqlock');
         array_unshift($links, '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'reqlock') . '</a>');
         return $links;
     }
 
+    /**
+     * Always-on admin-bar indicator: a closed green padlock when ReqLock is ON,
+     * an open amber padlock when OFF. Inline SVG (self-sized + self-colored) so it
+     * needs no extra CSS and contrasts well against the dark admin bar.
+     */
     public function admin_bar($bar) {
-        if (!current_user_can('manage_options') || !$this->is_enabled()) {
+        if (!current_user_can('manage_options')) {
             return;
         }
+        if ($this->is_enabled()) {
+            $state = 'blocking';
+            $tip   = __('ReqLock firewall is ON — external requests are being blocked', 'reqlock');
+        } elseif (apply_filters('reqlock_addon_active', false)) {
+            // Firewall off, but an add-on optimizer (e.g. Pro localize / lazy-load) is running.
+            $state = 'optimizing';
+            $tip   = __('ReqLock firewall is OFF — optimizers are active (localize / lazy-load)', 'reqlock');
+        } else {
+            $state = 'idle';
+            $tip   = __('ReqLock is idle — firewall off, no optimizers active', 'reqlock');
+        }
+        $title = '<span class="rql-ab" style="display:inline-flex;align-items:center;gap:7px;line-height:1;">'
+            . $this->lock_icon($state) . '<span>ReqLock</span></span>';
         $bar->add_node(array(
-            'id'    => 'rql-indicator',
-            'title' => '🔒 ' . __('ReqLock active — external requests blocked', 'reqlock'),
-            'href'  => admin_url('options-general.php?page=reqlock'),
-            'meta'  => array('title' => 'External requests are being blocked'),
+            'id'    => 'reqlock',
+            'title' => $title,
+            'href'  => admin_url('admin.php?page=reqlock'),
+            'meta'  => array('title' => $tip),
         ));
+    }
+
+    /**
+     * Inline padlock SVG for the admin bar, reflecting overall activity:
+     *  - blocking   → green closed padlock (firewall on)
+     *  - optimizing → blue open padlock (firewall off, optimizers running)
+     *  - idle       → grey open padlock (nothing active)
+     */
+    private function lock_icon($state) {
+        $closed = 'M17 8h-1V6a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 1 1 4 0v2h-4V6z';
+        $open   = 'M17 8H10V6a2 2 0 1 1 4 0 1 1 0 0 0 2 0 4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z';
+        if ($state === 'blocking') {
+            $color = '#46d369';
+            $path  = $closed;
+        } elseif ($state === 'optimizing') {
+            $color = '#3b9ef0';
+            $path  = $open;
+        } else {
+            $color = '#a7aaad';
+            $path  = $open;
+        }
+        return '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="display:block;">'
+            . '<path fill="' . $color . '" d="' . $path . '"/></svg>';
     }
 
     public function maybe_save() {
@@ -636,6 +918,14 @@ class ReqLock {
             return;
         }
         check_admin_referer('reqlock_save_settings');
+
+        /**
+         * Fires on a verified ReqLock settings save, before core options are written.
+         * Add-ons can persist their own fields here (the nonce is already checked).
+         *
+         * @param ReqLock $reqlock The plugin instance.
+         */
+        do_action('reqlock_handle_save', $this);
 
         if (!empty($_POST['reqlock_clear_log'])) {
             delete_option(self::SEEN);
@@ -665,6 +955,18 @@ class ReqLock {
         $new['allowlist'] = isset($_POST['reqlock']['allowlist'])
             ? sanitize_textarea_field(wp_unslash($_POST['reqlock']['allowlist']))
             : '';
+        $raw_blocklist = isset($_POST['reqlock']['blocklist'])
+            ? sanitize_textarea_field(wp_unslash($_POST['reqlock']['blocklist']))
+            : '';
+        // Enforce the block-list policy (free: 2 exact hosts, no wildcards). Excess
+        // entries are dropped from what we store — add-ons (Pro) lift this via filters.
+        $policy = $this->enforce_blocklist_policy($raw_blocklist);
+        $new['blocklist'] = $policy['kept'];
+
+        // Mode — validate against the registered modes (defaults to 'all').
+        $modes = $this->modes();
+        $posted_mode = isset($_POST['reqlock']['mode']) ? sanitize_key(wp_unslash($_POST['reqlock']['mode'])) : 'all';
+        $new['mode'] = isset($modes[$posted_mode]) ? $posted_mode : 'all';
 
         update_option(self::OPT, array_merge(self::defaults(), $new));
         $this->opts = $this->get_opts();
@@ -677,10 +979,67 @@ class ReqLock {
             ? __('Saved — ReqLock is ON (external requests blocked).', 'reqlock')
             : __('Saved — ReqLock is OFF.', 'reqlock'));
         add_settings_error('reqlock', 'reqlock_saved', $msg, 'updated');
+
+        // Danger notice (shown directly under the saved message) when block-list
+        // entries were dropped to fit the free limit.
+        if (!empty($policy['removed'])) {
+            $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+            $notice = sprintf(
+                /* translators: 1: number of removed entries, 2: allowed host count. */
+                _n(
+                    '⚠ Block-list: %1$d entry was removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains.',
+                    '⚠ Block-list: %1$d entries were removed. The free version allows up to %2$d exact host(s) and no wildcard (*.example.com) subdomains. Upgrade to ReqLock Pro for unlimited hosts and wildcard subdomains.',
+                    (int) $policy['removed'],
+                    'reqlock'
+                ),
+                (int) $policy['removed'],
+                $limit
+            );
+            add_settings_error('reqlock', 'reqlock_blocklist_trim', $notice, 'error');
+        }
+    }
+
+    /**
+     * Apply the block-list policy to raw textarea input. The free plugin keeps at most
+     * `reqlock_blocklist_limit` (2) exact hosts and drops wildcard (`*.example.com`)
+     * entries unless `reqlock_blocklist_wildcards` is enabled — add-ons (ReqLock Pro)
+     * relax both filters, in which case nothing is removed.
+     *
+     * @return array{kept:string, removed:int, had_wildcards:bool}
+     */
+    private function enforce_blocklist_policy($raw) {
+        $entries = preg_split('/[\s,]+/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
+        $allow_wildcards = (bool) apply_filters('reqlock_blocklist_wildcards', false);
+        $limit = (int) apply_filters('reqlock_blocklist_limit', 2);
+
+        $kept = array();
+        $removed = 0;
+        $had_wildcards = false;
+        foreach ($entries as $entry) {
+            $entry = trim($entry);
+            if ($entry === '') {
+                continue;
+            }
+            if (!$allow_wildcards && strpos($entry, '*') !== false) {
+                $had_wildcards = true;
+                $removed++;
+                continue;
+            }
+            if ($limit > 0 && count($kept) >= $limit) {
+                $removed++;
+                continue;
+            }
+            $kept[] = $entry;
+        }
+        return array(
+            'kept'          => implode("\n", $kept),
+            'removed'       => $removed,
+            'had_wildcards' => $had_wildcards,
+        );
     }
 
     public function admin_assets($hook) {
-        if ($hook !== 'settings_page_reqlock') {
+        if ($hook !== 'toplevel_page_reqlock') {
             return;
         }
         wp_enqueue_style(
@@ -734,6 +1093,18 @@ class ReqLock {
                         __('When ON, blocking is applied per the options below.', 'reqlock')); ?>
                 </div>
 
+                <div class="rql-card rql-mode">
+                    <h2><?php echo esc_html__('Mode', 'reqlock'); ?></h2>
+                    <?php $cur_mode = $this->mode(); ?>
+                    <?php foreach ($this->modes() as $mkey => $mlabel) : ?>
+                        <label class="rql-row">
+                            <input type="radio" name="reqlock[mode]" value="<?php echo esc_attr($mkey); ?>" <?php checked($cur_mode, $mkey); ?>>
+                            <span class="rql-text"><strong><?php echo esc_html($mlabel); ?></strong></span>
+                        </label>
+                    <?php endforeach; ?>
+                    <p class="rql-help"><?php echo esc_html__('“Block all external” blocks every outside host except your allow-list. “Block-list” keeps the site online and blocks only the hosts you list below. Your own domain and subdomains are never blocked.', 'reqlock'); ?></p>
+                </div>
+
                 <div class="rql-grid">
                     <div class="rql-card">
                         <h2><?php echo esc_html(__('Server-side', 'reqlock')); ?></h2>
@@ -765,6 +1136,13 @@ class ReqLock {
                     <textarea name="reqlock[allowlist]" rows="4" class="large-text code" dir="ltr" placeholder="example.com&#10;cdn.partner.ir"><?php echo esc_textarea($this->opt('allowlist')); ?></textarea>
                 </div>
 
+                <div class="rql-card">
+                    <h2><?php echo esc_html(__('Block-list', 'reqlock')); ?></h2>
+                    <p class="rql-help"><?php echo esc_html__('Hosts to block when Mode is “Block-list” (one per line or comma-separated). Ignored in “Block all external” mode. Your own domain and its subdomains are never blocked. The free version blocks up to 2 exact hosts.', 'reqlock'); ?></p>
+                    <textarea name="reqlock[blocklist]" rows="4" class="large-text code" dir="ltr" placeholder="slow-cdn.example&#10;tracker.example.net"><?php echo esc_textarea($this->opt('blocklist')); ?></textarea>
+                    <p class="rql-help"><?php echo wp_kses_post(__('<strong>ReqLock Pro</strong>: unlimited hosts, <code>*.example.com</code> wildcard subdomains, auto-block slow hosts, and localize external fonts/JS/CSS.', 'reqlock')); ?> <a href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
+                </div>
+
                 <p class="rql-actions">
                     <button type="submit" class="button button-primary button-hero">💾 <?php echo esc_html(__('Save settings', 'reqlock')); ?></button>
                 </p>
@@ -776,11 +1154,17 @@ class ReqLock {
                     <p class="rql-help"><?php echo esc_html__('Nothing logged yet. While active, blocked external hosts appear here as visitors load pages — use them to build your allow-list.', 'reqlock'); ?></p>
                 <?php else : ?>
                     <table class="widefat striped rql-hosts">
-                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html(__('First seen', 'reqlock')); ?></th></tr></thead>
+                        <thead><tr><th dir="ltr">Host</th><th><?php echo esc_html(__('Source', 'reqlock')); ?></th><th><?php echo esc_html(__('First seen', 'reqlock')); ?></th></tr></thead>
                         <tbody>
-                        <?php foreach ($seen as $host => $ts) : ?>
+                        <?php foreach ($seen as $host => $info) : ?>
+                            <?php
+                            // New entries are array('first'=>ts,'src'=>code); legacy entries are an int timestamp.
+                            $ts  = is_array($info) ? (int) ($info['first'] ?? 0) : (int) $info;
+                            $src = is_array($info) ? (string) ($info['src'] ?? '') : '';
+                            ?>
                             <tr><td dir="ltr"><code><?php echo esc_html($host); ?></code></td>
-                                <td><?php echo esc_html(date_i18n('Y-m-d H:i', (int) $ts)); ?></td></tr>
+                                <td><?php echo esc_html($src !== '' ? $this->format_source($src) : '—'); ?></td>
+                                <td><?php echo esc_html(date_i18n('Y-m-d H:i', $ts)); ?></td></tr>
                         <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -824,6 +1208,33 @@ class ReqLock {
                         </tbody>
                     </table>
                 </form>
+            </div>
+            <?php endif; ?>
+
+            <?php
+            /**
+             * Fires after ReqLock's own settings cards, before the credit line.
+             * Add-ons (e.g. ReqLock Pro) render their own settings cards/panels here.
+             *
+             * @param ReqLock $reqlock The plugin instance.
+             */
+            do_action('reqlock_settings_after_cards', $this);
+            ?>
+
+            <?php if (!class_exists('ReqLock_Pro')) : ?>
+            <div class="rql-card rql-upsell">
+                <h2>⚡ <?php echo esc_html__('Upgrade to ReqLock Pro', 'reqlock'); ?></h2>
+                <div class="rql-plans" style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch;margin-top:8px;">
+                    <div class="rql-plan" style="flex:1;min-width:240px;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;background:#fff;">
+                        <h3 style="margin:0 0 8px;"><?php echo esc_html__('Free', 'reqlock'); ?></h3>
+                        <p><?php echo esc_html__('Master switch to block all external requests, per-category toggles, an allow-list, the detected-hosts panel with source attribution, block-list mode (up to 2 hosts), and wp-config conflict control.', 'reqlock'); ?></p>
+                    </div>
+                    <div class="rql-plan rql-plan-pro" style="flex:1;min-width:240px;border:2px solid #2271b1;border-radius:8px;padding:14px 16px;background:#fff;">
+                        <h3 style="margin:0 0 8px;"><?php echo esc_html__('Pro — everything in Free, plus:', 'reqlock'); ?></h3>
+                        <p><?php echo esc_html__('Localize external fonts, JS & CSS (GDPR-friendly, faster), lazy-load embeds & images, auto-block slow hosts, an unlimited + wildcard block-list, and serve cached resources during an outage so your site keeps working.', 'reqlock'); ?></p>
+                        <p style="margin-bottom:0;"><a class="button button-primary" href="https://apps.rackset.com/reqlock/" target="_blank" rel="noopener"><?php echo esc_html__('Learn more', 'reqlock'); ?></a></p>
+                    </div>
+                </div>
             </div>
             <?php endif; ?>
 
