@@ -23,9 +23,11 @@ import json, re, shutil
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-BASE = "https://apps.rackset.com/reqlock/"
+BASE = "https://reqlock.com/"
 OGIMG = BASE + "og.png"
-LASTMOD = "2026-06-07"
+LASTMOD = "2026-06-18"
+# English strings act as the fallback for any key not yet translated in a locale.
+EN = json.loads((HERE / "i18n" / "en.json").read_text(encoding="utf-8"))
 
 # code, autonym, <html lang>, hreflang, dir, url path, og locale, WP.org host, GitHub readme file
 LANGS = [
@@ -159,7 +161,8 @@ site.mkdir()
 
 ph = re.compile(r"\{\{([^}]+)\}\}")
 for L in LANGS:
-    d = json.loads((HERE / "i18n" / f"{L['code']}.json").read_text(encoding="utf-8"))
+    loc = json.loads((HERE / "i18n" / f"{L['code']}.json").read_text(encoding="utf-8"))
+    d = {**EN, **loc}  # English fallback for keys not yet translated in this locale
     subs = dict(d)
     subs["meta.title"] = esc_text(d["meta.title"])
     subs["meta.desc"]  = esc_attr(d["meta.desc"])
